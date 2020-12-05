@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ChuckHill2;
-using Cyotek.Windows.Forms;
 
 namespace ColorEditor
 {
@@ -91,7 +90,7 @@ namespace ColorEditor
         }
         public static Color MakeUnnamedColor(Color c) => Color.FromArgb(c.A, c.R, c.G, c.B);
 
-        int i = 0;
+        //int i = 0;
         private void m_btnSelectColor_Click(object sender, EventArgs e)
         {
             //switch (i % 5)
@@ -106,7 +105,7 @@ namespace ColorEditor
             //i++;
         }
 
-        int j = 0;
+        //int j = 0;
         private void m_btnSelectLbColor_Click(object sender, EventArgs e)
         {
             //switch (j % 5)
@@ -123,12 +122,12 @@ namespace ColorEditor
 
         private void m_btnColorPickerDlg_Click(object sender, EventArgs e)
         {
-            using(var dlg = new ColorPickerDialog())
-            {
-                dlg.Color = SystemColors.ActiveCaption;
-                DialogResult result = dlg.ShowDialog(this);
-                Debug.WriteLine($"ColorPickerDialog Result={dlg.Color}");
-            }
+            //using(var dlg = new ColorPickerDialog())
+            //{
+            //    dlg.Color = SystemColors.ActiveCaption;
+            //    DialogResult result = dlg.ShowDialog(this);
+            //    Debug.WriteLine($"ColorPickerDialog Result={dlg.Color}");
+            //}
         }
     }
 }

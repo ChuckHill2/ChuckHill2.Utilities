@@ -99,10 +99,6 @@
       <Project>{44CF5926-3002-4C81-B44F-9975EC7D18AC}</Project>
       <Name>ChuckHill2.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Cyotek.Windows.Forms.ColorPicker\Cyotek.Windows.Forms.ColorPicker.csproj">
-      <Project>{fb2a5786-cd2e-42ce-bc5d-0fce90034221}</Project>
-      <Name>Cyotek.Windows.Forms.ColorPicker</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
