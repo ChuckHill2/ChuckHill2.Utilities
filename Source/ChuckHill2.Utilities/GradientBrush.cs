@@ -68,6 +68,7 @@ namespace ChuckHill2.Utilities
         /// </summary>
         //[NotifyParentProperty(true)]  //Dynamically update property header in designer
         [Category("Appearance"), Description("The first color of the gradient or the solid brush color.")]
+        [Editor(typeof(ColorUIEditor), typeof(UITypeEditor))]
         public Color Color1 { get; set; }
         //private bool ShouldSerializeColor1() => Color1 != DefaultColor1;  //In lieu of using [DefaultValue(someConst)]
         //private void ResetColor1() => Color1 = DefaultColor1;
@@ -77,6 +78,7 @@ namespace ChuckHill2.Utilities
         /// </summary>
         //[NotifyParentProperty(true)]
         [Category("Appearance"), Description("The second color of the gradient. This is ignored if the style is Solid.")]
+        [Editor(typeof(ColorUIEditor), typeof(UITypeEditor))]
         public Color Color2 { get; set; }
         //private bool ShouldSerializeColor2() => Style!=BrushStyle.Solid && Color2 != DefaultColor2;
         //private void ResetColor2() => Color2 = DefaultColor2;

@@ -90,7 +90,7 @@
             this.propertyGrid1.HelpBackColor = System.Drawing.Color.Azure;
             this.propertyGrid1.Location = new System.Drawing.Point(6, 26);
             this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(626, 378);
+            this.propertyGrid1.Size = new System.Drawing.Size(495, 378);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.ToolbarVisible = false;
             // 
@@ -117,7 +117,7 @@
             this.m_tpEnumProperties.Location = new System.Drawing.Point(4, 24);
             this.m_tpEnumProperties.Name = "m_tpEnumProperties";
             this.m_tpEnumProperties.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpEnumProperties.Size = new System.Drawing.Size(638, 411);
+            this.m_tpEnumProperties.Size = new System.Drawing.Size(507, 411);
             this.m_tpEnumProperties.TabIndex = 3;
             this.m_tpEnumProperties.Text = "Enum Properties";
             this.m_tpEnumProperties.UseVisualStyleBackColor = true;
@@ -129,7 +129,7 @@
             this.gradientLabel2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
             this.gradientLabel2.Location = new System.Drawing.Point(6, 5);
             this.gradientLabel2.Name = "gradientLabel2";
-            this.gradientLabel2.Size = new System.Drawing.Size(626, 19);
+            this.gradientLabel2.Size = new System.Drawing.Size(495, 19);
             this.gradientLabel2.TabIndex = 5;
             this.gradientLabel2.Text = "Example of Enum Form Designer Properties";
             this.gradientLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -143,7 +143,7 @@
             this.propertyGrid2.HelpBackColor = System.Drawing.Color.Azure;
             this.propertyGrid2.Location = new System.Drawing.Point(6, 28);
             this.propertyGrid2.Name = "propertyGrid2";
-            this.propertyGrid2.Size = new System.Drawing.Size(626, 378);
+            this.propertyGrid2.Size = new System.Drawing.Size(495, 378);
             this.propertyGrid2.TabIndex = 4;
             this.propertyGrid2.ToolbarVisible = false;
             // 
@@ -154,7 +154,7 @@
             this.m_tpBrushProperties.Location = new System.Drawing.Point(4, 24);
             this.m_tpBrushProperties.Name = "m_tpBrushProperties";
             this.m_tpBrushProperties.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpBrushProperties.Size = new System.Drawing.Size(638, 411);
+            this.m_tpBrushProperties.Size = new System.Drawing.Size(507, 411);
             this.m_tpBrushProperties.TabIndex = 0;
             this.m_tpBrushProperties.Text = "Brush Properties";
             this.m_tpBrushProperties.UseVisualStyleBackColor = true;
@@ -166,7 +166,7 @@
             this.label1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
             this.label1.Location = new System.Drawing.Point(6, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(626, 19);
+            this.label1.Size = new System.Drawing.Size(495, 19);
             this.label1.TabIndex = 3;
             this.label1.Text = "Example of GradientBrush Properties";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -178,7 +178,7 @@
             this.m_tpTableLayoutPanel.Location = new System.Drawing.Point(4, 24);
             this.m_tpTableLayoutPanel.Name = "m_tpTableLayoutPanel";
             this.m_tpTableLayoutPanel.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpTableLayoutPanel.Size = new System.Drawing.Size(638, 411);
+            this.m_tpTableLayoutPanel.Size = new System.Drawing.Size(507, 411);
             this.m_tpTableLayoutPanel.TabIndex = 1;
             this.m_tpTableLayoutPanel.Text = "TableLayoutPanel";
             this.m_tpTableLayoutPanel.UseVisualStyleBackColor = true;
@@ -188,9 +188,9 @@
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
-            this.label2.Location = new System.Drawing.Point(6, 3);
+            this.label2.Location = new System.Drawing.Point(3, 3);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(626, 19);
+            this.label2.Size = new System.Drawing.Size(501, 19);
             this.label2.TabIndex = 4;
             this.label2.Text = "Example GradientTableLayoutPanel";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -207,12 +207,12 @@
             this.gradientTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.gradientTableLayoutPanel1.Controls.Add(this.label3, 0, 0);
             this.gradientTableLayoutPanel1.Controls.Add(this.label4, 1, 0);
-            this.gradientTableLayoutPanel1.Location = new System.Drawing.Point(6, 26);
+            this.gradientTableLayoutPanel1.Location = new System.Drawing.Point(3, 26);
             this.gradientTableLayoutPanel1.Name = "gradientTableLayoutPanel1";
             this.gradientTableLayoutPanel1.RowCount = 2;
             this.gradientTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.gradientTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.gradientTableLayoutPanel1.Size = new System.Drawing.Size(626, 379);
+            this.gradientTableLayoutPanel1.Size = new System.Drawing.Size(501, 379);
             this.gradientTableLayoutPanel1.TabIndex = 0;
             // 
             // label3
@@ -232,9 +232,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.BackColor = System.Drawing.Color.Transparent;
-            this.label4.Location = new System.Drawing.Point(317, 3);
+            this.label4.Location = new System.Drawing.Point(255, 3);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(303, 185);
+            this.label4.Size = new System.Drawing.Size(240, 185);
             this.label4.TabIndex = 1;
             this.label4.Text = "GradientTableLayoutPanel with cell borders set.";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -246,7 +246,7 @@
             this.m_tpFlowLayoutPanel.Location = new System.Drawing.Point(4, 24);
             this.m_tpFlowLayoutPanel.Name = "m_tpFlowLayoutPanel";
             this.m_tpFlowLayoutPanel.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpFlowLayoutPanel.Size = new System.Drawing.Size(638, 411);
+            this.m_tpFlowLayoutPanel.Size = new System.Drawing.Size(507, 411);
             this.m_tpFlowLayoutPanel.TabIndex = 2;
             this.m_tpFlowLayoutPanel.Text = "FlowLayoutPanel";
             this.m_tpFlowLayoutPanel.UseVisualStyleBackColor = true;
@@ -258,7 +258,7 @@
             this.gradientLabel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
             this.gradientLabel1.Location = new System.Drawing.Point(6, 3);
             this.gradientLabel1.Name = "gradientLabel1";
-            this.gradientLabel1.Size = new System.Drawing.Size(626, 19);
+            this.gradientLabel1.Size = new System.Drawing.Size(498, 19);
             this.gradientLabel1.TabIndex = 5;
             this.gradientLabel1.Text = "Example GradientFlowLayoutPanel";
             this.gradientLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -292,7 +292,7 @@
             this.gradientFlowLayoutPanel1.Controls.Add(this.label24);
             this.gradientFlowLayoutPanel1.Location = new System.Drawing.Point(6, 26);
             this.gradientFlowLayoutPanel1.Name = "gradientFlowLayoutPanel1";
-            this.gradientFlowLayoutPanel1.Size = new System.Drawing.Size(626, 379);
+            this.gradientFlowLayoutPanel1.Size = new System.Drawing.Size(498, 379);
             this.gradientFlowLayoutPanel1.TabIndex = 0;
             // 
             // label5
@@ -348,7 +348,7 @@
             // label10
             // 
             this.label10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label10.Location = new System.Drawing.Point(423, 0);
+            this.label10.Location = new System.Drawing.Point(3, 36);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(78, 36);
             this.label10.TabIndex = 5;
@@ -358,7 +358,7 @@
             // label11
             // 
             this.label11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label11.Location = new System.Drawing.Point(507, 0);
+            this.label11.Location = new System.Drawing.Point(87, 36);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(78, 36);
             this.label11.TabIndex = 6;
@@ -368,7 +368,7 @@
             // label12
             // 
             this.label12.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label12.Location = new System.Drawing.Point(3, 36);
+            this.label12.Location = new System.Drawing.Point(171, 36);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(78, 36);
             this.label12.TabIndex = 7;
@@ -378,7 +378,7 @@
             // label13
             // 
             this.label13.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label13.Location = new System.Drawing.Point(87, 36);
+            this.label13.Location = new System.Drawing.Point(255, 36);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(78, 36);
             this.label13.TabIndex = 8;
@@ -388,7 +388,7 @@
             // label14
             // 
             this.label14.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label14.Location = new System.Drawing.Point(171, 36);
+            this.label14.Location = new System.Drawing.Point(339, 36);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(78, 36);
             this.label14.TabIndex = 9;
@@ -398,7 +398,7 @@
             // label15
             // 
             this.label15.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label15.Location = new System.Drawing.Point(255, 36);
+            this.label15.Location = new System.Drawing.Point(3, 72);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(78, 36);
             this.label15.TabIndex = 10;
@@ -408,7 +408,7 @@
             // label16
             // 
             this.label16.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label16.Location = new System.Drawing.Point(339, 36);
+            this.label16.Location = new System.Drawing.Point(87, 72);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(78, 36);
             this.label16.TabIndex = 11;
@@ -418,7 +418,7 @@
             // label17
             // 
             this.label17.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label17.Location = new System.Drawing.Point(423, 36);
+            this.label17.Location = new System.Drawing.Point(171, 72);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(78, 36);
             this.label17.TabIndex = 12;
@@ -428,7 +428,7 @@
             // label18
             // 
             this.label18.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label18.Location = new System.Drawing.Point(507, 36);
+            this.label18.Location = new System.Drawing.Point(255, 72);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(78, 36);
             this.label18.TabIndex = 13;
@@ -438,7 +438,7 @@
             // label19
             // 
             this.label19.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label19.Location = new System.Drawing.Point(3, 72);
+            this.label19.Location = new System.Drawing.Point(339, 72);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(78, 36);
             this.label19.TabIndex = 14;
@@ -448,7 +448,7 @@
             // label20
             // 
             this.label20.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label20.Location = new System.Drawing.Point(87, 72);
+            this.label20.Location = new System.Drawing.Point(3, 108);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(78, 36);
             this.label20.TabIndex = 15;
@@ -458,7 +458,7 @@
             // label21
             // 
             this.label21.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label21.Location = new System.Drawing.Point(171, 72);
+            this.label21.Location = new System.Drawing.Point(87, 108);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(78, 36);
             this.label21.TabIndex = 16;
@@ -468,7 +468,7 @@
             // label22
             // 
             this.label22.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label22.Location = new System.Drawing.Point(255, 72);
+            this.label22.Location = new System.Drawing.Point(171, 108);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(78, 36);
             this.label22.TabIndex = 17;
@@ -478,7 +478,7 @@
             // label23
             // 
             this.label23.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label23.Location = new System.Drawing.Point(339, 72);
+            this.label23.Location = new System.Drawing.Point(255, 108);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(78, 36);
             this.label23.TabIndex = 18;
@@ -488,7 +488,7 @@
             // label24
             // 
             this.label24.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label24.Location = new System.Drawing.Point(423, 72);
+            this.label24.Location = new System.Drawing.Point(339, 108);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(78, 36);
             this.label24.TabIndex = 19;

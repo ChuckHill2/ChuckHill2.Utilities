@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ChuckHill2.Utilities</RootNamespace>
     <AssemblyName>ChuckHill2.Utilities</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,8 +35,22 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorPickerPanelVert.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ColorPickerPanelVert.Designer.cs">
+      <DependentUpon>ColorPickerPanelVert.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ColorPickerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ColorPickerPanel.Designer.cs">
+      <DependentUpon>ColorPickerPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ColorUIEditor.cs" />
     <Compile Include="GradientControls\GradientFlowLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -71,8 +86,17 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ColorPickerPanelVert.resx">
+      <DependentUpon>ColorPickerPanelVert.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ColorPickerPanel.resx">
+      <DependentUpon>ColorPickerPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -84,6 +108,12 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cyotek.Windows.Forms.ColorPicker\Cyotek.Windows.Forms.ColorPicker.csproj">
+      <Project>{fb2a5786-cd2e-42ce-bc5d-0fce90034221}</Project>
+      <Name>Cyotek.Windows.Forms.ColorPicker</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
