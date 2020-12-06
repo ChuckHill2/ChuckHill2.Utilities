@@ -32,7 +32,7 @@
             this.m_btnSelectTvColor = new System.Windows.Forms.Button();
             this.m_btnSelectLbColor = new System.Windows.Forms.Button();
             this.m_btnColorPickerDlg = new System.Windows.Forms.Button();
-            this.colorPickerPanel1 = new ChuckHill2.Utilities.ColorPickerPanel();
+            this.colorPickerPanelVert1 = new ChuckHill2.Utilities.ColorPickerPanelVert();
             this.SuspendLayout();
             // 
             // m_btnColorDialog
@@ -79,25 +79,25 @@
             this.m_btnColorPickerDlg.UseVisualStyleBackColor = true;
             this.m_btnColorPickerDlg.Click += new System.EventHandler(this.m_btnColorPickerDlg_Click);
             // 
-            // colorPickerPanel1
+            // colorPickerPanelVert1
             // 
-            this.colorPickerPanel1.BackColor = System.Drawing.Color.Transparent;
-            this.colorPickerPanel1.Color = System.Drawing.Color.White;
-            this.colorPickerPanel1.Font = new System.Drawing.Font("Tahoma", 8F);
-            this.colorPickerPanel1.Location = new System.Drawing.Point(165, 148);
-            this.colorPickerPanel1.Margin = new System.Windows.Forms.Padding(0);
-            this.colorPickerPanel1.MaximumSize = new System.Drawing.Size(1000, 999);
-            this.colorPickerPanel1.MinimumSize = new System.Drawing.Size(376, 182);
-            this.colorPickerPanel1.Name = "colorPickerPanel1";
-            this.colorPickerPanel1.Size = new System.Drawing.Size(468, 260);
-            this.colorPickerPanel1.TabIndex = 7;
+            this.colorPickerPanelVert1.BackColor = System.Drawing.Color.Transparent;
+            this.colorPickerPanelVert1.Color = System.Drawing.Color.Empty;
+            this.colorPickerPanelVert1.Font = new System.Drawing.Font("Tahoma", 8F);
+            this.colorPickerPanelVert1.Location = new System.Drawing.Point(160, 14);
+            this.colorPickerPanelVert1.Margin = new System.Windows.Forms.Padding(0);
+            this.colorPickerPanelVert1.MinimumSize = new System.Drawing.Size(192, 497);
+            this.colorPickerPanelVert1.Name = "colorPickerPanelVert1";
+            this.colorPickerPanelVert1.ProportionalResizing = false;
+            this.colorPickerPanelVert1.Size = new System.Drawing.Size(359, 671);
+            this.colorPickerPanelVert1.TabIndex = 7;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(835, 795);
-            this.Controls.Add(this.colorPickerPanel1);
+            this.Controls.Add(this.colorPickerPanelVert1);
             this.Controls.Add(this.m_btnColorPickerDlg);
             this.Controls.Add(this.m_btnSelectLbColor);
             this.Controls.Add(this.m_btnSelectTvColor);
@@ -116,7 +116,7 @@
         private System.Windows.Forms.Button m_btnSelectTvColor;
         private System.Windows.Forms.Button m_btnSelectLbColor;
         private System.Windows.Forms.Button m_btnColorPickerDlg;
-        private ChuckHill2.Utilities.ColorPickerPanel colorPickerPanel1;
+        private ChuckHill2.Utilities.ColorPickerPanelVert colorPickerPanelVert1;
     }
 }
 

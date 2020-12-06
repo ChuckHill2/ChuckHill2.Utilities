@@ -17,10 +17,6 @@ namespace ChuckHill2.Utilities
         private static readonly object _eventPreviewColorChanged = new object();
         #endregion
 
-        #region Fields
-        private Brush _textureBrush;
-        #endregion
-
         #region Constructors
         public ColorPickerPanel()
         {
@@ -70,29 +66,6 @@ namespace ChuckHill2.Utilities
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
-
-                if (_textureBrush != null)
-                {
-                    _textureBrush.Dispose();
-                    _textureBrush = null;
-                }
-            }
-
-            base.Dispose(disposing);
-        }
-
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Form.Load"/> event.
         /// </summary>
@@ -155,26 +128,9 @@ namespace ChuckHill2.Utilities
             }
         }
 
-        private void previewPanel_Paint(object sender, PaintEventArgs e)
+        private void previewPanel_Click(object sender, EventArgs e)
         {
-            Rectangle region;
-
-            region = previewPanel.ClientRectangle;
-
-            if (this.Color.A != 255)
-            {
-                if (_textureBrush == null)
-                    _textureBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Silver, Color.White);
-
-                e.Graphics.FillRectangle(_textureBrush, region);
-            }
-
-            using (Brush brush = new SolidBrush(this.Color))
-            {
-                e.Graphics.FillRectangle(brush, region);
-            }
-
-            e.Graphics.DrawRectangle(SystemPens.ControlText, region.Left, region.Top, region.Width - 1, region.Height - 1);
+            this.Color = previewPanel.Color;
         }
         #endregion
     }

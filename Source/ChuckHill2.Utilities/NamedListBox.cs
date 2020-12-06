@@ -8,8 +8,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ColorEditor
+namespace ChuckHill2.Utilities
 {
+    /// <summary>
+    /// Color selector ListBox  control containing 'Custom', 'Known', and 'System' colors. Each group has a dividing line for distinction between the three color sets.
+    /// </summary>
     class NamedColorListBox : ListBox
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
@@ -76,6 +79,11 @@ namespace ColorEditor
             }
         }
 
+        /// <summary>
+        /// Add custom color to list.
+        /// Known colors will not be added as they already exist.
+        /// </summary>
+        /// <param name="c"></param>
         public void AddColor(Color c)
         {
             if (c.IsKnownColor || c.IsEmpty) return;
@@ -90,6 +98,11 @@ namespace ColorEditor
             base.Items.Insert(0, new ColorItem(name, c));  //Custom named colors go to top of list
         }
 
+        /// <summary>
+        /// Remove custom color from list.
+        /// Known colors will not be removed.
+        /// </summary>
+        /// <param name="c"></param>
         public void RemoveColor(Color c)
         {
             if (c.IsKnownColor || c.IsEmpty) return;
@@ -98,6 +111,9 @@ namespace ColorEditor
             base.Items.Remove(item);
         }
 
+        /// <summary>
+        /// Get or Set the selected color.
+        /// </summary>
         public Color Selected
         {
             get => base.SelectedItem is ColorItem ? ((ColorItem)base.SelectedItem).Color : Color.Empty;

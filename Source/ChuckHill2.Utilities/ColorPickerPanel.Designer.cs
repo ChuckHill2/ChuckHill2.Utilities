@@ -19,7 +19,7 @@ namespace ChuckHill2.Utilities
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.previewPanel = new System.Windows.Forms.Panel();
+            this.previewPanel = new ChuckHill2.Utilities.SplitColorPanel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.screenColorPicker = new Cyotek.Windows.Forms.ScreenColorPicker();
             this.colorWheel = new Cyotek.Windows.Forms.ColorWheel();
@@ -31,12 +31,15 @@ namespace ChuckHill2.Utilities
             // previewPanel
             // 
             this.previewPanel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.previewPanel.BackColor = System.Drawing.Color.Transparent;
+            this.previewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.previewPanel.Color = System.Drawing.Color.Empty;
             this.previewPanel.Location = new System.Drawing.Point(444, 153);
             this.previewPanel.Margin = new System.Windows.Forms.Padding(0);
             this.previewPanel.Name = "previewPanel";
             this.previewPanel.Size = new System.Drawing.Size(75, 75);
             this.previewPanel.TabIndex = 3;
-            this.previewPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.previewPanel_Paint);
+            this.previewPanel.Click += new System.EventHandler(this.previewPanel_Click);
             // 
             // screenColorPicker
             // 
@@ -53,6 +56,7 @@ namespace ChuckHill2.Utilities
             // 
             this.colorWheel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.colorWheel.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.colorWheel.Location = new System.Drawing.Point(0, -2);
             this.colorWheel.Margin = new System.Windows.Forms.Padding(0);
             this.colorWheel.Name = "colorWheel";
@@ -122,7 +126,7 @@ namespace ChuckHill2.Utilities
         private Cyotek.Windows.Forms.ColorWheel colorWheel;
         private Cyotek.Windows.Forms.ColorEditorManager colorEditorManager;
         private Cyotek.Windows.Forms.ScreenColorPicker screenColorPicker;
-        private System.Windows.Forms.Panel previewPanel;
+        private ChuckHill2.Utilities.SplitColorPanel previewPanel;
         private System.Windows.Forms.ToolTip toolTip;
     }
 }

@@ -73,9 +73,16 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GradientControls\IGradientContol.cs" />
+    <Compile Include="HSLColor.cs" />
     <Compile Include="ImageAttribute.cs" />
     <Compile Include="EnumUIEditor.cs" />
     <Compile Include="GradientBrush.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NamedListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NamedTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,6 +95,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="SplitColorPanel.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Win32.cs" />
   </ItemGroup>

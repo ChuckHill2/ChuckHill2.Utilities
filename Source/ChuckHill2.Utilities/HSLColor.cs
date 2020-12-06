@@ -15,7 +15,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 
-namespace ColorEditor
+namespace ChuckHill2.Utilities
 {
     /// <summary>
     /// Implicitly converts a System.Drawing.Color object to/from a HSLColor object.
@@ -226,5 +226,45 @@ namespace ColorEditor
 
             return KnownColors[index].color;
         }
+
+        private static readonly ConstructorInfo ciColor = typeof(Color).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(long), typeof(short), typeof(string), typeof(KnownColor) }, null);
+        private static long MakeArgb(byte alpha, byte red, byte green, byte blue) => (long)(uint)((int)red << 16 | (int)green << 8 | (int)blue | (int)alpha << 24) & (long)uint.MaxValue;
+        /// <summary>
+        /// Created a 'Named' color with an alpha value with something other than 255 appended to the name. (e.g. 'Red64').
+        /// If RGB value is not a known color, the nearest one is found.
+        /// Where:
+        ///    color.IsKnownColor == false
+        ///    color.IsSystemColor == false
+        ///    color.IsNamedColor == true
+        /// If the provided color is not a named color, the nearest named color is returned including the optional alpha transparency.
+        /// If alpha==255 (the default), a new named color is not created and is returned as-is.
+        /// At a minimum, it is a good way to convert a random RGB color to it's nearest named equivalant.
+        /// </summary>
+        /// <param name="c">Color to convert</param>
+        /// <param name="alpha">The transparency value to give the new color.</param>
+        /// <returns></returns>
+        public static Color MakeNamedColor(Color c, byte alpha = 255)
+        {
+            //const short StateKnownColorValid = 1;
+            const short StateARGBValueValid = 2;
+            const short StateNameValid = 8;
+
+            if (!c.IsNamedColor)
+            {
+                c = ((HSLColor)c).NearestKnownColor();
+            }
+
+            if (alpha == 255) return c;
+
+            return (Color)ciColor.Invoke(new object[] { MakeArgb(alpha, c.R, c.G, c.B), (short)(StateARGBValueValid | StateNameValid), c.Name + alpha.ToString(), 0 });
+        }
+
+        /// <summary>
+        /// Strip meta-properties form color object (e.g. Name, IsNamedColor=false, IsKnownColor=false, IsSystemColor=false)
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static Color MakeUnnamedColor(Color c) => Color.FromArgb(c.A, c.R, c.G, c.B);
+
     }
 }

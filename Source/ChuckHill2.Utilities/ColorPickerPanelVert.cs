@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -16,10 +16,6 @@ namespace ChuckHill2.Utilities
     {
         #region Constants
         private static readonly object EVENT_PREVIEWCOLORCHANGED = new object();
-        #endregion
-
-        #region Fields
-        private Brush _textureBrush;
         #endregion
 
         #region Constructors
@@ -67,7 +63,7 @@ namespace ChuckHill2.Utilities
         {
             get
             {
-                //Height of all controls EXCEPT colorWheel. Used to force the square ColorWheel control to use all the surrounding free space when ColorPickerPanelVert  is used in a UITypeEditor.
+                //Height of all controls EXCEPT colorWheel. Used to force the square ColorWheel control to use all the surrounding free space when ColorPickerPanelVert is used in a UITypeEditor.
                 //Late initialization because child controls may be resized due to DPI changes. 
                 if (__bottomHeight==0) __bottomHeight = (this.ClientRectangle.Height - colorGrid.Top) + (colorWheel.Bottom - colorGrid.Top);
                 return __bottomHeight;
@@ -80,29 +76,6 @@ namespace ChuckHill2.Utilities
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
-
-                if (_textureBrush != null)
-                {
-                    _textureBrush.Dispose();
-                    _textureBrush = null;
-                }
-            }
-
-            base.Dispose(disposing);
-        }
-
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Form.Load"/> event.
         /// </summary>
@@ -143,6 +116,7 @@ namespace ChuckHill2.Utilities
 
         private void colorEditorManager_ColorChanged(object sender, EventArgs e)
         {
+            previewPanel.Color = this.Color;
             previewPanel.Invalidate();
 
             this.OnPreviewColorChanged(e);
@@ -165,35 +139,26 @@ namespace ChuckHill2.Utilities
             }
         }
 
-        private void previewPanel_Paint(object sender, PaintEventArgs e)
-        {
-            Rectangle region;
-
-            region = previewPanel.ClientRectangle;
-
-            if (this.Color.A != 255)
-            {
-                if (_textureBrush == null)
-                    _textureBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Silver, Color.White);
-
-                e.Graphics.FillRectangle(_textureBrush, region);
-            }
-
-            using (Brush brush = new SolidBrush(this.Color))
-            {
-                e.Graphics.FillRectangle(brush, region);
-            }
-
-            e.Graphics.DrawRectangle(SystemPens.ControlText, region.Left, region.Top, region.Width - 1, region.Height - 1);
-        }
-        #endregion
-
         protected override void OnResize(EventArgs e)
         {
             //Force ColorWheel to use all the surrounding free space when this is enabled.
-            if (this.Parent != null && ProportionalResizing)
-                this.Parent.Height = this.Width + BottomHeight; //In layout, ColorWheel is at top and is square where its width==height
+            if (ProportionalResizing)
+            {
+                if (this.Dock == DockStyle.Fill) //used by UITypeEditor.DropDownControl()
+                {
+                    if (this.Parent != null)
+                        this.Parent.Height = this.Width + BottomHeight; //In layout, ColorWheel is at top and is square where its width==height
+                }
+                else this.Height = this.Width + BottomHeight;
+            }
+
             base.OnResize(e);
         }
+
+        private void previewPanel_Click(object sender, EventArgs e)
+        {
+            this.Color = previewPanel.Color;
+        }
+        #endregion
     }
 }

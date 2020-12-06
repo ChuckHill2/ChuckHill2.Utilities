@@ -1,15 +1,15 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ColorEditor
+namespace ChuckHill2.Utilities
 {
+    /// <summary>
+    /// Color selector treeview control with three root nodes 'Custom', 'Known', and 'System' colors.
+    /// </summary>
     public class NamedColorTreeView : TreeView
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
@@ -73,6 +73,11 @@ namespace ColorEditor
             TextRenderer.DrawText(g, e.Node.Name, base.Font, new Point(x2, y2), base.ForeColor, Color.Transparent);
         }
 
+        /// <summary>
+        /// Add custom color to list.
+        /// Known colors will not be added as they already exist.
+        /// </summary>
+        /// <param name="c"></param>
         public void AddColor(Color c)
         {
             if (c.IsEmpty) return;
@@ -89,6 +94,11 @@ namespace ColorEditor
             base.Nodes[0].Nodes.Insert(0, new TreeNode(name) { Name = name, Tag = c });
         }
 
+        /// <summary>
+        /// Remove custom color from list.
+        /// Known colors will not be removed.
+        /// </summary>
+        /// <param name="c"></param>
         public void RemoveColor(Color c)
         {
             if (c.IsEmpty) return;
@@ -97,6 +107,9 @@ namespace ColorEditor
             base.Nodes[0].Nodes.Remove(node);
         }
 
+        /// <summary>
+        /// Get or Set the selected color.
+        /// </summary>
         public Color Selected
         {
             get => base.SelectedNode?.Tag is Color ? (Color)base.SelectedNode.Tag : Color.Empty;
