@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -34,7 +34,7 @@ namespace ChuckHill2.Utilities
             this.pixel_2 = ConvertToGivenDpiPixel(this.pixel_2, pixelFactor);
             this.pixel_4 = ConvertToGivenDpiPixel(this.pixel_4, pixelFactor);
 
-            foreach(var c in HSLColor.GetKnownColors()) base.Items.Add(new ColorItem(c.Name, c));
+            foreach(var c in ColorExtensions.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
         }
 
         protected override void OnHandleCreated(EventArgs e)

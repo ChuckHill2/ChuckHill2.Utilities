@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -32,8 +32,8 @@ namespace ChuckHill2.Utilities
             this.pixel_4 = ConvertToGivenDpiPixel(this.pixel_4, pixelFactor);
 
             var m_tnCustomColors = new TreeNode("Custom Colors");
-            var m_tnWebColors = new TreeNode("Web Colors", HSLColor.GetKnownColors().Where(c => c.IsKnownColor && !c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray());
-            var m_tnSystemColors = new TreeNode("System Colors", HSLColor.GetKnownColors().Where(c => c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray());
+            var m_tnWebColors = new TreeNode("Web Colors", ColorExtensions.KnownColors.Where(c => c.IsKnownColor && !c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray());
+            var m_tnSystemColors = new TreeNode("System Colors", ColorExtensions.KnownColors.Where(c => c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray());
             base.Nodes.AddRange(new TreeNode[] { m_tnCustomColors, m_tnWebColors, m_tnSystemColors });
         }
 

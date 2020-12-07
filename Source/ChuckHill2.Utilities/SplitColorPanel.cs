@@ -1,16 +1,15 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
-
 namespace ChuckHill2.Utilities
 {
     /// <summary>
     /// Split screen preview color panel. The left side is the nearest known color and the right side is the current color.
-    /// Clicking on the color panel will set the current color to the nearest known color.
+    /// Clicking on the panel will set the current color to the nearest known color.
     /// It is up to the caller to subscribe to the click event to handle the new color.
     /// </summary>
     [DefaultEvent("Click")]
@@ -54,7 +53,7 @@ namespace ChuckHill2.Utilities
                     }
                     else
                     {
-                        NearestKnownColor = ((HSLColor)__color).NearestKnownColor();
+                        NearestKnownColor = __color.NearestKnownColor();
                         NearestKnownName = NearestKnownColor.Name;
                         if (__color.A != 255)
                         {
@@ -94,8 +93,6 @@ namespace ChuckHill2.Utilities
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            //base.OnPaint(e);
-
             var rc = base.ClientRectangle;
             if (this.Color.A != 255)
             {
@@ -116,30 +113,13 @@ namespace ChuckHill2.Utilities
         protected override void OnMouseHover(EventArgs e)
         {
             base.OnMouseHover(e);
-            string name = string.Empty;
-            if (Color.IsNamedColor)
-            {
-                name = Color.Name;
-            }
-            else
-            {
-                if (Color.A == 0) name = "Transparent";
-                else
-                {
-                    var clr = HSLColor.GetKnownColors().FirstOrDefault(c => c.R == Color.R && c.G == Color.G && c.B == Color.B);
-                    if (clr == Color.Empty) name = Color.A != 255 ? $"({Color.A},{Color.R},{Color.G},{Color.B})" : $"({Color.R},{Color.G},{Color.B})";
-                    else name = Color.A != 255 ? $"({Color.A},{clr.Name})" : clr.Name;
-                }
-            }
-
-            this.tt.SetToolTip(this, $"{NearestKnownName} | {name}");
-
-            //tt.Show($"{NearestKnownName} | {name}", this);
+            string name = this.Color.IsNamedColor ? this.Color.Name : this.Color.FindNamedExact().GetName();
+            this.tt.SetToolTip(this, $"{this.NearestKnownName} | {name}");
         }
 
         protected override void OnClick(EventArgs e)
         {
-            this.Color = NearestKnownColor;
+            this.Color = this.NearestKnownColor;
             base.OnClick(e);
         }
     }
