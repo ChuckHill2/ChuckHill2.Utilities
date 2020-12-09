@@ -12,7 +12,7 @@ namespace ChuckHill2.Utilities
         const short StateARGBValueValid = 2;
         const short StateNameValid = 8;
         private static readonly ConstructorInfo ciColor = typeof(Color).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(long), typeof(short), typeof(string), typeof(KnownColor) }, null);
-        public static long MakeArgb(byte alpha, byte red, byte green, byte blue) => (long)(uint)((int)red << 16 | (int)green << 8 | (int)blue | (int)alpha << 24) & (long)uint.MaxValue;
+        private static long MakeArgb(byte alpha, byte red, byte green, byte blue) => (long)(uint)((int)red << 16 | (int)green << 8 | (int)blue | (int)alpha << 24) & (long)uint.MaxValue;
         private static Color MakeNamed(Color c, string name) => (Color)ciColor.Invoke(new object[] { MakeArgb(c.A, c.R, c.G, c.B), (short)(StateARGBValueValid | StateNameValid), name, 0 });
 
         /// <summary>
@@ -23,9 +23,10 @@ namespace ChuckHill2.Utilities
         public static Color FindNearestNamed(this Color c)
         {
             byte alpha = c.A;
+            if (alpha == 0) return Color.Transparent;
             if (!c.IsNamedColor) c = c.NearestKnownColor();
             if (alpha == 255) return c;
-            return MakeNamed(Color.FromArgb(alpha, c), $"({alpha},{c.Name})");
+            return Color.FromArgb(alpha,c);
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace ChuckHill2.Utilities
             if (color.A == 0) return Color.Transparent;
             var result = KnownColors.FirstOrDefault(c => c.R == color.R && c.G == color.G && c.B == color.B);
             if (result.IsEmpty || color.A == 255) return result;
-            return MakeNamed(result, $"({result.A},{result.Name})");
+            return Color.FromArgb(color.A, result);
         }
 
         /// <summary>
@@ -51,14 +52,21 @@ namespace ChuckHill2.Utilities
         {
             if (color.IsEmpty) return "Empty";
             if (color.A == 0) return Color.Transparent.Name;
-            if (color.IsNamedColor) return color.Name;
+            if (color.IsKnownColor) return color.Name;
             var result = KnownColors.FirstOrDefault(c => c.R == color.R && c.G == color.G && c.B == color.B);
-            return result.IsEmpty ? "Empty" : color.A!=255 ? $"({color.A},{color.R},{color.G},{color.B})" : $"({color.R},{color.G},{color.B})";
+            return !result.IsEmpty ? (color.A != 255 ? $"({color.A},{result.Name})" : result.Name) : (color.A!=255 ? $"({color.A},{color.R},{color.G},{color.B})" : $"({color.R},{color.G},{color.B})");
         }
+
+        //Nice color ordering from https://en.wikipedia.org/wiki/Web_colors.
+        //Using  Enum.GetNames(typeof(KnownColor)).Select(s => Color.FromName(s)) and sorting by HSL gives accurate but perceptually strange results.
+        private const string WebColors = "Black|DarkSlateGray|DimGray|SlateGray|Gray|LightSlateGray|DarkGray|Silver|LightGray|Gainsboro|WhiteSmoke|White|Transparent|MistyRose|AntiqueWhite|Linen|Beige|LavenderBlush|OldLace|AliceBlue|Seashell|GhostWhite|Honeydew|FloralWhite|Azure|MintCream|Snow|Ivory|DarkRed|Red|Firebrick|Crimson|IndianRed|LightCoral|Salmon|DarkSalmon|LightSalmon|OrangeRed|Tomato|DarkOrange|Coral|Orange|DarkKhaki|Gold|Khaki|PeachPuff|Yellow|PaleGoldenrod|Moccasin|PapayaWhip|LightGoldenrodYellow|LemonChiffon|LightYellow|Maroon|Brown|SaddleBrown|Sienna|Chocolate|DarkGoldenrod|Peru|RosyBrown|Goldenrod|SandyBrown|Tan|Burlywood|Wheat|NavajoWhite|Bisque|BlanchedAlmond|Cornsilk|DarkGreen|Green|DarkOliveGreen|ForestGreen|SeaGreen|Olive|OliveDrab|MediumSeaGreen|LimeGreen|Lime|SpringGreen|MediumSpringGreen|DarkSeaGreen|MediumAquamarine|YellowGreen|LawnGreen|Chartreuse|LightGreen|GreenYellow|PaleGreen|Teal|DarkCyan|LightSeaGreen|CadetBlue|DarkTurquoise|MediumTurquoise|Turquoise|Aqua|Cyan|Aquamarine|PaleTurquoise|LightCyan|Navy|DarkBlue|MediumBlue|Blue|MidnightBlue|RoyalBlue|SteelBlue|DodgerBlue|DeepSkyBlue|CornflowerBlue|SkyBlue|LightSkyBlue|LightSteelBlue|LightBlue|PowderBlue|Indigo|Purple|DarkMagenta|DarkViolet|DarkSlateBlue|BlueViolet|DarkOrchid|Fuchsia|Magenta|SlateBlue|MediumSlateBlue|MediumOrchid|MediumPurple|Orchid|Violet|Plum|Thistle|Lavender|MediumVioletRed|DeepPink|PaleVioletRed|HotPink|LightPink|Pink";
+
+        //SystemColors are just sorted alphabetically. There is no advantage to sorting by color as the system colors may change.
+        private const string SystemColors = "ActiveBorder|ActiveCaption|ActiveCaptionText|AppWorkspace|ButtonFace|ButtonHighlight|ButtonShadow|Control|ControlDark|ControlDarkDark|ControlLight|ControlLightLight|ControlText|Desktop|GradientActiveCaption|GradientInactiveCaption|GrayText|Highlight|HighlightText|HotTrack|InactiveBorder|InactiveCaption|InactiveCaptionText|Info|InfoText|Menu|MenuBar|MenuHighlight|MenuText|ScrollBar|Window|WindowFrame|WindowText";
 
         private class ColorItem
         {
-            //Pre-computed values for NearestKnownColor()
+            //Pre-computed HSL values for NearestKnownColor()
             public readonly Color Color;
             public readonly float Hue;
             public readonly float Saturation;
@@ -77,15 +85,7 @@ namespace ChuckHill2.Utilities
         {
             get
             {
-                if (__knownColorItems == null) __knownColorItems = Enum.GetNames(typeof(KnownColor))
-                 .Select(s => new ColorItem(s))
-                 .OrderBy(ci => ci.Color.IsSystemColor)
-                 .ThenBy(ci => ci.Color.IsSystemColor ? ci.Color.Name : "0")
-                 .ThenBy(ci => ci.Hue)
-                 .ThenBy(ci => ci.Saturation)
-                 .ThenBy(ci => ci.Luminosity)
-                 .ToList();
-
+                if (__knownColorItems == null) __knownColorItems = WebColors.Split('|').Concat(SystemColors.Split('|')).Select(s => new ColorItem(s)).ToList();
                 return __knownColorItems;
             }
         }
@@ -105,11 +105,18 @@ namespace ChuckHill2.Utilities
 
         public static Color NearestKnownColor(this Color color)
         {
-            // adjust these values to place more or less importance on
-            // the differences between HSL components of the colors
-            const double weightHue = 0.8;
-            const double weightSaturation = 0.1;
-            const double weightLuminosity = 0.1;
+            // adjust these values to place more or less importance on the differences between HSL components of the colors
+            const double weightHue = 1.0;
+            const double weightSaturation = 1.0;
+            const double weightLuminosity = 1.0;
+
+            //const double weightHue = 0.8;
+            //const double weightSaturation = 0.1;
+            //const double weightLuminosity = 0.1;
+
+            //const double weightHue = 0.475;
+            //const double weightSaturation = 0.2875;
+            //const double weightLuminosity = 0.2375;
 
             var hue = color.GetHue();
             var saturation = color.GetSaturation();
@@ -132,6 +139,26 @@ namespace ChuckHill2.Utilities
             }
 
             return KnownColorItems[index].Color;
+        }
+
+        /// <summary>
+        /// Dump known colors into a text file that may be loaded into Excel for inspection and validation.
+        /// Use the custom macro function 'myRGB()' to fill-in the 'Color' column.
+        /// Validate against  http://colormine.org/
+        /// </summary>
+        public static void DumpColors()
+        {
+            var fn = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "NamedColors.txt");
+            using (var sw = new System.IO.StreamWriter(fn))
+            {
+                sw.WriteLine("Color\tName\tHex (RGB)\tRed (RGB)\tGreen (RGB)\tBlue (RGB)\tHue (HSL)\tSat (HSL)\tLum (HSL)\tHue (HSV)\tSat (HSV)\tValue (HSV)");
+                foreach (var c in ColorExtensions.KnownColors)
+                {
+                    var hsl = (HSLColor)c;
+                    var hsv = (HSVColor)c;
+                    sw.WriteLine($"\t{c.Name}\t#{ColorExtensions.MakeArgb(0, c.R, c.G, c.B):X6}\t{c.R}\t{c.G}\t{c.B}\t{hsl.Hue}\t{hsl.Saturation}\t{hsl.Luminosity}\t{hsv.Hue}\t{hsv.Saturation}\t{hsv.Value}");
+                }
+            }
         }
     }
 }

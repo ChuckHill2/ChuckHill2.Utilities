@@ -24,7 +24,7 @@ namespace ChuckHill2.Utilities
             base.BackColor = Color.Transparent;
             base.BorderStyle = BorderStyle.FixedSingle;
             base.DoubleBuffered = true;
-            tt = new ToolTip();
+            if (!DesignMode) tt = new ToolTip();
         }
 
         private Color __color;
@@ -97,15 +97,16 @@ namespace ChuckHill2.Utilities
             if (this.Color.A != 255)
             {
                 if (_textureBrush == null)
-                    _textureBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Silver, Color.White);
+                    _textureBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.FromArgb(225, 225, 225), base.BackColor);
 
                 e.Graphics.FillRectangle(_textureBrush, base.ClientRectangle);
             }
 
+            //left side: nearest known color
             using (Brush brush = new SolidBrush(this.NearestKnownColor))
                 e.Graphics.FillRectangle(brush, rc.Left, rc.Top, rc.Width / 2, rc.Bottom);
-            //e.Graphics.FillRectangle(brush, base.ClientRectangle);
 
+            //right side: current color
             using (Brush brush = new SolidBrush(this.Color))
                 e.Graphics.FillRectangle(brush, rc.Left + rc.Width / 2, rc.Top, rc.Right, rc.Bottom);
         }
@@ -113,8 +114,15 @@ namespace ChuckHill2.Utilities
         protected override void OnMouseHover(EventArgs e)
         {
             base.OnMouseHover(e);
-            string name = this.Color.IsNamedColor ? this.Color.Name : this.Color.FindNamedExact().GetName();
-            this.tt.SetToolTip(this, $"{this.NearestKnownName} | {name}");
+            string name;
+            if (this.Color.IsNamedColor) name = this.Color.GetName();
+            else
+            {
+                var c = this.Color.FindNamedExact();
+                name = c.IsEmpty ? this.Color.GetName() : c.GetName();
+            }
+
+            this.tt?.SetToolTip(this, $"{this.NearestKnownName} | {name}");
         }
 
         protected override void OnClick(EventArgs e)

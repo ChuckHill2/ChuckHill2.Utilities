@@ -51,17 +51,6 @@ namespace ColorEditor
             //m_tvColors.RemoveColor(Color.CadetBlue);
             //m_tvColors.RemoveColor(Color.Empty);
 
-            //var fn = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "NamedColors.txt");
-            //using (var sw = new StreamWriter(fn))
-            //{
-            //    sw.WriteLine("Color\tName\tHex (RGB)\tRed (RGB)\tGreen (RGB)\tBlue (RGB)\tHue (HSL)\tSat (HSL)\tLum (HSL)\tHue (HSV)\tSat (HSV)\tValue (HSV)");
-            //    foreach (var c in ColorExtensions.KnownColors)
-            //    {
-            //        var hsl = (HSLColor)c;
-            //        var hsv = (HSVColor)c;
-            //        sw.WriteLine($"\t{c.Name}\t#{ColorExtensions.MakeArgb(0, c.R, c.G, c.B):X6}\t{c.R}\t{c.G}\t{c.B}\t{hsl.Hue}\t{hsl.Saturation}\t{hsl.Luminosity}\t{hsv.Hue}\t{hsv.Saturation}\t{hsv.Value}");
-            //    }
-            //}
         }
 
         private void m_btnColorDialog_Click(object sender, EventArgs e)

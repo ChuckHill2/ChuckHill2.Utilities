@@ -13,7 +13,7 @@ namespace ChuckHill2.Utilities
     /// <summary>
     /// Color selector ListBox  control containing 'Custom', 'Known', and 'System' colors. Each group has a dividing line for distinction between the three color sets.
     /// </summary>
-    class NamedColorListBox : ListBox
+    public class NamedColorListBox : ListBox
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
         private int pixel_2 = 2;
@@ -22,8 +22,6 @@ namespace ChuckHill2.Utilities
         public NamedColorListBox():base()
         {
             base.Margin = new Padding(0);
-            base.BorderStyle = BorderStyle.None;
-            base.Dock = DockStyle.Fill;
             base.Name = "NamedListBox";
             base.FormattingEnabled = true;
             base.DrawMode = DrawMode.OwnerDrawFixed;

@@ -46,7 +46,7 @@ namespace ChuckHill2.Utilities
         public Color Color
         {
             get { return colorEditorManager.Color; }
-            set { colorEditorManager.Color = value; }
+            set { colorEditorManager.Color = value; previewPanel.Color = value; }
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace ChuckHill2.Utilities
 
         private void previewPanel_Click(object sender, EventArgs e)
         {
-            this.Color = previewPanel.Color;
+            colorEditorManager.Color = previewPanel.Color;
         }
         #endregion
     }
