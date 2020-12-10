@@ -84,6 +84,10 @@ namespace ChuckHill2.Utilities
         public static bool operator !=(HSLColor a, HSLColor b) => !a.Equals(b);
         #endregion
 
+        /// <summary>
+        /// Create a new HSL struct from a  <see cref="T:System.Drawing.Color" /> structure.
+        /// </summary>
+        /// <param name="color"></param>
         public HSLColor(Color color) : this()
         {
             __hue = 0;
@@ -95,45 +99,89 @@ namespace ChuckHill2.Utilities
             Saturation = color.GetSaturation();
             Luminosity = color.GetBrightness();
         }
+
+        /// <summary>
+        /// Create a new HSL struct from RGB color values.
+        /// </summary>
+        /// <param name="alpha"></param>
+        /// <param name="red"></param>
+        /// <param name="green"></param>
+        /// <param name="blue"></param>
         public HSLColor(int alpha, int red, int green, int blue) : this(Color.FromArgb(alpha,red,green,blue)) { }
-        public HSLColor(byte alpha, double hue, double saturation, double luminosity)
+
+        /// <summary>
+        /// Create a new HSL struct from HSL color values..
+        /// </summary>
+        /// <param name="alpha">Alpha transparency (0-255)</param>
+        /// <param name="hue">Hue (0.0-360.0)</param>
+        /// <param name="saturation">Saturation (0.0-1.0)</param>
+        /// <param name="luminosity">Luminosity (0.0-1.0)</param>
+        public HSLColor(int alpha, double hue, double saturation, double luminosity)
         {
             __hue = 0;
             __saturation = 0;
             __luminosity = 0;
 
-            Alpha = alpha;
+            Alpha = (byte)(alpha < 0 ? 0 : alpha > 255 ? 255 : alpha);
             Hue = hue;
             Saturation = saturation;
             Luminosity = luminosity;
         }
 
         /// <summary>
-        /// Get HSL values in Excel HSL format (e.g. 0-255)
+        /// Get HSL values in Excel HSL color scale (e.g. 0-255)
         /// </summary>
-        /// <returns>array of h,s,l values</returns>
-        public int[] ToExcel()
+        /// <param name="a">out Alpha transparency (0-255)</param>
+        /// <param name="h">out HLS Hue (0-255)</param>
+        /// <param name="s">out HLS Saturation (0-255)</param>
+        /// <param name="l">out HLS Luminosity (0-255)</param>
+        public void ToExcelScale(out int a, out int h, out int s, out int l)
         {
-            return new[]
-            {
-                (int)(Hue / 360 * 255 + 0.5),
-                (int)(Saturation * 255 + 0.5),
-                (int)(Luminosity * 255 + 0.5)
-            };
+            a = this.Alpha;
+            h = (int)(Hue / 360.0 * 255.0 + 0.5);
+            s = (int)(Saturation * 255.0 + 0.5);
+            l = (int)(Luminosity * 255.0 + 0.5);
         }
 
         /// <summary>
-        /// Get HSL values in native Win32 HSL format (e.g. 0-240)
+        /// Create HSLColor from values in Excel color scale (e.g. 0-255)
         /// </summary>
-        /// <returns>array of h,s,l values</returns>
-        public int[] ToWin32()
+        /// <param name="a">Alpha transparency (0-255)</param>
+        /// <param name="h">HLS Hue (0-255)</param>
+        /// <param name="s">HLS Saturation (0-255)</param>
+        /// <param name="l">HLS Luminosity (0-255)</param>
+        public static HSLColor FromExcelScale(int a, int h, int s, int l)
         {
-            return new[]
-            {
-                (int)(Hue / 360 * 240 + 0.5),
-                (int)(Saturation * 240 + 0.5),
-                (int)(Luminosity * 240 + 0.5)
-            };
+            Func<int, byte> check = (i) => (byte)(i < 0 ? 0 : i > 255 ? 255 : i);
+            return new HSLColor(check(a),  check(h) / 255.0 * 360.0,  check(s) / 255.0,  check(l) / 255.0);
+        }
+
+        /// <summary>
+        /// Get HSL values in native Win32 HSL color scale (e.g. 0-240)
+        /// </summary>
+        /// <param name="a">out Alpha transparency (0-255)</param>
+        /// <param name="h">out HLS Hue (0-240)</param>
+        /// <param name="s">out HLS Saturation (0-240)</param>
+        /// <param name="l">out HLS Luminosity (0-240)</param>
+        public void ToWin32Scale(out int a, out int h, out int s, out int l)
+        {
+            a = this.Alpha;
+            h = (int)(Hue / 360.0 * 240.0 + 0.5);
+            s = (int)(Saturation * 240.0 + 0.5);
+            l = (int)(Luminosity * 240.0 + 0.5);
+        }
+
+        /// <summary>
+        /// Create HSLColor from values in native Win32 HSL color scale (e.g. 0-240)
+        /// </summary>
+        /// <param name="a">Alpha transparency (0-255)</param>
+        /// <param name="h">HLS Hue (0-240)</param>
+        /// <param name="s">HLS Saturation (0-240)</param>
+        /// <param name="l">HLS Luminosity (0-240)</param>
+        public static HSLColor FromWin32Scale(int a, int h, int s, int l)
+        {
+            Func<int, byte> check = (i) => (byte)(i < 0 ? 0 : i > 240 ? 240 : i);
+            return new HSLColor((byte)(a < 0 ? 0 : a > 255 ? 255 : a),  check(h) / 240.0 * 360.0,  check(s) / 240.0,  check(l) / 240.0);
         }
 
         public override string ToString() => $"H: {Hue:#0.##} S: {Saturation:#0.##} L: {Luminosity:#0.##}";

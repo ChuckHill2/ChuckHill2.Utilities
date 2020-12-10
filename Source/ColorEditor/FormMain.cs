@@ -52,7 +52,6 @@ namespace ColorEditor
             //m_tvColors.RemoveColor(Color.Empty);
 
             //ColorExtensions.DumpColors();
-
         }
 
         private void m_btnColorDialog_Click(object sender, EventArgs e)

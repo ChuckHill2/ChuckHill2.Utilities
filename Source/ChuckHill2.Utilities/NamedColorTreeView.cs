@@ -9,6 +9,7 @@ namespace ChuckHill2.Utilities
 {
     /// <summary>
     /// Color selector treeview control with three root nodes 'Custom', 'Known', and 'System' colors.
+    /// Only custom colors can be added or removed.
     /// </summary>
     public class NamedColorTreeView : TreeView
     {

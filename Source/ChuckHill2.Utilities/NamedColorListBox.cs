@@ -11,7 +11,9 @@ using System.Windows.Forms;
 namespace ChuckHill2.Utilities
 {
     /// <summary>
-    /// Color selector ListBox  control containing 'Custom', 'Known', and 'System' colors. Each group has a dividing line for distinction between the three color sets.
+    /// Color selector ListBox  control containing 'Custom', 'Known', and 'System' colors.
+    /// Each group has a dividing line for distinction between the three color sets.
+    /// Only custom colors can be added or removed.
     /// </summary>
     public class NamedColorListBox : ListBox
     {

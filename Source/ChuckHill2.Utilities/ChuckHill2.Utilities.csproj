@@ -78,10 +78,10 @@
     <Compile Include="GradientBrush.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="NamedListBox.cs">
+    <Compile Include="NamedColorListBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="NamedTreeView.cs">
+    <Compile Include="NamedColorTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />

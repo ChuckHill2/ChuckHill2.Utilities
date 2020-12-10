@@ -87,6 +87,10 @@ namespace ChuckHill2.Utilities
         public static bool operator !=(HSVColor a, HSVColor b) => !a.Equals(b);
         #endregion
 
+        /// <summary>
+        /// Create a new HSV struct from a  <see cref="T:System.Drawing.Color" /> structure.
+        /// </summary>
+        /// <param name="color"></param>
         public HSVColor(Color color)
         {
             __hue = 0;
@@ -99,14 +103,30 @@ namespace ChuckHill2.Utilities
             this.Saturation = saturation;
             this.Value = value;
         }
+
+        /// <summary>
+        /// Create a new HSV struct from RGB color values.
+        /// </summary>
+        /// <param name="alpha"></param>
+        /// <param name="red"></param>
+        /// <param name="green"></param>
+        /// <param name="blue"></param>
         public HSVColor(int alpha, int red, int green, int blue) : this(Color.FromArgb(alpha, red, green, blue)) { }
-        public HSVColor(byte alpha, double hue, double saturation, double value)
+
+        /// <summary>
+        /// Create a new HSV struct from HSV color values..
+        /// </summary>
+        /// <param name="alpha">Alpha transparency (0-255)</param>
+        /// <param name="hue">Hue (0.0-360.0)</param>
+        /// <param name="saturation">Saturation (0.0-1.0)</param>
+        /// <param name="value">Brightness value (0.0-1.0)</param>
+        public HSVColor(int alpha, double hue, double saturation, double value)
         {
             __hue = 0;
             __saturation = 0;
             __value = 0;
 
-            this.Alpha = alpha;
+            Alpha = (byte)(alpha < 0 ? 0 : alpha > 255 ? 255 : alpha);
             this.Hue = hue;
             this.Saturation = saturation;
             this.Value = value;
