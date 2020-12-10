@@ -10,13 +10,13 @@ namespace ChuckHill2.Utilities
     /// Implicitly converts a System.Drawing.Color object to/from a HSLColor object.
     /// See: http://richnewman.wordpress.com/about/code-listings-and-diagrams/hslcolor-class/
     /// </summary>
-    public class HSLColor
+    public struct HSLColor
     {
         /// <summary>Gets/Sets the alpha transparency component value of this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The alpha transparency component value of this <see cref="T:System.Drawing.Color" />. Alpha ranges from 0 through 255, where 0 is completely transparent and 255 is completely opaque.</returns>
         public byte Alpha { get; set; }
 
-        private double __hue = 0.0;
+        private double __hue;
         /// <summary>Gets the HSB/HSL/HSV hue value, in degrees, for this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The hue, in degrees, of this <see cref="T:System.Drawing.Color" />. The hue is measured in degrees, ranging from 0.0 through 360.0, in the HSB/HSL/HSV color spaces.</returns>
         public double Hue
@@ -25,7 +25,7 @@ namespace ChuckHill2.Utilities
             set => __hue = CheckRange(value, 360);
         }
 
-        private double __saturation = 1.0;
+        private double __saturation;
         /// <summary>Gets HSB/HSL saturation value for this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The saturation of this <see cref="T:System.Drawing.Color" />. The saturation ranges from 0.0 through 1.0, where 0.0 is grayscale and 1.0 is the most saturated.</returns>
         public double Saturation
@@ -34,7 +34,7 @@ namespace ChuckHill2.Utilities
             set => __saturation = CheckRange(value);
         }
 
-        private double __luminosity = 1.0;
+        private double __luminosity;
         /// <summary>The HSB/HSL brightness/luminosity value for this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The brightness/luminosity of this <see cref="T:System.Drawing.Color" />. The luminosity ranges from 0.0 through 1.0, where 0.0 represents black and 1.0 represents white.</returns>
         public double Luminosity
@@ -51,7 +51,7 @@ namespace ChuckHill2.Utilities
             byte g = 0;
             byte b = 0;
 
-            if (s == 0) r = g = b = (byte)(l * 255);
+            if (s == 0) r = g = b = (byte)(l * 255 + 0.5);
             else
             {
                 double v1, v2;
@@ -60,9 +60,9 @@ namespace ChuckHill2.Utilities
                 v2 = (l < 0.5) ? (l * (1 + s)) : ((l + s) - (l * s));
                 v1 = 2 * l - v2;
 
-                r = (byte)(255 * HSLToRGB_Hue(v1, v2, hue + (1.0f / 3)));
-                g = (byte)(255 * HSLToRGB_Hue(v1, v2, hue));
-                b = (byte)(255 * HSLToRGB_Hue(v1, v2, hue - (1.0f / 3)));
+                r = (byte)((255 * HSLToRGB_Hue(v1, v2, hue + (1.0 / 3))) + 0.5);
+                g = (byte)((255 * HSLToRGB_Hue(v1, v2, hue)) + 0.5);
+                b = (byte)((255 * HSLToRGB_Hue(v1, v2, hue - (1.0 / 3))) + 0.5);
             }
 
             return Color.FromArgb(a,r,g,b);
@@ -80,23 +80,32 @@ namespace ChuckHill2.Utilities
         #region Casts to/from System.Drawing.Color
         public static implicit operator Color(HSLColor hsl) => HSLToRGB(hsl.Alpha, hsl.Hue, hsl.Saturation, hsl.Luminosity);
         public static implicit operator HSLColor(Color color) => new HSLColor(color);
+        public static bool operator ==(HSLColor a, HSLColor b) => a.Equals(b);
+        public static bool operator !=(HSLColor a, HSLColor b) => !a.Equals(b);
         #endregion
 
-        public HSLColor() { }
-        public HSLColor(Color color)
+        public HSLColor(Color color) : this()
         {
-            this.Alpha = color.A;
-            this.Hue = color.GetHue();
-            this.Saturation = color.GetSaturation();
-            this.Luminosity = color.GetBrightness();
+            __hue = 0;
+            __saturation = 0;
+            __luminosity = 0;
+
+            Alpha = color.A;
+            Hue = color.GetHue();
+            Saturation = color.GetSaturation();
+            Luminosity = color.GetBrightness();
         }
         public HSLColor(int alpha, int red, int green, int blue) : this(Color.FromArgb(alpha,red,green,blue)) { }
         public HSLColor(byte alpha, double hue, double saturation, double luminosity)
         {
-            this.Alpha = alpha;
-            this.Hue = hue;
-            this.Saturation = saturation;
-            this.Luminosity = luminosity;
+            __hue = 0;
+            __saturation = 0;
+            __luminosity = 0;
+
+            Alpha = alpha;
+            Hue = hue;
+            Saturation = saturation;
+            Luminosity = luminosity;
         }
 
         /// <summary>

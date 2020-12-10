@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Text;
 
@@ -237,7 +237,8 @@ namespace Cyotek.Windows.Forms
         colors[color] *= 255;
       }
 
-      return Color.FromArgb(alpha, (int)colors[0], (int)colors[1], (int)colors[2]);
+      //return Color.FromArgb(alpha, (int)colors[0], (int)colors[1], (int)colors[2]);
+      return Color.FromArgb(alpha, (int)(colors[0] + 0.5), (int)(colors[1] + 0.5), (int)(colors[2] + 0.5)); //--Chuck
     }
 
     public override string ToString()

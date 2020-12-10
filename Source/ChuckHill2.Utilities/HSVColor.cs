@@ -10,13 +10,13 @@ namespace ChuckHill2.Utilities
     /// Implicitly converts a System.Drawing.Color object to/from a HSVColor object.
     /// See: https://stackoverflow.com/questions/1335426/is-there-a-built-in-c-net-system-api-for-hsv-to-rgb
     /// </summary>
-    public class HSVColor
+    public struct HSVColor
     {
         /// <summary>Gets/Sets the alpha transparency component value of this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The alpha transparency component value of this <see cref="T:System.Drawing.Color" />. Alpha ranges from 0 through 255, where 0 is completely transparent and 255 is completely opaque.</returns>
         public byte Alpha { get; set; }
 
-        private double __hue = 0.0;
+        private double __hue;
         /// <summary>Gets the HSB/HSL/HSV hue value, in degrees, for this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The hue, in degrees, of this <see cref="T:System.Drawing.Color" />. The hue is measured in degrees, ranging from 0.0 through 360.0, in the HSB/HSL/HSV color spaces.</returns>
         public double Hue
@@ -25,7 +25,7 @@ namespace ChuckHill2.Utilities
             set => __hue = CheckRange(value, 360);
         }
 
-        private double __saturation = 1.0;
+        private double __saturation;
         /// <summary>Gets HSV saturation value for this <see cref="T:System.Drawing.Color" /> structure. Not to be confused with HSL Saturation.</summary>
         /// <returns>The saturation of this <see cref="T:System.Drawing.Color" />. The saturation ranges from 0.0 through 1.0, where 0.0 is grayscale and 1.0 is the most saturated.</returns>
         public double Saturation
@@ -34,7 +34,7 @@ namespace ChuckHill2.Utilities
             set => __saturation = CheckRange(value);
         }
 
-        private double __value = 1.0;
+        private double __value;
         /// <summary>The HSV brightness value for this <see cref="T:System.Drawing.Color" /> structure. Not to be confused with HSL Luminosity/Lightness/Brightness.</summary>
         /// <returns>The brightness of this <see cref="T:System.Drawing.Color" />. The value ranges from 0.0 through 1.0, where 0.0 represents black and 1.0 represents white.</returns>
         public double Value
@@ -83,11 +83,16 @@ namespace ChuckHill2.Utilities
         #region Casts to/from System.Drawing.Color
         public static implicit operator Color(HSVColor hsv) => HSVtoRGB(hsv.Alpha, hsv.Hue, hsv.Saturation, hsv.Value);
         public static implicit operator HSVColor(Color color) => new HSVColor(color);
+        public static bool operator ==(HSVColor a, HSVColor b) => a.Equals(b);
+        public static bool operator !=(HSVColor a, HSVColor b) => !a.Equals(b);
         #endregion
 
-        public HSVColor() { }
         public HSVColor(Color color)
         {
+            __hue = 0;
+            __saturation = 0;
+            __value = 0;
+
             RGBtoHSV(color, out byte alpha, out double hue, out double saturation, out double value);
             this.Alpha = alpha;
             this.Hue = hue;
@@ -97,6 +102,10 @@ namespace ChuckHill2.Utilities
         public HSVColor(int alpha, int red, int green, int blue) : this(Color.FromArgb(alpha, red, green, blue)) { }
         public HSVColor(byte alpha, double hue, double saturation, double value)
         {
+            __hue = 0;
+            __saturation = 0;
+            __value = 0;
+
             this.Alpha = alpha;
             this.Hue = hue;
             this.Saturation = saturation;

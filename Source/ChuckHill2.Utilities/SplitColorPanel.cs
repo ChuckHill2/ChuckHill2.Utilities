@@ -114,15 +114,7 @@ namespace ChuckHill2.Utilities
         protected override void OnMouseHover(EventArgs e)
         {
             base.OnMouseHover(e);
-            string name;
-            if (this.Color.IsNamedColor) name = this.Color.GetName();
-            else
-            {
-                var c = this.Color.FindNamedExact();
-                name = c.IsEmpty ? this.Color.GetName() : c.GetName();
-            }
-
-            this.tt?.SetToolTip(this, $"{this.NearestKnownName} | {name}");
+            this.tt?.SetToolTip(this, $"{this.NearestKnownName} | {this.Color.GetName()}");
         }
 
         protected override void OnClick(EventArgs e)
