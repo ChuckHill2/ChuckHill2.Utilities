@@ -1,21 +1,32 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities
 {
     /// <summary>
-    /// Color selector ListBox  control containing 'Custom', 'Known', and 'System' colors.
-    /// Each group has a dividing line for distinction between the three color sets.
-    /// Only custom colors can be added or removed.
+    /// Specify how the list of colors is ordered
     /// </summary>
-    public class NamedColorListBox : ListBox
+    public enum OrderBy
+    {
+        /// <summary>
+        /// Colors are ordered by color and shade.
+        /// </summary>
+        Color,
+        /// <summary>
+        /// Colors are ordered by name alphabetically.
+        /// </summary>
+        Name
+    }
+
+    public class NamedColorComboBox : ComboBox
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
 
@@ -56,11 +67,19 @@ namespace ChuckHill2.Utilities
 
         #region Hidden/Disabled Properties
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new AutoCompleteStringCollection AutoCompleteCustomSource { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new AutoCompleteSource AutoCompleteSource { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new AutoCompleteMode AutoCompleteMode { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new object DataSource { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string DisplayMember { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new DrawMode DrawMode { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new ComboBoxStyle DropDownStyle { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string FormatString { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -73,10 +92,11 @@ namespace ChuckHill2.Utilities
         public new string ValueMember { get; set; }
         #endregion
 
-        public NamedColorListBox():base()
+        public NamedColorComboBox() : base()
         {
-            base.Name = "NamedColorListBox";
+            base.Name = "NamedColorComboBox";
             base.DrawMode = DrawMode.OwnerDrawFixed;
+            base.DropDownStyle = ComboBoxStyle.DropDownList;
 
             var pixelFactor = DpiScalingFactor() / 100.0;
             this.graphicWidth = ConvertToGivenDpiPixel(this.graphicWidth, pixelFactor);
@@ -92,7 +112,7 @@ namespace ChuckHill2.Utilities
                 foreach (var c in ColorExtensions.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
 
             ImageBounds = new Rectangle(2, 1, graphicWidth, base.ItemHeight - 1 - 2);
-            TextOffset = new Point(2 + graphicWidth + 2, -1); //-1 because we want to be vertically centered in the blue selected rectangle
+            TextOffset = new Point(2 + graphicWidth + 2, -1); //-1 because we want to be vertically centered in in the blue selected rectangle
         }
 
         protected override void OnDrawItem(DrawItemEventArgs e)
@@ -128,7 +148,7 @@ namespace ChuckHill2.Utilities
             // Create a divider line between CustomColors, WebColors, and SystemColors or if
             // sorted alphabetically, just between CustomColors and all other known colors.
 
-            if (e.Index >= 0 && e.Index < base.Items.Count - 1)
+            if (e.Index >= 0 && e.Index < base.Items.Count-1)
             {
                 var ci2 = (ColorItem)base.Items[e.Index + 1]; //compare current vs next color
                 if (OrderBy == OrderBy.Color)
@@ -206,7 +226,6 @@ namespace ChuckHill2.Utilities
         }
 
         private static int ConvertToGivenDpiPixel(int value, double pixelFactor) => Math.Max(1, (int)(value * pixelFactor + 0.5));
-
         #region public static int DpiScalingFactor()
         [DllImport("gdi32.dll")] private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
         private enum DeviceCap { VERTRES = 10, DESKTOPVERTRES = 117, LOGPIXELSY = 90 }

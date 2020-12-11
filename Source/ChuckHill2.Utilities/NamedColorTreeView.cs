@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -14,34 +16,67 @@ namespace ChuckHill2.Utilities
     public class NamedColorTreeView : TreeView
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
-        private int pixel_2 = 2;
-        private int pixel_4 = 4;
+
+        private Rectangle ImageBounds;
+        private Point TextOffset;
+
+        #region Hidden/Disabled Properties
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool CheckBoxes { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new TreeViewDrawMode DrawMode { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool ShowLines { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool FullRowSelect { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool LabelEdit { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new TreeNodeCollection Nodes { get; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new string ImageKey { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool HotTracking { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool HideSelection { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new string PathSeparator { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool Scrollable { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new int SelectedImageIndex { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new string SelectedImageKey { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool ShowNodeToolTips { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new ImageList StateImageList { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new string Text { get; set; }
+        #endregion
 
         public NamedColorTreeView() : base()
         {
-            base.Margin = new Padding(0);
-            base.BorderStyle = BorderStyle.None;
-            base.Dock = DockStyle.Fill;
             base.Name = "NamedColorTreeView";
             base.DrawMode = TreeViewDrawMode.OwnerDrawText;
-            base.ShowLines = false;
+            base.ShowLines = false; //must be false if FullRowSelect is true
             base.FullRowSelect = true;
 
             var pixelFactor = DpiScalingFactor() / 100.0;
             this.graphicWidth = ConvertToGivenDpiPixel(this.graphicWidth, pixelFactor);
-            this.pixel_2 = ConvertToGivenDpiPixel(this.pixel_2, pixelFactor);
-            this.pixel_4 = ConvertToGivenDpiPixel(this.pixel_4, pixelFactor);
 
-            var m_tnCustomColors = new TreeNode("Custom Colors");
-            var m_tnWebColors = new TreeNode("Web Colors", ColorExtensions.KnownColors.Where(c => c.IsKnownColor && !c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray());
-            var m_tnSystemColors = new TreeNode("System Colors", ColorExtensions.KnownColors.Where(c => c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray());
+            var m_tnCustomColors = new TreeNode("Custom Colors") { Name = "Custom" };
+            var m_tnWebColors = new TreeNode("Web Colors", ColorExtensions.KnownColors.Where(c => c.IsKnownColor && !c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name="Web" };
+            var m_tnSystemColors = new TreeNode("System Colors", ColorExtensions.KnownColors.Where(c => c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name = "System" };
             base.Nodes.AddRange(new TreeNode[] { m_tnCustomColors, m_tnWebColors, m_tnSystemColors });
         }
 
-        protected override void OnCreateControl()
+        protected override void OnHandleCreated(EventArgs e)
         {
-            base.ItemHeight = base.Font.Height;
-            base.OnCreateControl();
+            base.OnHandleCreated(e);
+
+            ImageBounds = new Rectangle(2, 1, graphicWidth, base.ItemHeight - 1 - 2);
+            TextOffset = new Point(2 + graphicWidth + 2, -1); //-1 because we want to be vertically centered in in the blue selected rectangle
         }
 
         protected override void OnDrawNode(DrawTreeNodeEventArgs e)
@@ -55,23 +90,26 @@ namespace ChuckHill2.Utilities
             var color = (Color)e.Node.Tag;
             Graphics g = e.Graphics;
 
-            var rc = new Rectangle(e.Bounds.X + this.pixel_2, e.Bounds.Y + this.pixel_2, this.graphicWidth, e.Bounds.Height - this.pixel_4 + 1);
+            var imageBounds = ImageBounds;
+            imageBounds.X += e.Bounds.X;
+            imageBounds.Y += e.Bounds.Y;
+
+            var textOffset = TextOffset;
+            textOffset.X += e.Bounds.X;
+            textOffset.Y += e.Bounds.Y;
 
             if (color.A < 255) //add  background trasparency  checkerboard
             {
                 using (var br = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.Transparent))
-                    g.FillRectangle(br, rc);
+                    g.FillRectangle(br, imageBounds);
             }
 
             using (var solidBrush = new SolidBrush(color))
-                g.FillRectangle(solidBrush, rc);
+                g.FillRectangle(solidBrush, imageBounds);
 
-            g.DrawRectangle(SystemPens.WindowText, rc.X, rc.Y, rc.Width - 1, rc.Height - 1);
+            g.DrawRectangle(SystemPens.WindowText, imageBounds.X, imageBounds.Y, imageBounds.Width - 1, imageBounds.Height - 1);
 
-            var x2 = e.Bounds.X + this.graphicWidth + this.pixel_4;
-            var y2 = e.Bounds.Y;
-
-            TextRenderer.DrawText(g, e.Node.Name, base.Font, new Point(x2, y2), base.ForeColor, Color.Transparent);
+            TextRenderer.DrawText(g, e.Node.Name, base.Font, textOffset, base.ForeColor, Color.Transparent);
         }
 
         /// <summary>
@@ -81,17 +119,9 @@ namespace ChuckHill2.Utilities
         /// <param name="c"></param>
         public void AddColor(Color c)
         {
-            if (c.IsEmpty) return;
+            if (c.IsKnownColor || c.IsEmpty) return;
             if (base.Nodes.Cast<TreeNode>().SelectMany(tn => tn.Nodes.Cast<TreeNode>()).FirstOrDefault(tn => Equals(c, (Color)tn.Tag)) != null) return;
-
-            var name = c.Name;
-            if (!c.IsNamedColor)
-            {
-                var node = base.Nodes[1].Nodes.Cast<TreeNode>().FirstOrDefault(tn => Equals(c, (Color)tn.Tag, true));
-                if (node==null) node = base.Nodes[2].Nodes.Cast<TreeNode>().FirstOrDefault(tn => Equals(c, (Color)tn.Tag, true));
-                if (node != null) name = ((Color)node.Tag).Name + c.A.ToString();
-                else name = c.A < 255 ? $"({c.A},{c.R},{c.G},{c.B})" : $"({c.R},{c.G},{c.B})";
-            }
+            var name = c.GetName();
             base.Nodes[0].Nodes.Insert(0, new TreeNode(name) { Name = name, Tag = c });
         }
 
@@ -111,6 +141,7 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Get or Set the selected color.
         /// </summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color Selected
         {
             get => base.SelectedNode?.Tag is Color ? (Color)base.SelectedNode.Tag : Color.Empty;
@@ -137,7 +168,6 @@ namespace ChuckHill2.Utilities
         }
 
         private static int ConvertToGivenDpiPixel(int value, double pixelFactor) => Math.Max(1, (int)(value * pixelFactor + 0.5));
-        private new TreeNodeCollection Nodes => throw new InvalidOperationException($"{nameof(Nodes)} property is disabled for {typeof(NamedColorTreeView).Name}. For internal use only.");
 
         #region public static int DpiScalingFactor()
         [DllImport("gdi32.dll")] private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);

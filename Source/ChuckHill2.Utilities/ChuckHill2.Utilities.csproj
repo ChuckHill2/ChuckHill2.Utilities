@@ -78,6 +78,9 @@
     <Compile Include="GradientBrush.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="NamedColorComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="NamedColorListBox.cs">
       <SubType>Component</SubType>
     </Compile>

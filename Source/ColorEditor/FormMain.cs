@@ -1,18 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using ChuckHill2;
-using ChuckHill2.Utilities;
 
 namespace ColorEditor
 {
@@ -52,6 +40,14 @@ namespace ColorEditor
             //m_tvColors.RemoveColor(Color.Empty);
 
             //ColorExtensions.DumpColors();
+
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            namedColorComboBox1.AddColor(Color.FromArgb(100, 150, 250));
+            namedColorComboBox1.Selected = Color.Red;
         }
 
         private void m_btnColorDialog_Click(object sender, EventArgs e)
