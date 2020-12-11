@@ -1,8 +1,8 @@
-﻿//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 // <summary>
 // A custom tooltip component that replaces System.Windows.Forms.ToolTip().
 // </summary>
-// <copyright file="ToolTipHelp.cs" company="Chuck Hill">
+// <copyright file="Win32.cs" company="Chuck Hill">
 // Copyright (c) 2020 Chuck Hill.
 //
 // This library is free software; you can redistribute it and/or
@@ -40,6 +40,7 @@ namespace ChuckHill2.Utilities
     /// </summary>
     public static class Win32
     {
+        #region Message Sequence Debugging Tools
         /// <summary>
         /// Convert Window message into string for debugging. 
         /// See protected override void WndProc(ref Message m);
@@ -82,7 +83,7 @@ namespace ChuckHill2.Utilities
             return string.Format("0x{0:X4}", msg);
         }
         private static bool ContainsI(string s, string substr) => s.IndexOf(substr, StringComparison.OrdinalIgnoreCase) != -1;
-        //used internally by TranslateWMMessage(hWnd,msg)
+        //used internally by TranslateWMMessage()
         [DllImport("user32.dll")] private static extern int GetClassName(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
         private static string GetWndClassName(IntPtr hWnd)
         {
@@ -286,6 +287,7 @@ namespace ChuckHill2.Utilities
                 default: return string.Format("0x{0:X2}", key);
             }
         }
+        #endregion //Message Sequence Debugging Tools
 
         #region struct RECT
         /// <summary>
@@ -1890,6 +1892,7 @@ namespace ChuckHill2.Utilities
         }
         #endregion
 
+        #region FileIO
         public static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
 
         [DllImport("kernel32.dll", SetLastError = true)] public static extern bool DeleteFile(string lpFileName);
@@ -1960,5 +1963,51 @@ namespace ChuckHill2.Utilities
             VIRTUAL = 0x00010000
         }
         #endregion
+        #endregion
+
+        [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, StringBuilder lParam);
+        [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+        [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+        [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
+        [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
+
+        #region public static bool SetDpiAware()
+        enum DPI_AWARENESS_CONTEXT
+        {
+            UNAWARE = -1,
+            AWARE = -2,
+            PER_MONITOR_AWARE = -3,
+            PER_MONITOR_AWARE_V2 = -4,
+            GDISCALED = -5
+        }
+
+        [DllImport("User32.dll", SetLastError = true)] private static extern bool SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT ctx);
+        [DllImport("User32.dll", SetLastError = true)] private static extern bool SetProcessDPIAware();
+        /// <summary>
+        /// Set the process-default DPI awareness. This must be called BEFORE any window handles are created. Preferrably the first line in Program.Main().
+        /// </summary>
+        /// <remarks>
+        /// It is recommended that you set the process-default DPI awareness via application manifest. See 
+        /// https://docs.microsoft.com/en-us/windows/win32/hidpi/setting-the-default-dpi-awareness-for-a-process 
+        /// for more information. Setting the process-default DPI awareness via API call can lead to unexpected 
+        /// application behavior.
+        /// </remarks>
+        public static bool SetDpiAware()
+        {
+            string releaseId = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId", "0").ToString();
+            if (!int.TryParse(releaseId, out var WINVER)) return false;
+
+            if (WINVER >= 0x0605)
+            {
+                return SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT.PER_MONITOR_AWARE_V2);
+            }
+            else if (WINVER >= 0x0600)
+            {
+                return SetProcessDPIAware();
+            }
+
+            return false;
+        }
+        #endregion public static bool SetDpiAware()
     }
 }

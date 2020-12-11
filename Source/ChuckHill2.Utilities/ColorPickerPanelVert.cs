@@ -23,8 +23,6 @@ namespace ChuckHill2.Utilities
         {
             this.InitializeComponent();
             this.screenColorPicker.Image = (Image)new ImageAttribute(typeof(Cyotek.Windows.Forms.ScreenColorPicker), "eyedropper.png").Image.Clone();
-            this.BorderStyle = BorderStyle.None;
-            this.ShowAlphaChannel = true;
             this.Font = SystemFonts.DialogFont;
         }
         #endregion
@@ -53,6 +51,7 @@ namespace ChuckHill2.Utilities
         /// Force this control to scale/resize width/height proportionately such that the ColorWheel will always completely fill the top of the control.
         /// </summary>
         [Category("Layout"), Description("As the control width is changed, the height is also changed to optimally fit all the child controls.")]
+        [DefaultValue(false)]
         public bool ProportionalResizing { get; set; }
 
         private int __bottomHeight = 0;
@@ -72,7 +71,8 @@ namespace ChuckHill2.Utilities
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool ShowAlphaChannel { get; set; }
+        [DefaultValue(true)]
+        public bool ShowAlphaChannel { get; set; } = true;
         #endregion
 
         #region Methods

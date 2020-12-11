@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -22,24 +22,7 @@ namespace ChuckHill2.Utilities
         {
             this.InitializeComponent();
             this.screenColorPicker.Image = (Image)new ImageAttribute(typeof(Cyotek.Windows.Forms.ScreenColorPicker), "eyedropper.png").Image.Clone();
-            this.BorderStyle = BorderStyle.None;
-            this.ShowAlphaChannel = true;
             this.Font = SystemFonts.DialogFont;
-            AddPreviewKeyDownChildren(this.Controls);
-        }
-
-        private void AddPreviewKeyDownChildren(ControlCollection controls)
-        {
-            foreach(Control c in controls)
-            {
-                if (c.HasChildren) AddPreviewKeyDownChildren(c.Controls);
-                c.PreviewKeyDown += Control_PreviewKeyDown;
-            }
-        }
-
-        private void Control_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-            base.OnPreviewKeyDown(e);
         }
         #endregion
 
@@ -62,7 +45,8 @@ namespace ChuckHill2.Utilities
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool ShowAlphaChannel { get; set; }
+        [DefaultValue(true)]
+        public bool ShowAlphaChannel { get; set; } = true;
         #endregion
 
         #region Methods

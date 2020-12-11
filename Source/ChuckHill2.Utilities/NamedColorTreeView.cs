@@ -62,9 +62,6 @@ namespace ChuckHill2.Utilities
             base.ShowLines = false; //must be false if FullRowSelect is true
             base.FullRowSelect = true;
 
-            var pixelFactor = DpiScalingFactor() / 100.0;
-            this.graphicWidth = ConvertToGivenDpiPixel(this.graphicWidth, pixelFactor);
-
             var m_tnCustomColors = new TreeNode("Custom Colors") { Name = "Custom" };
             var m_tnWebColors = new TreeNode("Web Colors", ColorExtensions.KnownColors.Where(c => c.IsKnownColor && !c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name="Web" };
             var m_tnSystemColors = new TreeNode("System Colors", ColorExtensions.KnownColors.Where(c => c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name = "System" };
@@ -166,37 +163,5 @@ namespace ChuckHill2.Utilities
             if (ignoreAlpha) return c1.R == c2.R && c1.G == c2.G && c1.B == c2.B;
             return c1.A == c2.A && c1.R == c2.R && c1.G == c2.G && c1.B == c2.B;
         }
-
-        private static int ConvertToGivenDpiPixel(int value, double pixelFactor) => Math.Max(1, (int)(value * pixelFactor + 0.5));
-
-        #region public static int DpiScalingFactor()
-        [DllImport("gdi32.dll")] private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
-        private enum DeviceCap { VERTRES = 10, DESKTOPVERTRES = 117, LOGPIXELSY = 90 }
-        [DllImport("user32.dll")] private static extern IntPtr GetDC(IntPtr hWnd);
-        [DllImport("user32.dll")] private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-        /// <summary>
-        /// Get current DPI scaling factor as a percentage
-        /// </summary>
-        /// <returns>Scaling percentage</returns>
-        public static float DpiScalingFactor()
-        {
-            IntPtr hDC = IntPtr.Zero;
-            try
-            {
-                hDC = GetDC(IntPtr.Zero);
-                int logpixelsy = GetDeviceCaps(hDC, (int)DeviceCap.LOGPIXELSY);
-                float dpiScalingFactor = logpixelsy / 96f;
-                //Smaller - 100% == screenScalingFactor=1.0 dpiScalingFactor=1.0
-                //Medium - 125% (default) == screenScalingFactor=1.0 dpiScalingFactor=1.25
-                //Larger - 150% == screenScalingFactor=1.0 dpiScalingFactor=1.5
-                return dpiScalingFactor * 100f;
-            }
-            finally
-            {
-                if (hDC != IntPtr.Zero) ReleaseDC(IntPtr.Zero, hDC);
-            }
-        }
-        #endregion
     }
 }

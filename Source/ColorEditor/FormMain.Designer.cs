@@ -96,7 +96,6 @@ namespace ColorEditor
             this.namedColorComboBox1.Location = new System.Drawing.Point(671, 14);
             this.namedColorComboBox1.MaxDropDownItems = 37;
             this.namedColorComboBox1.Name = "namedColorComboBox1";
-            this.namedColorComboBox1.OrderBy = ChuckHill2.Utilities.OrderBy.Name;
             this.namedColorComboBox1.Size = new System.Drawing.Size(159, 23);
             this.namedColorComboBox1.TabIndex = 9;
             // 
@@ -104,13 +103,10 @@ namespace ColorEditor
             // 
             this.namedColorListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.namedColorListBox1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.namedColorListBox1.IntegralHeight = false;
             this.namedColorListBox1.ItemHeight = 15;
             this.namedColorListBox1.Location = new System.Drawing.Point(459, 14);
-            this.namedColorListBox1.Margin = new System.Windows.Forms.Padding(0);
             this.namedColorListBox1.Name = "namedColorListBox1";
-            this.namedColorListBox1.Size = new System.Drawing.Size(193, 661);
+            this.namedColorListBox1.Size = new System.Drawing.Size(193, 649);
             this.namedColorListBox1.TabIndex = 8;
             // 
             // colorPickerPanelVert1
@@ -122,7 +118,6 @@ namespace ColorEditor
             this.colorPickerPanelVert1.Margin = new System.Windows.Forms.Padding(0);
             this.colorPickerPanelVert1.MinimumSize = new System.Drawing.Size(192, 497);
             this.colorPickerPanelVert1.Name = "colorPickerPanelVert1";
-            this.colorPickerPanelVert1.ProportionalResizing = false;
             this.colorPickerPanelVert1.Size = new System.Drawing.Size(307, 661);
             this.colorPickerPanelVert1.TabIndex = 7;
             // 

@@ -77,14 +77,12 @@ namespace ChuckHill2.Utilities
         {
             base.Name = "NamedColorListBox";
             base.DrawMode = DrawMode.OwnerDrawFixed;
-
-            var pixelFactor = DpiScalingFactor() / 100.0;
-            this.graphicWidth = ConvertToGivenDpiPixel(this.graphicWidth, pixelFactor);
         }
 
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            base.ItemHeight = base.Font.Height + 2; //So wierd.  ItemHeight here is fontheight-2. For comboboxes it's fontheight+2  and treeviews it's fontheight+3. Go figure. We set it consistantly here.
 
             if (this.OrderBy == OrderBy.Color)
                 foreach (var c in ColorExtensions.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
@@ -204,37 +202,5 @@ namespace ChuckHill2.Utilities
             public ColorItem(string name, Color c) { Name = name; Color = c; }
             public override string ToString() => this.Name;
         }
-
-        private static int ConvertToGivenDpiPixel(int value, double pixelFactor) => Math.Max(1, (int)(value * pixelFactor + 0.5));
-
-        #region public static int DpiScalingFactor()
-        [DllImport("gdi32.dll")] private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
-        private enum DeviceCap { VERTRES = 10, DESKTOPVERTRES = 117, LOGPIXELSY = 90 }
-        [DllImport("user32.dll")] private static extern IntPtr GetDC(IntPtr hWnd);
-        [DllImport("user32.dll")] private static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-        /// <summary>
-        /// Get current DPI scaling factor as a percentage
-        /// </summary>
-        /// <returns>Scaling percentage</returns>
-        public static float DpiScalingFactor()
-        {
-            IntPtr hDC = IntPtr.Zero;
-            try
-            {
-                hDC = GetDC(IntPtr.Zero);
-                int logpixelsy = GetDeviceCaps(hDC, (int)DeviceCap.LOGPIXELSY);
-                float dpiScalingFactor = logpixelsy / 96f;
-                //Smaller - 100% == screenScalingFactor=1.0 dpiScalingFactor=1.0
-                //Medium - 125% (default) == screenScalingFactor=1.0 dpiScalingFactor=1.25
-                //Larger - 150% == screenScalingFactor=1.0 dpiScalingFactor=1.5
-                return dpiScalingFactor * 100f;
-            }
-            finally
-            {
-                if (hDC != IntPtr.Zero) ReleaseDC(IntPtr.Zero, hDC);
-            }
-        }
-        #endregion
     }
 }
