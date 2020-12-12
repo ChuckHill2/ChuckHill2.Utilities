@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- This must reside in the same folder as the csproj file with the same name -->
+<!-- To avoid unecessary package depedencies add packages.config:<package id="xxx.yyy" ... developmentDependency="true" /> -->
+<!-- $version$ == AssemblyInfo.cs:[assembly:AssemblyVersion("24.5.11.0")] -->
+<package  xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>    
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Chuck Hill (chuckhill2@gmail.com)</authors>
+    <owners>Chuck Hill</owners>
+	  <requireLicenseAcceptance>false</requireLicenseAcceptance>
+	  <license type="expression">LGPL-2.1-or-later</license>
+    <icon>ProjectLogo.png</icon>
+    <!--<projectUrl></projectUrl>-->
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2020 Chuck Hill</copyright>
+    <tags>color palette designer editor enum gradient</tags>
+    <repository type="git" url="https://github.com/ChuckHill2/ChuckHill2.Utilities" />
+  </metadata>
+  <files>
+    <file src="..\..\README.md" target="" />
+    <file src="ProjectLogo.png" target="" />
+    <file src="$OutDir$\$id$.chm" target="" />
+    <file src="$OutDir$\Cyotek.Windows.Forms.ColorPicker.dll" target="lib\net45" />
+  </files>
+</package>

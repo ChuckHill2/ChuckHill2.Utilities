@@ -3,21 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GradientTest", "Source\GradientTest\GradientTest.csproj", "{5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GradientTest", "GradientTest\GradientTest.csproj", "{5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChuckHill2.Utilities", "Source\ChuckHill2.Utilities\ChuckHill2.Utilities.csproj", "{44CF5926-3002-4C81-B44F-9975EC7D18AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChuckHill2.Utilities", "ChuckHill2.Utilities\ChuckHill2.Utilities.csproj", "{44CF5926-3002-4C81-B44F-9975EC7D18AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColorEditor", "Source\ColorEditor\ColorEditor.csproj", "{0B146178-244F-4DAA-B8AD-8DD583B07DCF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColorEditor", "ColorEditor\ColorEditor.csproj", "{0B146178-244F-4DAA-B8AD-8DD583B07DCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyotek.Windows.Forms.ColorPicker", "Cyotek.Windows.Forms.ColorPicker\Cyotek.Windows.Forms.ColorPicker.csproj", "{FB2A5786-CD2E-42CE-BC5D-0FCE90034221}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3CDB485E-47E4-475A-843B-90273E07FF34}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		.gitignore = .gitignore
-		LICENSE = LICENSE
-		README.md = README.md
+		..\.gitignore = ..\.gitignore
+		..\ACKNOWLEDGEMENTS.md = ..\ACKNOWLEDGEMENTS.md
+		..\CHANGELOG.md = ..\CHANGELOG.md
+		Directory.Build.props = Directory.Build.props
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyotek.Windows.Forms.ColorPicker", "Source\Cyotek.Windows.Forms.ColorPicker\Cyotek.Windows.Forms.ColorPicker.csproj", "{FB2A5786-CD2E-42CE-BC5D-0FCE90034221}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
