@@ -21,7 +21,7 @@ namespace ChuckHill2.Utilities
         public ColorPickerPanel()
         {
             this.InitializeComponent();
-            this.screenColorPicker.Image = (Image)new ImageAttribute(typeof(Cyotek.Windows.Forms.ScreenColorPicker), "eyedropper.png").Image.Clone();
+            this.screenColorPicker.Image = Image.FromStream(typeof(Cyotek.Windows.Forms.ScreenColorPicker).GetManifestResourceStream("eyedropper.png"));
             this.Font = SystemFonts.DialogFont;
         }
         #endregion

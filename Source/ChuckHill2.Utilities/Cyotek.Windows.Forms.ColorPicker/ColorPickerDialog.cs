@@ -6,10 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-#pragma warning restore 1030 
-#warning Info: Downloaded from https://github.com/cyotek/Cyotek.Windows.Forms.ColorPicker
-#pragma warning disable 1030 
-
 namespace Cyotek.Windows.Forms
 {
   // Cyotek Color Picker controls library

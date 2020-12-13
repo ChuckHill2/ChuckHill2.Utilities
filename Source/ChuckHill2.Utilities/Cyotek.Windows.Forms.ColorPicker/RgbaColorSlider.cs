@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -202,14 +202,7 @@ namespace Cyotek.Windows.Forms
 
     protected virtual Brush CreateTransparencyBrush()
     {
-      Type type;
-
-      type = typeof(RgbaColorSlider);
-
-      using (Bitmap background = new Bitmap(type.Assembly.GetManifestResourceStream(string.Concat(type.Namespace, ".Resources.cellbackground.png"))))
-      {
-        return new TextureBrush(background, WrapMode.Tile);
-      }
+      return new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.Transparent);
     }
 
     protected override void Dispose(bool disposing)

@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using ChuckHill2.Utilities;
 
 namespace Cyotek.Windows.Forms
 {
@@ -423,7 +424,7 @@ namespace Cyotek.Windows.Forms
         if (_eyedropperCursor == null)
         {
           // ReSharper disable AssignNullToNotNullAttribute
-          _eyedropperCursor = new Cursor(this.GetType().Assembly.GetManifestResourceStream(string.Concat(this.GetType().Namespace, ".Resources.eyedropper.cur")));
+          _eyedropperCursor = new Cursor(this.GetType().GetManifestResourceStream("eyedropper.cur"));
         }
         // ReSharper restore AssignNullToNotNullAttribute
 

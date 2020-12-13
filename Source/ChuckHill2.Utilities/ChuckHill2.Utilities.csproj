@@ -37,10 +37,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
-    <ProjectReference Include="..\Cyotek.Windows.Forms.ColorPicker\Cyotek.Windows.Forms.ColorPicker.csproj">
-      <Project>{fb2a5786-cd2e-42ce-bc5d-0fce90034221}</Project>
-      <Name>Cyotek.Windows.Forms.ColorPicker</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SolutionInfo.cs">
@@ -60,6 +56,78 @@
       <DependentUpon>ColorPickerPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ColorUIEditor.cs" />
+    <Compile Include="CommonExtensions.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobeColorTablePaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoshopColorSwatchColorSpace.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoshopColorSwatchFileVersion.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoShopColorSwatchSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorBarStyle.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorCellBorderStyle.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorCollection.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorCollectionEventArgs.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorCollectionSortOrder.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorComparer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorEditingMode.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorEditor.Designer.cs">
+      <DependentUpon>ColorEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorEditorManager.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorGridSelectedCellStyle.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorHitTestInfo.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorPalette.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorPalettes.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorPickerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorPickerDialog.Designer.cs">
+      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorSlider.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorSliderNubStyle.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorSource.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ColorWheel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\EditColorCancelEventArgs.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\EditColorEventArgs.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\GimpPaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\HslColor.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\HsvColor.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\HueColorSlider.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\IColorEditor.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\InterleavedBitmapPaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\IPaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\JascPaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\LightnessColorSlider.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\NativeMethods.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\NavigationOrigin.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\PaintNetPaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\PaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\RawPaletteSerializer.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\RgbaChannel.cs" />
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\RgbaColorSlider.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\SaturationColorSlider.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Cyotek.Windows.Forms.ColorPicker\ScreenColorPicker.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GradientControls\GradientFlowLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -101,11 +169,20 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Compile Include="Properties\Settings.Designer.cs">
       <DependentUpon>Settings.settings</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <Compile Include="SplitColorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -120,22 +197,28 @@
       <DependentUpon>ColorPickerPanel.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\ColorEditor.resx">
+      <DependentUpon>ColorEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\ColorPickerDialog.resx">
+      <DependentUpon>ColorPickerDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="ChuckHill2.Utilities.nuspec" />
+    <None Include="Cyotek.Windows.Forms.ColorPicker\.editorconfig" />
     <None Include="Doxygen.config" />
     <None Include="packages.config" />
     <None Include="PostBuildEvent.bat" />
     <None Include="ProjectLogo.png" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\cellbackground.png" />
+    <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\eyedropper.cur" />
+    <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\eyedropper.png" />
+    <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\palette-load.png" />
+    <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\palette-save.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

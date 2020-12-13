@@ -1,5 +1,8 @@
 using System;
 using System.Drawing;
+using System.Linq;
+using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace ColorEditor
@@ -40,7 +43,6 @@ namespace ColorEditor
             //m_tvColors.RemoveColor(Color.Empty);
 
             //ColorExtensions.DumpColors();
-
         }
 
         protected override void OnLoad(EventArgs e)

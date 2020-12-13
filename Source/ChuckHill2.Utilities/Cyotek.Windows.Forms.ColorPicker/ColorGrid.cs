@@ -1,3 +1,4 @@
+#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -930,14 +931,7 @@ namespace Cyotek.Windows.Forms
 
     protected virtual Brush CreateTransparencyBrush()
     {
-      Type type;
-
-      type = typeof(ColorGrid);
-
-      using (Bitmap background = new Bitmap(type.Assembly.GetManifestResourceStream(string.Concat(type.Namespace, ".Resources.cellbackground.png"))))
-      {
-        return new TextureBrush(background, WrapMode.Tile);
-      }
+      return new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.Transparent);
     }
 
     protected void DefineColorRegions(ColorCollection colors, int rangeStart, int offset)
