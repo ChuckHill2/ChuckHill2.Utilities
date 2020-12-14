@@ -7,11 +7,12 @@ using System.Reflection;
 namespace ChuckHill2.Utilities
 {
     /// <summary>
-    /// Implicitly converts a System.Drawing.Color object to/from a HSLColor object.
-    /// See: http://richnewman.wordpress.com/about/code-listings-and-diagrams/hslcolor-class/
+    /// Implicitly converts a System.Drawing.Color object to/from a HSL colorspace object.
     /// </summary>
     public struct HSLColor
     {
+        // See: http://richnewman.wordpress.com/about/code-listings-and-diagrams/hslcolor-class/
+
         /// <summary>Gets/Sets the alpha transparency component value of this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The alpha transparency component value of this <see cref="T:System.Drawing.Color" />. Alpha ranges from 0 through 255, where 0 is completely transparent and 255 is completely opaque.</returns>
         public byte Alpha { get; set; }
@@ -87,7 +88,7 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Create a new HSL struct from a  <see cref="T:System.Drawing.Color" /> structure.
         /// </summary>
-        /// <param name="color"></param>
+        /// <param name="color">Color struct to read ARGB values from.</param>
         public HSLColor(Color color) : this()
         {
             __hue = 0;
@@ -103,10 +104,10 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Create a new HSL struct from RGB color values.
         /// </summary>
-        /// <param name="alpha"></param>
-        /// <param name="red"></param>
-        /// <param name="green"></param>
-        /// <param name="blue"></param>
+        /// <param name="alpha">Alpha transparency (0-255)</param>
+        /// <param name="red">RGB red value (0-255)</param>
+        /// <param name="green">RGB green value (0-255)</param>
+        /// <param name="blue">RGB blue value (0-255)</param>
         public HSLColor(int alpha, int red, int green, int blue) : this(Color.FromArgb(alpha,red,green,blue)) { }
 
         /// <summary>
@@ -184,6 +185,8 @@ namespace ChuckHill2.Utilities
             return new HSLColor((byte)(a < 0 ? 0 : a > 255 ? 255 : a),  check(h) / 240.0 * 360.0,  check(s) / 240.0,  check(l) / 240.0);
         }
 
+        #region Override Methods
+        //! @cond DOXYGENHIDE
         public override string ToString() => $"H: {Hue:#0.##} S: {Saturation:#0.##} L: {Luminosity:#0.##}";
         public override int GetHashCode() => base.GetHashCode();
         public override bool Equals(object obj)
@@ -198,5 +201,7 @@ namespace ChuckHill2.Utilities
                     (int)(this.Saturation * 10000) == (int)(other.Saturation * 10000) &&
                     (int)(this.Luminosity * 10000) == (int)(other.Luminosity * 10000);
         }
+        //! @endcond  
+        #endregion
     }
 }

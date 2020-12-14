@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities
@@ -26,6 +22,11 @@ namespace ChuckHill2.Utilities
         Name
     }
 
+    ///  @image html NamedColorComboBox.png
+    /// <summary>
+    ///  Color picker ComboBox. It includes known Web and System colors (read-only)
+    ///  plus custom user-defined colors that may be added or removed.
+    /// </summary>
     public class NamedColorComboBox : ComboBox
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
@@ -53,12 +54,12 @@ namespace ChuckHill2.Utilities
                 if (__orderBy == OrderBy.Color)
                 {
                     foreach (var ci in customItems) base.Items.Add(ci); //Custom items are always at the top of the list.
-                    foreach (var c in ColorExtensions.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
+                    foreach (var c in ColorEx.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
                 }
                 else
                 {
                     foreach (var ci in customItems) base.Items.Add(ci);
-                    foreach (var c in ColorExtensions.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
+                    foreach (var c in ColorEx.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
                 }
 
                 this.ResumeLayout();
@@ -66,6 +67,7 @@ namespace ChuckHill2.Utilities
         }
 
         #region Hidden/Disabled Properties
+        //! @cond DOXYGENHIDE 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new AutoCompleteStringCollection AutoCompleteCustomSource { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -90,8 +92,12 @@ namespace ChuckHill2.Utilities
         public new ObjectCollection Items { get; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string ValueMember { get; set; }
+        //! @endcond
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the NamedColorComboBox class.
+        /// </summary>
         public NamedColorComboBox() : base()
         {
             base.Name = "NamedColorComboBox";
@@ -104,9 +110,9 @@ namespace ChuckHill2.Utilities
             base.OnHandleCreated(e);
 
             if (this.OrderBy == OrderBy.Color)
-                foreach (var c in ColorExtensions.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
+                foreach (var c in ColorEx.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
             else
-                foreach (var c in ColorExtensions.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
+                foreach (var c in ColorEx.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
 
             ImageBounds = new Rectangle(2, 1, graphicWidth, base.ItemHeight - 1 - 2);
             TextOffset = new Point(2 + graphicWidth + 2, -1); //-1 because we want to be vertically centered in in the blue selected rectangle

@@ -47,9 +47,9 @@ namespace ColorEditor
 
         protected override void OnLoad(EventArgs e)
         {
-            base.OnLoad(e);
-            namedColorComboBox1.AddColor(Color.FromArgb(100, 150, 250));
-            namedColorComboBox1.Selected = Color.Red;
+            //base.OnLoad(e);
+            //namedColorComboBox1.AddColor(Color.FromArgb(100, 150, 250));
+            //namedColorComboBox1.Selected = Color.Red;
         }
 
         private void m_btnColorDialog_Click(object sender, EventArgs e)

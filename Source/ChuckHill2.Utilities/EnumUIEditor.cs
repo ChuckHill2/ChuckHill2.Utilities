@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
@@ -10,15 +10,27 @@ using System.Windows.Forms.Design;
 
 namespace ChuckHill2.Utilities
 {
+    ///  @image html EnumUIEditor.png
     /// <summary>
     /// UITypeEditor for setting regular and bitwise enums (aka Flags attribute).
+    /// </summary>
+    /// <remarks>
     ///  For [Flags] bitwise enum values that evaluate to 0 are special in that when that enum is checked, all others are 
     ///  unchecked. Typically the zero'th enum is considered the uninitialized default. Regular enums only allow one selection.
-    ///  If any enum values have a [Description("xxx")] attribute associated with them, then they will show up as tooltips. 
-    /// </summary>
+    /// If any enum values have a [Description("Hello World")] attribute associated with them, then they will show up as tooltips.
+    /// If any enum values have a [Image(typeof(Direction),"Left.png"] attribute associated with them, then they will show up as icons.<br />
+    /// **Usage:**
+    /// <pre>
+    ///     [Editor(typeof(EnumUIEditor), typeof(UITypeEditor))]
+    ///     public Arrows Direction { get; set; }
+    /// </pre>
+    /// </remarks>
     public class EnumUIEditor : UITypeEditor
     {
         private EnumPanel dropdownControl = null;
+
+        #region Override Methods
+        //! @cond DOXYGENHIDE
 
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) => UITypeEditorEditStyle.DropDown;
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
@@ -46,6 +58,9 @@ namespace ChuckHill2.Utilities
             }
             return null;
         }
+
+        //! @endcond
+        #endregion
 
         private class EnumPanel : Panel
         {

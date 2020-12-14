@@ -32,10 +32,7 @@ namespace ColorEditor
             this.m_btnSelectTvColor = new System.Windows.Forms.Button();
             this.m_btnSelectLbColor = new System.Windows.Forms.Button();
             this.m_btnColorPickerDlg = new System.Windows.Forms.Button();
-            this.namedColorTreeView1 = new ChuckHill2.Utilities.NamedColorTreeView();
-            this.namedColorComboBox1 = new ChuckHill2.Utilities.NamedColorComboBox();
-            this.namedColorListBox1 = new ChuckHill2.Utilities.NamedColorListBox();
-            this.colorPickerPanelVert1 = new ChuckHill2.Utilities.ColorPickerPanelVert();
+            this.colorPickerPanelVert1 = new ChuckHill2.Utilities.ColorPickerPanelHorz();
             this.SuspendLayout();
             // 
             // m_btnColorDialog
@@ -82,54 +79,25 @@ namespace ColorEditor
             this.m_btnColorPickerDlg.UseVisualStyleBackColor = true;
             this.m_btnColorPickerDlg.Click += new System.EventHandler(this.m_btnColorPickerDlg_Click);
             // 
-            // namedColorTreeView1
-            // 
-            this.namedColorTreeView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.namedColorTreeView1.Location = new System.Drawing.Point(671, 43);
-            this.namedColorTreeView1.Name = "namedColorTreeView1";
-            this.namedColorTreeView1.Size = new System.Drawing.Size(242, 632);
-            this.namedColorTreeView1.TabIndex = 10;
-            // 
-            // namedColorComboBox1
-            // 
-            this.namedColorComboBox1.Location = new System.Drawing.Point(671, 14);
-            this.namedColorComboBox1.MaxDropDownItems = 37;
-            this.namedColorComboBox1.Name = "namedColorComboBox1";
-            this.namedColorComboBox1.Size = new System.Drawing.Size(159, 23);
-            this.namedColorComboBox1.TabIndex = 9;
-            // 
-            // namedColorListBox1
-            // 
-            this.namedColorListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.namedColorListBox1.ItemHeight = 15;
-            this.namedColorListBox1.Location = new System.Drawing.Point(459, 14);
-            this.namedColorListBox1.Name = "namedColorListBox1";
-            this.namedColorListBox1.Size = new System.Drawing.Size(193, 649);
-            this.namedColorListBox1.TabIndex = 8;
-            // 
             // colorPickerPanelVert1
             // 
             this.colorPickerPanelVert1.BackColor = System.Drawing.Color.Transparent;
             this.colorPickerPanelVert1.Color = System.Drawing.Color.Cyan;
             this.colorPickerPanelVert1.Font = new System.Drawing.Font("Tahoma", 8F);
-            this.colorPickerPanelVert1.Location = new System.Drawing.Point(140, 14);
+            this.colorPickerPanelVert1.Location = new System.Drawing.Point(201, 20);
             this.colorPickerPanelVert1.Margin = new System.Windows.Forms.Padding(0);
-            this.colorPickerPanelVert1.MinimumSize = new System.Drawing.Size(192, 497);
+            this.colorPickerPanelVert1.MaximumSize = new System.Drawing.Size(1434, 1433);
+            this.colorPickerPanelVert1.MinimumSize = new System.Drawing.Size(539, 261);
             this.colorPickerPanelVert1.Name = "colorPickerPanelVert1";
-            this.colorPickerPanelVert1.Size = new System.Drawing.Size(307, 661);
+            this.colorPickerPanelVert1.Size = new System.Drawing.Size(549, 278);
             this.colorPickerPanelVert1.TabIndex = 7;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(925, 684);
-            this.Controls.Add(this.namedColorTreeView1);
-            this.Controls.Add(this.namedColorComboBox1);
-            this.Controls.Add(this.namedColorListBox1);
+            this.BackColor = System.Drawing.SystemColors.Window;
+            this.ClientSize = new System.Drawing.Size(771, 308);
             this.Controls.Add(this.colorPickerPanelVert1);
             this.Controls.Add(this.m_btnColorPickerDlg);
             this.Controls.Add(this.m_btnSelectLbColor);
@@ -149,10 +117,7 @@ namespace ColorEditor
         private System.Windows.Forms.Button m_btnSelectTvColor;
         private System.Windows.Forms.Button m_btnSelectLbColor;
         private System.Windows.Forms.Button m_btnColorPickerDlg;
-        private ChuckHill2.Utilities.ColorPickerPanelVert colorPickerPanelVert1;
-        private ChuckHill2.Utilities.NamedColorListBox namedColorListBox1;
-        private ChuckHill2.Utilities.NamedColorComboBox namedColorComboBox1;
-        private ChuckHill2.Utilities.NamedColorTreeView namedColorTreeView1;
+        private ChuckHill2.Utilities.ColorPickerPanelHorz colorPickerPanelVert1;
     }
 }
 

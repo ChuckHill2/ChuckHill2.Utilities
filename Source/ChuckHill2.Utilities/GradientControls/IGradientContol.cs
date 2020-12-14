@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -16,27 +16,63 @@ namespace ChuckHill2.Utilities
     // SplitContainer contains array of SplitterPanel so this would take significant effort to imlement gradient backgrounds.
     // TabControl contains array of TabPage so this would take significant effort to imlement gradient backgrounds.
 
+    /// <summary>
+    /// Interface for gradient control common properties plus requisite minimum basic control properties for supporting drawing.
+    /// </summary>
     public interface IGradientControl
     {
         /// <summary>
-        /// The background gradient brush. It is a complete replacement for Control.BackColor
+        /// The gradient brush used to fill the background.
+        /// This is a complete replacement for Control.BackColor
         /// </summary>
         GradientBrush BackgroundGradient { get; set; }
 
         /// <summary>
-        /// The background gradient brush changed event. It is a complete replacement for Control.BackColorChanged.
+        /// Occurs when the value of the BackgroundGradient property changes.
+        /// This is a complete replacement for Control.BackColorChanged.
         /// </summary>
         event EventHandler BackgroundGradientChanged;
 
-        // These are the built-in control properties needed for GradientControlPaint.
+        #region Base System.Windows.Forms.Control Properties
+        //! @cond DOXYGENHIDE 
+
+        /// <summary>
+        /// Retrieves the rectangle of the inner area of this control.
+        /// </summary>
         Rectangle ClientRectangle { get; }
+
+        /// <summary>
+        /// The background color of the component.
+        /// </summary>
         Color BackColor { get; }
+
+        /// <summary>
+        /// Indicates whether the control is mirrored.
+        /// </summary>
         bool IsMirrored { get; }
 
+        /// <summary>
+        /// The background image used for the control.
+        /// </summary>
         Image BackgroundImage { get; set; }
+
+        /// <summary>
+        /// The background image layout used for the control.
+        /// </summary>
         ImageLayout BackgroundImageLayout { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether control's elements are aligned to support locales using right-to-left fonts.
+        /// </summary>
         RightToLeft RightToLeft { get; set; }
+
+        /// <summary>
+        /// The font used to display text in the control.
+        /// </summary>
         Font Font { get; set; }
+
+        //! @endcond  
+        #endregion
     }
 
     /// <summary>

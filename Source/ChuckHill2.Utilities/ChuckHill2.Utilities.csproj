@@ -42,18 +42,18 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="ColorExtensions.cs" />
+    <Compile Include="ColorEx.cs" />
     <Compile Include="ColorPickerPanelVert.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ColorPickerPanelVert.Designer.cs">
       <DependentUpon>ColorPickerPanelVert.cs</DependentUpon>
     </Compile>
-    <Compile Include="ColorPickerPanel.cs">
+    <Compile Include="ColorPickerPanelHorz.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ColorPickerPanel.Designer.cs">
-      <DependentUpon>ColorPickerPanel.cs</DependentUpon>
+    <Compile Include="ColorPickerPanelHorz.Designer.cs">
+      <DependentUpon>ColorPickerPanelHorz.cs</DependentUpon>
     </Compile>
     <Compile Include="ColorUIEditor.cs" />
     <Compile Include="CommonExtensions.cs" />
@@ -102,7 +102,7 @@
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\EditColorEventArgs.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\GimpPaletteSerializer.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\HslColor.cs" />
-    <Compile Include="Cyotek.Windows.Forms.ColorPicker\HsvColor.cs" />
+    <None Include="Cyotek.Windows.Forms.ColorPicker\HsvColor.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\HueColorSlider.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -193,8 +193,8 @@
       <DependentUpon>ColorPickerPanelVert.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ColorPickerPanel.resx">
-      <DependentUpon>ColorPickerPanel.cs</DependentUpon>
+    <EmbeddedResource Include="ColorPickerPanelHorz.resx">
+      <DependentUpon>ColorPickerPanelHorz.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\ColorEditor.resx">

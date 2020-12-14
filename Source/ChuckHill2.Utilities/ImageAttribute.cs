@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -12,41 +12,62 @@ namespace ChuckHill2.Utilities
     /// Associate an image with any application element. 
     /// </summary>
     /// <remarks>
-    /// * Definitions *<br />
-    /// ** Assembly Manifest resources **<br />
-    /// This is the sole location within the assembly that .NET resources reside. The object resource is included as named binary object at compile time. The name of the resource within the manifest is namespace.folderpat).filename.ext where 'folderpath' is relative to the project folder and '\\' delimiters are converted to '.'.<br />
-    ///<br />
-    /// ** Project resources **<br />
-    /// Object resources specific to the entire project. These object resources are stored in a resx (special XML) file and compiled into 'Resources.resources' file which is in turn embedded into the assembly manifest as namespace.folderpath.Resources.resources. The names of the objects stored in this file consist of just the filename(no extension) where illegal C# variable name characters are converted to '_'.<br />
-    ///<br />
-    /// ** Form resources **<br />
-    /// Object resources specific to the Form Designer. The format is the same as project resources but the name in the assembly manifest is namespace.folderpath.classname.resources. Be careful. Manually entered items may be overwritten by the designer.<br />
-    ///<br />
-    /// ** ImageAttribute<br />
-    /// Attribute can be applied to any application element.<br />
-    /// It's purpose is to associate any object member(class, fields, properties, enums, etc) with an image at compile time. It's up to the caller to make use of it.<br />
-    /// The image file formats supported are: bmp, png, gif, jpg, tif, emf, wmf, ico<br />
-    ///<br />
-    /// There are 3 constructors, 2 public properties, and nothing else.<br />
-    ///<br />
-    /// *** ImageAttribute(string filename, object tag=null)<br />
-    /// Retrieve an image from an absolute path or relative path where the path is relative to where the execuatable resides or the current working directory.<br />
-    ///<br />
-    /// *** ImageAttribute(Type t, object tag=null)<br />
-    /// Retrieve a default image for the type from the defining assembly.<br />
-    /// Within the assembly manifest, it will be named namespace.classname.ext where 'ext' can be any image extension;<br />
-    /// Or within any of the assembly manifest .resources, that contains 'classname'.<br />
-    ///<br />
-    /// *** ImageAttribute(Type t, string name, object tag=null)<br />
-    /// Retrieve an image from the defining assembly with a specific case-sensitive name.<br />
-    /// Within the assembly manifest, it will be named namespace.foldername.name.ext where 'namespace' is optional and ignored, 'foldername' and 'ext' are only needed to narrow the search in case of duplicates. Only 'name' is required.;<br />
-    /// Or within any of the assembly manifest .resources, that contains 'name'.<br />
-    ///<br />
-    /// *** property Image Image { get; }<br />
-    /// The image retrieved or null if not found. The image is not loaded until the caller actually attempts to retrieve it. Only one instance is created unless it is disposed and the caller re-retrieves the image.<br />
-    ///<br />
-    /// *** property object Tag { get; }<br />
-    /// Tag is just an optional unique identifier in case an object member has multiple ImageAttribute's declared.<br />
+    /// <H3>Definitions</H3>
+    /// <H4>Assembly Manifest resources</H4>
+    /// This is the sole location within the assembly that.NET resources reside.The
+    /// object resource is included as named binary object at compile time.The name of
+    /// the resource within the manifest is namespace.folderpath.filename.ext where
+    /// 'folderpath' is relative to the project folder and '\\' delimiters are converted
+    /// to '.'.
+    /// 
+    /// <H4>Project resources</H4>
+    /// Object resources specific to the entire project.These object resources are
+    /// stored in a resx(special XML) file and compiled into 'Resources.resources' file
+    /// which is in turn embedded into the assembly manifest as
+    /// namespace.folderpath.Resources.resources.The names of the objects stored in this
+    /// file consist of just the filename(no extension) where illegal C# variable name
+    /// characters are converted to '_'.
+    /// 
+    /// <H4>Form resources</H4>
+    /// Object resources specific to the Form Designer.The format is the same as project
+    /// resources but the name in the assembly manifest is
+    /// namespace.folderpath.classname.resources. Be careful. Manually entered items may
+    /// be overwritten by the designer.
+    /// 
+    /// <H3>ImageAttribute</H3>
+    /// Attribute can be applied to any application element. It's purpose is to
+    /// associate any object member(class, fields, properties, enums, etc) with an image
+    /// at compile time. It's up to the caller to make use of it. The image file formats
+    /// supported are: bmp, png, gif, jpg, tif, emf, wmf, ico
+    /// 
+    /// There are 3 constructors, 2 public properties, and nothing else.
+    /// 
+    /// **ImageAttribute**(*string filename, object tag = null*)<br />
+    /// Retrieve an image from an absolute path or relative path where the path is
+    /// relative to where the execuatable resides or the current working directory.
+    /// 
+    /// **ImageAttribute**(*Type t, object tag = null*)<br />
+    /// Retrieve a default image for the type from the defining assembly. Within the
+    /// assembly manifest, it will be named namespace.classname.ext where 'ext' can be
+    /// any image extension; Or within any of the assembly manifest.resources, that
+    /// contains 'classname'.
+    /// 
+    /// **ImageAttribute**(*Type t, string name, object tag = null*)<br />
+    /// Retrieve an image from the defining assembly with a specific case-sensitive
+    /// name. Within the assembly manifest, it will be named
+    /// namespace.foldername.name.ext where 'namespace' is optional and ignored,
+    /// 'foldername' and 'ext' are only needed to narrow the search in case of
+    /// duplicates.Only 'name' is required; Or within any of the assembly
+    /// manifest.resources, that contains 'name'.
+    /// 
+    /// Property *Image* **Image** { get; }<br />
+    /// The image retrieved or null if not found.The image is not loaded until the
+    /// caller actually attempts to retrieve it. Only one instance is created unless it
+    /// is disposed and the caller re-retrieves the image.
+    /// 
+    /// Property *object* **Tag** { get; }<br />
+    /// Tag is just an optional unique identifier in case an object member has multiple
+    /// ImageAttribute's declared.
     /// </remarks>
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class ImageAttribute : Attribute
@@ -81,7 +102,7 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// An optional unique identifier in case an object member has multiple ImageAttribute's declared.
         /// </summary>
-        public object Tag => _tag;
+        public object Tag { get { return _tag; } }
 
         ~ImageAttribute()
         {
@@ -105,10 +126,8 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Initializes a new ImageAttribute object based on an image that is embedded as a manifest resource in a specified assembly.
         /// </summary>
-        /// <param name="t">
-        ///    This defines the assembly that is searched for the image resource.  
-        ///    The icon/image name must be same name as the object name. Original file extension is ignored.
-        ///    Within the embedded resources, the embedded image file may have any image extension.  
+        /// <param name="t">A <see cref="T:System.Type" /> whose defining assembly is searched for the image resource. 
+        ///    The icon/image name must be same name as the object name. The embedded image file may have any image extension.  
         /// </param>
         /// <param name="tag">An optional unique identifier in case an object member has multiple ImageAttribute's declared.</param>
         public ImageAttribute(Type t, object tag = null)

@@ -23,6 +23,5 @@
     <file src="..\..\README.md" target="" />
     <file src="ProjectLogo.png" target="" />
     <file src="$OutDir$\$id$.chm" target="" />
-    <file src="$OutDir$\Cyotek.Windows.Forms.ColorPicker.dll" target="lib\net45" />
   </files>
 </package>

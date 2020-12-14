@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace ChuckHill2.Utilities
 {
-    public static class ColorExtensions
+    public static class ColorEx
     {
         // Nice perceptual color ordering from https://en.wikipedia.org/wiki/Web_colors.
         // Using  Enum.GetNames(typeof(KnownColor)).Select(s => Color.FromName(s)) and sorting by HSL gives accurate but perceptually strange results, so we hardcode it here.
@@ -24,16 +24,16 @@ namespace ChuckHill2.Utilities
         /// Assign a custom name to a color.
         /// Where color.IsNamedColor == true, color.IsKnownColor == false, and color.Name == [your name].
         /// </summary>
-        /// <param name="c"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="c">Source unnamed Color to assign name to.</param>
+        /// <param name="name">Name to assign to provided color.</param>
+        /// <returns>New named color</returns>
         public static Color MakeNamed(this Color c, string name) => (Color)ciColor.Invoke(new object[] { MakeArgb(c.A, c.R, c.G, c.B), (short)(StateARGBValueValid | StateNameValid), name, 0 });
 
         /// <summary>
         ///  Retrieve or create a name for the specified color.
         /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
+        /// <param name="color">Color that may or may not have a associated name.</param>
+        /// <returns>The color's name or a name created based upon the ARGB values.</returns>
         public static string GetName(this Color color)
         {
             if (color.IsEmpty) return "Empty";
@@ -89,11 +89,10 @@ namespace ChuckHill2.Utilities
         }
 
         /// <summary>
-        /// Given some random color, get the nearest known web or system color.
-        /// Transparency is ignored. This DOES NOT pass thru transparency.
+        /// Given a specified color, get the nearest known web or system color. Transparency is ignored.
         /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
+        /// <param name="color">Color to match</param>
+        /// <returns>The known color that most closely resembles the specified color</returns>
         public static Color NearestKnownColor(this Color color)
         {
             // For finding nearest known perceptual color, using the LAB color space gives much better results than weighted HSL.
@@ -131,9 +130,10 @@ namespace ChuckHill2.Utilities
         }
 
         /// <summary>
+        /// For debugging only.
         /// Dump known colors into bin\debug\NamedColors.txt that may be in turn, loaded into Excel for inspection and validation.
-        /// Use the custom macro function 'myRGB()' to fill-in the 'Color' column.
-        /// Validate against  http://colormine.org/
+        /// Use the custom Excel macro function 'myRGB()' to fill-in the 'Color' column.
+        /// Validate values against  http://colormine.org/
         /// </summary>
         [System.Diagnostics.Conditional("DEBUG")]
         public static void DumpColors()
@@ -152,7 +152,7 @@ namespace ChuckHill2.Utilities
                     "\tRound Trip (HSV)\tRed (HSV)\tGreen (HSV)\tBlue (HSV)"
                     );
 
-                foreach (var c in ColorExtensions.KnownColors)
+                foreach (var c in ColorEx.KnownColors)
                 {
                     double L, A, B;
                     #if USE_COLORMINE
@@ -172,7 +172,7 @@ namespace ChuckHill2.Utilities
                     Color hsl2c = hsl;
                     Color hsv2c = hsv;
 
-                    sw.WriteLine($"\t{c.Name}\t#{ColorExtensions.MakeArgb(0, c.R, c.G, c.B):X6}" +
+                    sw.WriteLine($"\t{c.Name}\t#{ColorEx.MakeArgb(0, c.R, c.G, c.B):X6}" +
                         $"\t{c.R}\t{c.G}\t{c.B}" +
                         $"\t{L}\t{A}\t{B}" +
                         $"\t{hsl.Hue}\t{hsl.Saturation}\t{hsl.Luminosity}" +

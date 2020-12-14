@@ -7,11 +7,12 @@ using System.Reflection;
 namespace ChuckHill2.Utilities
 {
     /// <summary>
-    /// Implicitly converts a System.Drawing.Color object to/from a HSVColor object.
-    /// See: https://stackoverflow.com/questions/1335426/is-there-a-built-in-c-net-system-api-for-hsv-to-rgb
+    /// Implicitly converts a System.Drawing.Color object to/from a HSV colorspace object.
     /// </summary>
     public struct HSVColor
     {
+        // See: https://stackoverflow.com/questions/1335426/is-there-a-built-in-c-net-system-api-for-hsv-to-rgb
+
         /// <summary>Gets/Sets the alpha transparency component value of this <see cref="T:System.Drawing.Color" /> structure.</summary>
         /// <returns>The alpha transparency component value of this <see cref="T:System.Drawing.Color" />. Alpha ranges from 0 through 255, where 0 is completely transparent and 255 is completely opaque.</returns>
         public byte Alpha { get; set; }
@@ -90,7 +91,7 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Create a new HSV struct from a  <see cref="T:System.Drawing.Color" /> structure.
         /// </summary>
-        /// <param name="color"></param>
+        /// <param name="color">Color struct to read ARGB values from.</param>
         public HSVColor(Color color)
         {
             __hue = 0;
@@ -107,10 +108,10 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Create a new HSV struct from RGB color values.
         /// </summary>
-        /// <param name="alpha"></param>
-        /// <param name="red"></param>
-        /// <param name="green"></param>
-        /// <param name="blue"></param>
+        /// <param name="alpha">Alpha transparency (0-255)</param>
+        /// <param name="red">RGB red value (0-255)</param>
+        /// <param name="green">RGB green value (0-255)</param>
+        /// <param name="blue">RGB blue value (0-255)</param>
         public HSVColor(int alpha, int red, int green, int blue) : this(Color.FromArgb(alpha, red, green, blue)) { }
 
         /// <summary>
@@ -132,6 +133,8 @@ namespace ChuckHill2.Utilities
             this.Value = value;
         }
 
+        #region Override Methods
+        //! @cond DOXYGENHIDE
         public override string ToString() => $"H: {Hue:#0.##} S: {Saturation:#0.##} V: {Value:#0.##}";
         public override int GetHashCode() => base.GetHashCode();
         public override bool Equals(object obj)
@@ -146,5 +149,7 @@ namespace ChuckHill2.Utilities
                     (int)(this.Saturation * 10000) == (int)(other.Saturation * 10000) &&
                     (int)(this.Value * 10000) == (int)(other.Value * 10000);
         }
+        //! @endcond  
+        #endregion
     }
 }

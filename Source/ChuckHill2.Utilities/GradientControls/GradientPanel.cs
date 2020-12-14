@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -8,6 +8,10 @@ using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities
 {
+    /// <summary>
+    /// Group collections of controls.
+    /// Extends System.Windows.Forms.Panel to support a gradient color for the background.
+    /// </summary>
     [ToolboxItem(true), ToolboxBitmap(typeof(Panel))]
     public class GradientPanel : Panel, IGradientControl
     {
@@ -22,12 +26,15 @@ namespace ChuckHill2.Utilities
         private bool ShouldSerializeBackgroundGradient() => !BackgroundGradient.Equals(new GradientBrush(this.Parent));
         private void ResetBackgroundGradient() => BackgroundGradient = null;
 
-        /// <summary>Occurs when the value of the <see cref="P:System.Windows.Forms.Control.BackColor" /> property changes.</summary>
+        /// <summary>
+        /// Occurs when the value of the BackgroundGradient property changes.
+        /// </summary>
         [Category("Property Changed")]
         [Description("Event raised when the value of the BackColor property is changed on Control.")]
         public event EventHandler BackgroundGradientChanged;
 
         #region Hidden/Unused Properties
+        //! @cond DOXYGENHIDE 
         /// <summary> This is not used. See the BackgroundGradient property.</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Color BackColor { get => BackgroundGradient.Color1; set => BackgroundGradient.Color1 = value; }
@@ -35,6 +42,7 @@ namespace ChuckHill2.Utilities
         /// <summary> This is not used. See the BackgroundGradientChanged event.</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new event EventHandler BackColorChanged { add { } remove { } }
+        //! @endcond
         #endregion Hidden/Unused Properties
 
         /// <summary>Raises the BackgroundGradientChanged event.</summary>

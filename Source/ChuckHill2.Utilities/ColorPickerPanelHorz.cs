@@ -1,24 +1,32 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using Cyotek.Windows.Forms;
 
 namespace ChuckHill2.Utilities
 {
+    ///  @image html ColorPickerPanelHorz.png
+    /// <summary>
+    /// A Color picker/chooser panel that allows the user to visually select a color by modifying various color properties and see the results live in the preview.
+    /// This resizable panel is oriented Horizontally.
+    /// </summary>
+    /// <remarks>
+    /// Note: When a color swatch has focus, pressing enter will popup the standard color dialog to change the color of the selected item.
+    /// </remarks>
     [DefaultEvent("PreviewColorChanged")]
     [DefaultProperty("Color")]
-    public partial class ColorPickerPanel : UserControl
+    public partial class ColorPickerPanelHorz : UserControl
     {
         #region Constants
         private static readonly object _eventPreviewColorChanged = new object();
         #endregion
 
         #region Constructors
-        public ColorPickerPanel()
+        /// <summary>
+        ///  Initializes a new instance of the ColorPickerPanelHorz class.
+        /// </summary>
+        public ColorPickerPanelHorz()
         {
             this.InitializeComponent();
             this.screenColorPicker.Image = Image.FromStream(typeof(Cyotek.Windows.Forms.ScreenColorPicker).GetManifestResourceStream("eyedropper.png"));
@@ -27,7 +35,10 @@ namespace ChuckHill2.Utilities
         #endregion
 
         #region Events
-        [Category("Property Changed")]
+        /// <summary>
+        /// Triggered when the preview color has changed.
+        /// </summary>
+        [Category("Property Changed"), Description("Triggered when the preview color has changed.")]
         public event EventHandler PreviewColorChanged
         {
             add { this.Events.AddHandler(_eventPreviewColorChanged, value); }
@@ -36,24 +47,25 @@ namespace ChuckHill2.Utilities
         #endregion
 
         #region Properties
-        [Category("Data"), Description("Initial Color.")]
+        /// <summary>
+        /// Get/Set the color to be modified.
+        /// </summary>
+        [Category("Data"), Description("Initial Color and final color.")]
         public Color Color
         {
             get { return colorEditorManager.Color; }
             set { colorEditorManager.Color = value; }
         }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        /// <summary>
+        /// Allow color transparency to be changed by providing a translucency slider and translucent color swatches.
+        /// </summary>
+        [Category("Layout"), Description("Allow color transparency to be changed by providing a translucency slider and translucent color swatches.")]
         [DefaultValue(true)]
         public bool ShowAlphaChannel { get; set; } = true;
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.Load"/> event.
-        /// </summary>
-        /// <param name="e">An <see cref="T:System.EventArgs"/> that contains the event data. </param>
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -75,23 +87,17 @@ namespace ChuckHill2.Utilities
             }
         }
 
-        /// <summary>
-        /// Raises the <see cref="PreviewColorChanged" /> event.
-        /// </summary>
-        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         protected virtual void OnPreviewColorChanged(EventArgs e)
         {
             EventHandler handler;
-
             handler = (EventHandler)this.Events[_eventPreviewColorChanged];
-
             handler?.Invoke(this, e);
         }
 
         private void colorEditorManager_ColorChanged(object sender, EventArgs e)
         {
+            previewPanel.Color = this.Color;
             previewPanel.Invalidate();
-
             this.OnPreviewColorChanged(e);
         }
 

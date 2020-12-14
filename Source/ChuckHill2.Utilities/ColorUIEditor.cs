@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -15,12 +15,18 @@ using System.Windows.Forms.Design;
 
 namespace ChuckHill2.Utilities
 {
+    ///  @image html ColorUIEditor.png
     /// <summary>Provides an enhanced <see cref="T:System.Drawing.Design.UITypeEditor" /> for visually picking a color.</summary>
     /// <remarks>
     /// Includes several ways to enter a color, including transparency.
     /// Pressing Escape returns without changing the color (e.g. Cancel).
     /// Pressing Enter or clicking outside of the editor will commit the color (e.g. Ok).
-    /// Editor popup (and all child controls) resizes to fit the column width.
+    /// Editor popup (and all child controls) resizes to fit the column width.<br />
+    /// **Usage:**
+    /// <pre>
+    ///     [Editor(typeof(ColorUIEditor), typeof(UITypeEditor))]
+    ///     public Color MyColor { get; set; }
+    /// </pre>
     /// </remarks>
     public class ColorUIEditor : UITypeEditor
     {
@@ -28,6 +34,9 @@ namespace ChuckHill2.Utilities
         IWindowsFormsEditorService service;
         private bool isCancelled;
         private Size preferredSize;
+
+        #region Override Methods
+        //! @cond DOXYGENHIDE 
 
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) => UITypeEditorEditStyle.DropDown;
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
@@ -75,6 +84,9 @@ namespace ChuckHill2.Utilities
             using (var solidBrush = new SolidBrush(color))
                 e.Graphics.FillRectangle(solidBrush, e.Bounds);
         }
+
+        //! @endcond
+        #endregion
 
         private void AddPreviewKeyDown(Control control)
         {

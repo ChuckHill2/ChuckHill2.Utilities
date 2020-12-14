@@ -9,6 +9,7 @@ using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities
 {
+    ///  @image html NamedColorTreeView.png
     /// <summary>
     /// Color selector treeview control with three root nodes 'Custom', 'Known', and 'System' colors.
     /// Only custom colors can be added or removed.
@@ -21,6 +22,7 @@ namespace ChuckHill2.Utilities
         private Point TextOffset;
 
         #region Hidden/Disabled Properties
+        //! @cond DOXYGENHIDE 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new bool CheckBoxes { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -53,8 +55,12 @@ namespace ChuckHill2.Utilities
         public new ImageList StateImageList { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string Text { get; set; }
+        //! @endcond  
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the NamedColorTreeView class.
+        /// </summary>
         public NamedColorTreeView() : base()
         {
             base.Name = "NamedColorTreeView";
@@ -63,8 +69,8 @@ namespace ChuckHill2.Utilities
             base.FullRowSelect = true;
 
             var m_tnCustomColors = new TreeNode("Custom Colors") { Name = "Custom" };
-            var m_tnWebColors = new TreeNode("Web Colors", ColorExtensions.KnownColors.Where(c => c.IsKnownColor && !c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name="Web" };
-            var m_tnSystemColors = new TreeNode("System Colors", ColorExtensions.KnownColors.Where(c => c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name = "System" };
+            var m_tnWebColors = new TreeNode("Web Colors", ColorEx.KnownColors.Where(c => c.IsKnownColor && !c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name="Web" };
+            var m_tnSystemColors = new TreeNode("System Colors", ColorEx.KnownColors.Where(c => c.IsSystemColor).Select(c => new TreeNode(c.Name) { Name = c.Name, Tag = c }).ToArray()) { Name = "System" };
             base.Nodes.AddRange(new TreeNode[] { m_tnCustomColors, m_tnWebColors, m_tnSystemColors });
         }
 

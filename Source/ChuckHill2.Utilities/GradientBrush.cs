@@ -1,4 +1,4 @@
-﻿//https://stackoverflow.com/questions/37931785/winforms-designer-properties-of-different-derived-types
+//https://stackoverflow.com/questions/37931785/winforms-designer-properties-of-different-derived-types
 //https://blackwells.co.uk/extracts/ch07.pdf
 
 using System;
@@ -24,7 +24,7 @@ using System.Windows.Forms;
 namespace ChuckHill2.Utilities
 {
     /// <summary>
-    /// Create a simple 2-color gradient brush
+    /// Create a simple 2-color gradient brush that is editable in the Winforms Designer.
     /// </summary>
     [Editor(typeof(GradientBrushEditor), typeof(UITypeEditor))]
     [TypeConverter(typeof(GradientBrushConverter))]
@@ -56,7 +56,6 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// The gradient style for the brush.
         /// </summary>
-        //[NotifyParentProperty(true)]
         [Editor(typeof(EnumUIEditor), typeof(UITypeEditor))]
         [Category("Appearance"), Description("The style of the gradient.")]
         public BrushStyle Style { get; set; }
@@ -64,9 +63,8 @@ namespace ChuckHill2.Utilities
         //private void ResetStyle() => Style = DefaultStyle;
 
         /// <summary>
-        /// The first color of the gradient or the solid brush color.
+        /// The first color of the gradient or this is the solid brush color.
         /// </summary>
-        //[NotifyParentProperty(true)]  //Dynamically update property header in designer
         [Category("Appearance"), Description("The first color of the gradient or the solid brush color.")]
         [Editor(typeof(ColorUIEditor), typeof(UITypeEditor))]
         public Color Color1 { get; set; }
@@ -76,7 +74,6 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// The second color of the gradient.
         /// </summary>
-        //[NotifyParentProperty(true)]
         [Category("Appearance"), Description("The second color of the gradient. This is ignored if the style is Solid.")]
         [Editor(typeof(ColorUIEditor), typeof(UITypeEditor))]
         public Color Color2 { get; set; }
@@ -86,7 +83,6 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Controls the overall brightness and ratio of red to green to blue hues. Enables a more uniform intensity across the gradient. This is ignored if the style is Solid.
         /// </summary>
-        //[NotifyParentProperty(true)]
         [Category("Appearance"), Description("Controls the overall brightness and ratio of red to green to blue hues. Enables a more uniform intensity across the gradient. This is ignored if the style is Solid.")]
         public bool GammaCorrection { get; set; }
         //private bool ShouldSerializeGammaCorrection() => GammaCorrection != DefaultGammaCorrection;
@@ -124,10 +120,10 @@ namespace ChuckHill2.Utilities
         /// Create a new object with the specified properties.
         /// </summary>
         /// <param name="parent">Parent control used to determine what defaults to use. Null is ok.</param>
-        /// <param name="color1"></param>
-        /// <param name="color2"></param>
-        /// <param name="style"></param>
-        /// <param name="gammaCorrection"></param>
+        /// <param name="color1">The first color of the gradient or this is the solid brush color.</param>
+        /// <param name="color2">The second color of the gradient.</param>
+        /// <param name="style">The gradient style for the brush.</param>
+        /// <param name="gammaCorrection">Controls the overall brightness and ratio of red to green to blue hues. Enables a more uniform intensity across the gradient. This is ignored if the style is Solid.</param>
         public GradientBrush(Control parent, Color color1, Color color2, BrushStyle style, bool gammaCorrection)
         {
             Host = parent;
@@ -221,6 +217,9 @@ namespace ChuckHill2.Utilities
             return lbr;
         }
 
+        #region Override Methods
+        //! @cond DOXYGENHIDE
+
         public override bool Equals(object obj)
         {
             //This override is required for GradientBrushConverter to detect when this instance has been modified.
@@ -252,15 +251,18 @@ namespace ChuckHill2.Utilities
             }
         }
 
-        //Optional override. Useful for debugging.
         public override string ToString() => $"{ColorToString(Color1)}{(Style == BrushStyle.Solid ? "" : ", " + ColorToString(Color2))}, {Style}";
+
+        //! @endcond
+        #endregion
+
         private static string ColorToString(Color c) => c.IsKnownColor ? c.Name : c.IsNamedColor ? $"'{c.Name}'" : c.A < byte.MaxValue ? $"({c.A},{c.R},{c.G},{c.B})" : $"({c.R},{c.G},{c.B})";
     }
 
     /// <summary>
     /// WinForms Designer type converter for GradientBrush.
     /// </summary>
-    public class GradientBrushConverter : TypeConverter
+    internal class GradientBrushConverter : TypeConverter
     {
         //PropertyHeader string parser. Handles color grouping characters:  none,[],(),{},<>
         private static readonly string pattern = $@"
@@ -273,10 +275,14 @@ namespace ChuckHill2.Utilities
   (?<STYLE>{ string.Join("|", Enum.GetNames(typeof(GradientBrush.BrushStyle))) })$";
         private static readonly Regex reSplitter = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        public override bool GetPropertiesSupported(ITypeDescriptorContext context) => true;
-
         private PropertyDescriptorCollection GradientProps = null;
         private PropertyDescriptorCollection SolidProps = null;
+
+        #region Override Methods
+        //! @cond DOXYGENHIDE
+
+        public override bool GetPropertiesSupported(ITypeDescriptorContext context) => true;
+
         public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
         {
             //The visible properties the user is allowed to modify is different for Solid vs all the other styles.
@@ -357,6 +363,9 @@ namespace ChuckHill2.Utilities
             return (object)new GradientBrush(GetHost(context), (Color)obj1, (Color)obj2, (GradientBrush.BrushStyle)obj3, (bool)obj4);
         }
 
+        //! @endcond
+        #endregion
+
         private static Control GetHost(ITypeDescriptorContext context)
         {
             //Control host = ((System.Windows.Forms.PropertyGridInternal.GridEntry)context).DesignerHost.RootComponent as Control;
@@ -393,8 +402,11 @@ namespace ChuckHill2.Utilities
     }
 
     //Create nice icon on property header
-    public class GradientBrushEditor : UITypeEditor
+    internal class GradientBrushEditor : UITypeEditor
     {
+        #region Override Methods
+        //! @cond DOXYGENHIDE
+
         public override bool GetPaintValueSupported(ITypeDescriptorContext context) => true;
         public override void PaintValue(PaintValueEventArgs e)
         {
@@ -404,5 +416,8 @@ namespace ChuckHill2.Utilities
             using (var br = p.GetBrush(e.Bounds))
                 e.Graphics.FillRectangle(br, e.Bounds);
         }
+
+        //! @endcond
+        #endregion
     }
 }

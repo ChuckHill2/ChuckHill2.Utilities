@@ -20,13 +20,24 @@ namespace ChuckHill2.Utilities
         {
             this.components = new System.ComponentModel.Container();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.screenColorPicker = new Cyotek.Windows.Forms.ScreenColorPicker();
             this.colorGrid = new Cyotek.Windows.Forms.ColorGrid();
             this.previewPanel = new ChuckHill2.Utilities.SplitColorPanel();
-            this.screenColorPicker = new Cyotek.Windows.Forms.ScreenColorPicker();
             this.colorWheel = new Cyotek.Windows.Forms.ColorWheel();
             this.colorEditor = new Cyotek.Windows.Forms.ColorEditor();
             this.colorEditorManager = new Cyotek.Windows.Forms.ColorEditorManager();
             this.SuspendLayout();
+            // 
+            // screenColorPicker
+            // 
+            this.screenColorPicker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.screenColorPicker.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.screenColorPicker.Location = new System.Drawing.Point(2, 457);
+            this.screenColorPicker.Margin = new System.Windows.Forms.Padding(0);
+            this.screenColorPicker.Name = "screenColorPicker";
+            this.screenColorPicker.Size = new System.Drawing.Size(91, 40);
+            this.toolTip.SetToolTip(this.screenColorPicker, "Click and drag to select screen color");
+            this.screenColorPicker.Zoom = 6;
             // 
             // colorGrid
             // 
@@ -50,8 +61,6 @@ namespace ChuckHill2.Utilities
             // previewPanel
             // 
             this.previewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.previewPanel.BackColor = System.Drawing.Color.Transparent;
-            this.previewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.previewPanel.Color = System.Drawing.Color.Empty;
             this.previewPanel.Location = new System.Drawing.Point(103, 457);
             this.previewPanel.Margin = new System.Windows.Forms.Padding(0);
@@ -59,17 +68,6 @@ namespace ChuckHill2.Utilities
             this.previewPanel.Size = new System.Drawing.Size(91, 40);
             this.previewPanel.TabIndex = 3;
             this.previewPanel.Click += new System.EventHandler(this.previewPanel_Click);
-            // 
-            // screenColorPicker
-            // 
-            this.screenColorPicker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.screenColorPicker.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.screenColorPicker.Location = new System.Drawing.Point(2, 457);
-            this.screenColorPicker.Margin = new System.Windows.Forms.Padding(0);
-            this.screenColorPicker.Name = "screenColorPicker";
-            this.screenColorPicker.Size = new System.Drawing.Size(91, 40);
-            this.toolTip.SetToolTip(this.screenColorPicker, "Click and drag to select screen color");
-            this.screenColorPicker.Zoom = 6;
             // 
             // colorWheel
             // 

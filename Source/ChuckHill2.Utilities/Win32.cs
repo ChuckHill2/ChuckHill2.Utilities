@@ -293,7 +293,7 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Used everywhere when using Win32 RECT's via pInvoke.
         /// Also use this instead of System.Drawing.Rectangle when XML serializing because Rectangle does not serialize well.
-        /// Includes implicit conversion between My.PowerUtilities.Win32.RECT and System.Drawing.Rectangle.
+        /// Includes implicit conversion between Win32.RECT and System.Drawing.Rectangle.
         /// </summary>
         [XmlInclude(typeof(Rectangle))] //necessary when using implicit operators
         [StructLayout(LayoutKind.Sequential)]

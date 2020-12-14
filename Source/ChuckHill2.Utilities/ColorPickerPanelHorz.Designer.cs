@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Cyotek.Windows.Forms;
 
 namespace ChuckHill2.Utilities
 {
-    partial class ColorPickerPanel
+    partial class ColorPickerPanelHorz
     {
         /// <summary>
         /// Required designer variable.
@@ -19,22 +19,31 @@ namespace ChuckHill2.Utilities
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.previewPanel = new ChuckHill2.Utilities.SplitColorPanel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.colorEditor = new Cyotek.Windows.Forms.ColorEditor();
+            this.previewPanel = new ChuckHill2.Utilities.SplitColorPanel();
             this.screenColorPicker = new Cyotek.Windows.Forms.ScreenColorPicker();
             this.colorWheel = new Cyotek.Windows.Forms.ColorWheel();
-            this.colorEditor = new Cyotek.Windows.Forms.ColorEditor();
             this.colorGrid = new Cyotek.Windows.Forms.ColorGrid();
             this.colorEditorManager = new Cyotek.Windows.Forms.ColorEditorManager();
             this.SuspendLayout();
             // 
+            // colorEditor
+            // 
+            this.colorEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.colorEditor.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.colorEditor.Location = new System.Drawing.Point(201, 47);
+            this.colorEditor.Margin = new System.Windows.Forms.Padding(0);
+            this.colorEditor.Name = "colorEditor";
+            this.colorEditor.ShowColorSpaceLabels = false;
+            this.colorEditor.Size = new System.Drawing.Size(231, 182);
+            this.colorEditor.TabIndex = 0;
+            // 
             // previewPanel
             // 
             this.previewPanel.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.previewPanel.BackColor = System.Drawing.Color.Transparent;
-            this.previewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.previewPanel.Color = System.Drawing.Color.Empty;
-            this.previewPanel.Location = new System.Drawing.Point(444, 153);
+            this.previewPanel.Location = new System.Drawing.Point(444, 152);
             this.previewPanel.Margin = new System.Windows.Forms.Padding(0);
             this.previewPanel.Name = "previewPanel";
             this.previewPanel.Size = new System.Drawing.Size(75, 75);
@@ -44,8 +53,8 @@ namespace ChuckHill2.Utilities
             // screenColorPicker
             // 
             this.screenColorPicker.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.screenColorPicker.Color = System.Drawing.Color.Black;
-            this.screenColorPicker.Location = new System.Drawing.Point(444, 49);
+            this.screenColorPicker.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.screenColorPicker.Location = new System.Drawing.Point(444, 48);
             this.screenColorPicker.Margin = new System.Windows.Forms.Padding(0);
             this.screenColorPicker.Name = "screenColorPicker";
             this.screenColorPicker.Size = new System.Drawing.Size(75, 75);
@@ -56,30 +65,21 @@ namespace ChuckHill2.Utilities
             // 
             this.colorWheel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.colorWheel.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.colorWheel.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.colorWheel.Location = new System.Drawing.Point(0, -2);
             this.colorWheel.Margin = new System.Windows.Forms.Padding(0);
             this.colorWheel.Name = "colorWheel";
-            this.colorWheel.Size = new System.Drawing.Size(201, 203);
+            this.colorWheel.Size = new System.Drawing.Size(201, 201);
             this.colorWheel.TabIndex = 4;
-            // 
-            // colorEditor
-            // 
-            this.colorEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.colorEditor.Location = new System.Drawing.Point(201, 48);
-            this.colorEditor.Margin = new System.Windows.Forms.Padding(0);
-            this.colorEditor.Name = "colorEditor";
-            this.colorEditor.ShowColorSpaceLabels = false;
-            this.colorEditor.Size = new System.Drawing.Size(231, 182);
-            this.colorEditor.TabIndex = 0;
             // 
             // colorGrid
             // 
             this.colorGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.colorGrid.AutoAddColors = false;
             this.colorGrid.CellBorderStyle = Cyotek.Windows.Forms.ColorCellBorderStyle.None;
+            this.colorGrid.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.colorGrid.EditMode = Cyotek.Windows.Forms.ColorEditingMode.Both;
-            this.colorGrid.Location = new System.Drawing.Point(0, 201);
+            this.colorGrid.Location = new System.Drawing.Point(0, 199);
             this.colorGrid.Margin = new System.Windows.Forms.Padding(0);
             this.colorGrid.Name = "colorGrid";
             this.colorGrid.Padding = new System.Windows.Forms.Padding(0);
@@ -99,7 +99,7 @@ namespace ChuckHill2.Utilities
             this.colorEditorManager.ScreenColorPicker = this.screenColorPicker;
             this.colorEditorManager.ColorChanged += new System.EventHandler(this.colorEditorManager_ColorChanged);
             // 
-            // ColorPickerPanel
+            // ColorPickerPanelHorz
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -112,8 +112,8 @@ namespace ChuckHill2.Utilities
             this.Margin = new System.Windows.Forms.Padding(0);
             this.MaximumSize = new System.Drawing.Size(1000, 999);
             this.MinimumSize = new System.Drawing.Size(376, 182);
-            this.Name = "ColorPickerPanel";
-            this.Size = new System.Drawing.Size(519, 279);
+            this.Name = "ColorPickerPanelHorz";
+            this.Size = new System.Drawing.Size(519, 277);
             this.ResumeLayout(false);
             this.PerformLayout();
 
