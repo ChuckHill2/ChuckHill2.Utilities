@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
-namespace GradientTest
+namespace UtilitiesDemo
 {
     static class Program
     {

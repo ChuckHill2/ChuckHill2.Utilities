@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GradientTest", "GradientTest\GradientTest.csproj", "{5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilitiesDemo", "UtilitiesDemo\UtilitiesDemo.csproj", "{5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChuckHill2.Utilities", "ChuckHill2.Utilities\ChuckHill2.Utilities.csproj", "{44CF5926-3002-4C81-B44F-9975EC7D18AC}"
 EndProject

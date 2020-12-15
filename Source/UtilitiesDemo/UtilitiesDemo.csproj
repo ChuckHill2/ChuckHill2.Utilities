@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>GradientTest</RootNamespace>
-    <AssemblyName>GradientTest</AssemblyName>
+    <RootNamespace>UtilitiesDemo</RootNamespace>
+    <AssemblyName>UtilitiesDemo</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

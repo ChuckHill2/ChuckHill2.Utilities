@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,7 +9,7 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using ChuckHill2.Utilities;
 
-namespace GradientTest
+namespace UtilitiesDemo
 {
     public partial class FormMain : Form
     {
@@ -21,9 +21,70 @@ namespace GradientTest
 
         protected override void OnLoad(EventArgs e)
         {
-            propertyGrid1.SelectedObject = new TestGradientControlProperty(this);
-            propertyGrid2.SelectedObject = new EnumTestObject();
+            propertyGrid1.SelectedObject = new TestUITypeEditors(this);
+
+            m_clbColorListBox.AddColor(Color.FromArgb(178, 0, 255)); //nearest color==Color.DarkViolet
+            m_clbColorListBox.AddColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
+            m_clbColorListBox.AddColor(Color.CadetBlue); //Not added because it already exists
+            m_clbColorListBox.AddColor(Color.Empty); //Not added because it is invalid.
+            m_clbColorListBox.Selected = Color.CadetBlue;
+
+            m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen
+            m_ctvColorTreeView.AddColor(Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B));
+            m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen Already added.
+            m_ctvColorTreeView.AddColor(Color.FromArgb(218, 165, 32)); //==Color.Goldenrod. Not added. Equivalant to known color
+            m_ctvColorTreeView.Selected = Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B);
+
+            m_cbbColorComboBox.AddColor(Color.FromArgb(218, 255, 127)); //nearest color==Color.YellowGreen
+            m_cbbColorComboBox.AddColor(Color.FromArgb(128, 204, 242, 140)); //A=128, nearest color==Color.Khaki
+            m_cbbColorComboBox.Selected = Color.MediumSeaGreen;
+
             base.OnLoad(e);
+        }
+
+        int clb_i = 0;
+        private void m_btnColorListBox_Click(object sender, EventArgs e)
+        {
+            switch (clb_i % 5)
+            {
+                case 0: m_clbColorListBox.Selected = Color.Red; break;
+                case 1: m_clbColorListBox.Selected = Color.Yellow; break;
+                case 2: m_clbColorListBox.Selected = SystemColors.ControlText; break;
+                case 3: m_clbColorListBox.Selected = Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B); break;
+                case 4: m_clbColorListBox.Selected = Color.FromArgb(1, 2, 3); break; //not in list
+                default: throw new Exception("Should not get here!");
+            }
+            clb_i++;
+        }
+
+        int ctv_i = 0;
+        private void m_btnColorTreeView_Click(object sender, EventArgs e)
+        {
+            switch (ctv_i % 5)
+            {
+                case 0: m_ctvColorTreeView.Selected = Color.Red; break;
+                case 1: m_ctvColorTreeView.Selected = Color.Yellow; break;
+                case 2: m_ctvColorTreeView.Selected = SystemColors.ControlText; break;
+                case 3: m_ctvColorTreeView.Selected = Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B); break;
+                case 4: m_ctvColorTreeView.Selected = Color.FromArgb(1, 2, 3); break; //not in list
+                default: throw new Exception("Should not get here!");
+            }
+            ctv_i++;
+        }
+
+        int cbb_i = 0;
+        private void m_btnColorComboBox_Click(object sender, EventArgs e)
+        {
+            switch (cbb_i % 5)
+            {
+                case 0: m_cbbColorComboBox.Selected = Color.Red; break;
+                case 1: m_cbbColorComboBox.Selected = Color.Yellow; break;
+                case 2: m_cbbColorComboBox.Selected = SystemColors.ControlText; break;
+                case 3: m_cbbColorComboBox.Selected = Color.FromArgb(128, 204, 242, 140); break;
+                case 4: m_cbbColorComboBox.Selected = Color.FromArgb(1, 2, 3); break; //not in list
+                default: throw new Exception("Should not get here!");
+            }
+            cbb_i++;
         }
 
         [Conditional("DEBUG")]
@@ -68,17 +129,17 @@ namespace GradientTest
 
             a = new ImageAttribute(this.GetType(), "ImageAttributeTest5").Image;
             Debug.Assert(a != null, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico");
-            Debug.Assert(a.Width==32 && a.Height==32, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico not 32x32");
+            Debug.Assert(a.Width == 32 && a.Height == 32, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico not 32x32");
         }
     }
 
-    public class TestGradientControlProperty
+    public class TestUITypeEditors
     {
         private Control Host;
-        public TestGradientControlProperty(Control host) => Host = host;
+        public TestUITypeEditors(Control host) => Host = host;
 
         private GradientBrush __backgroundGradient = null;
-        [Category("Appearance"), Description("The gradient brush used to fill the background.")]
+        [Category("GradientBrush Example"), Description("The gradient brush used to fill the background.")]
         public GradientBrush BackgroundGradient
         {
             get => __backgroundGradient == null ? new GradientBrush(Host) : __backgroundGradient;
@@ -86,11 +147,8 @@ namespace GradientTest
         }
         private bool ShouldSerializeBackgroundGradient() => !BackgroundGradient.Equals(new GradientBrush(Host));
         private void ResetBackgroundGradient() => BackgroundGradient = null;
-    }
 
-    #region Enum UITypeEditor Test
-    class EnumTestObject
-    {
+        #region Test Enums
         // Example cloned from System.Windows.Forms.ArrowDirection and tool tips added
         public enum ArrowDirectionEx
         {
@@ -100,15 +158,15 @@ namespace GradientTest
             Left = 0,
 
             [Image(typeof(ArrowDirectionEx), "Up")] //Icon image is sized to fit a square checkBox/radiobutton height -2 pixels. This depends on the font size.
-            [Description("The direction is up.")] 
+            [Description("The direction is up.")]
             Up = 1,
 
             [Image(typeof(ArrowDirectionEx), "Right")]
-            [Description("The direction is right.")] 
+            [Description("The direction is right.")]
             Right = 16,
 
             [Image(typeof(ArrowDirectionEx), "Down")]
-            [Description("The direction is down.")] 
+            [Description("The direction is down.")]
             Down = 17
         }
 
@@ -127,25 +185,25 @@ namespace GradientTest
             [Description("Position fixed to bottom-right of parent.")] BottomRight = Bottom | Right,
             [Description("Resize with parent.")] All = Left | Right | Bottom | Top,
         }
+        #endregion
 
-        [Description("Show the system default for enums. Simple multiple choice, bitwise flags not supported.")]
+        [Category("Enum Examples"), Description("Show the system default for enums. Simple multiple choice, bitwise flags not supported.")]
         public ArrowDirectionEx DefaultEnum { get; set; }
 
-        [Description("Test flag/bitwise enums.")]
+        [Category("Enum Examples"), Description("Test flag/bitwise enums.")]
         [Editor(typeof(EnumUIEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public FontStyle FontStyle { get; set; }
 
-        [Description("Test flag/bitwise enums with one combo 'all' flag.")]
+        [Category("Enum Examples"), Description("Test flag/bitwise enums with one combo 'all' flag.")]
         [Editor(typeof(EnumUIEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public SecurityPermissionFlag SecurityPermission { get; set; }
 
-        [Description("Test flag/bitwise enums with tooltips and combo flags.")]
+        [Category("Enum Examples"), Description("Test flag/bitwise enums with tooltips and combo flags.")]
         [Editor(typeof(EnumUIEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public AnchorStylesEx Anchor { get; set; }
 
-        [Description("Test non-flag/mutually exclusive enums with tool tips and item icons.")]
+        [Category("Enum Examples"), Description("Test non-flag/mutually exclusive enums with tool tips and item icons.")]
         [Editor(typeof(EnumUIEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public ArrowDirectionEx Direction { get; set; }
     }
-    #endregion  UITypeEditor Test
 }

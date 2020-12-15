@@ -4,99 +4,148 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Diagnostics;
+using ChuckHill2.Utilities;
 
 namespace ColorEditor
 {
     public partial class FormMain : Form
     {
-        //NamedColorListBox m_lbColors;
-        //NamedColorTreeView m_tvColors;
-
         public FormMain()
         {
             InitializeComponent();
-
-            //m_lbColors = new NamedColorListBox();
-            //m_pnlNamedListBox.Controls.Add(m_lbColors);
-
-            //m_lbColors.AddColor(Color.FromArgb(100, 1, 2, 3));
-            //m_lbColors.AddColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
-            //m_lbColors.AddColor(Color.CadetBlue);
-            //m_lbColors.AddColor(Color.Empty);
-
-            //m_lbColors.RemoveColor(Color.FromArgb(100, 1, 2, 3));
-            //m_lbColors.RemoveColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
-            //m_lbColors.RemoveColor(Color.CadetBlue);
-            //m_lbColors.RemoveColor(Color.Empty);
-
-            //m_tvColors = new NamedColorTreeView();
-            //m_pnlNamedTreeView.Controls.Add(m_tvColors);
-
-            //m_tvColors.AddColor(Color.FromArgb(100, 1, 2, 3));
-            //m_tvColors.AddColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
-            //m_tvColors.AddColor(Color.CadetBlue);
-            //m_tvColors.AddColor(Color.Empty);
-
-            //m_tvColors.RemoveColor(Color.FromArgb(1, 2, 3));
-            //m_tvColors.RemoveColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
-            //m_tvColors.RemoveColor(Color.CadetBlue);
-            //m_tvColors.RemoveColor(Color.Empty);
-
             //ColorExtensions.DumpColors();
         }
 
         protected override void OnLoad(EventArgs e)
         {
+            m_clbColorListBox.AddColor(Color.FromArgb(178, 0, 255)); //nearest color==Color.DarkViolet
+            m_clbColorListBox.AddColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
+            m_clbColorListBox.AddColor(Color.CadetBlue); //Not added because it already exists
+            m_clbColorListBox.AddColor(Color.Empty); //Not added because it is invalid.
+            m_clbColorListBox.Selected = Color.CadetBlue;
+
+            m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen
+            m_ctvColorTreeView.AddColor(Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B));
+            m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen Already added.
+            m_ctvColorTreeView.AddColor(Color.FromArgb(218, 165, 32)); //==Color.Goldenrod. Not added. Equivalant to known color
+            m_ctvColorTreeView.Selected = Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B);
+
+            m_cbbColorComboBox.AddColor(Color.FromArgb(218, 255, 127)); //nearest color==Color.YellowGreen
+            m_cbbColorComboBox.AddColor(Color.FromArgb(128, 204, 242, 140)); //A=128, nearest color==Color.Khaki
+            m_cbbColorComboBox.Selected = Color.MediumSeaGreen;
+
             //base.OnLoad(e);
-            //namedColorComboBox1.AddColor(Color.FromArgb(100, 150, 250));
-            //namedColorComboBox1.Selected = Color.Red;
         }
 
-        private void m_btnColorDialog_Click(object sender, EventArgs e)
+        private void m_btnSystemColorDlg_Click(object sender, EventArgs e)
         {
-           // var dlg = new ColorDialog();
-            var dlg = new CustomColorDialog();
-            DialogResult result = dlg.ShowDialog(this);
+            using (var dlg = new ColorDialog())
+            {
+                dlg.Color = SystemColors.ActiveCaption;
+                DialogResult result = dlg.ShowDialog(this);
+                Debug.WriteLine($"SystemColorDlg Result={dlg.Color}");
+            }
         }
 
-        //int i = 0;
-        private void m_btnSelectColor_Click(object sender, EventArgs e)
+        private void m_btnSystemCustomColorDialog_Click(object sender, EventArgs e)
         {
-            //switch (i % 5)
-            //{
-            //    case 0: m_tvColors.Selected = Color.Red; break;
-            //    case 1: m_tvColors.Selected = Color.Yellow; break;
-            //    case 2: m_tvColors.Selected = SystemColors.ControlText; break;
-            //    case 3: m_tvColors.Selected = Color.FromArgb(100, 1, 2, 3); break;
-            //    case 4: m_tvColors.Selected = Color.FromArgb(1, 2, 3); break;
-            //    default: throw new Exception("Should not get here!");
-            //}
-            //i++;
+            using (var dlg = new CustomColorDialog())
+            {
+                dlg.Color = SystemColors.ActiveCaption;
+                DialogResult result = dlg.ShowDialog(this);
+                Debug.WriteLine($"SystemCustomColorDlg Result={dlg.Color}");
+            }
         }
 
-        //int j = 0;
-        private void m_btnSelectLbColor_Click(object sender, EventArgs e)
+        int clb_i = 0;
+        private void m_btnColorListBox_Click(object sender, EventArgs e)
         {
-            //switch (j % 5)
-            //{
-            //    case 0: m_lbColors.Selected = Color.Red; break;
-            //    case 1: m_lbColors.Selected = Color.Yellow; break;
-            //    case 2: m_lbColors.Selected = SystemColors.ControlText; break;
-            //    case 3: m_lbColors.Selected = Color.FromArgb(100, 1, 2, 3); break;
-            //    case 4: m_lbColors.Selected = Color.FromArgb(1, 2, 3); break;
-            //    default: throw new Exception("Should not get here!");
-            //}
-            //j++;
+            switch (clb_i % 5)
+            {
+                case 0: m_clbColorListBox.Selected = Color.Red; break;
+                case 1: m_clbColorListBox.Selected = Color.Yellow; break;
+                case 2: m_clbColorListBox.Selected = SystemColors.ControlText; break;
+                case 3: m_clbColorListBox.Selected = Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B); break;
+                case 4: m_clbColorListBox.Selected = Color.FromArgb(1, 2, 3); break; //not in list
+                default: throw new Exception("Should not get here!");
+            }
+            clb_i++;
         }
 
-        private void m_btnColorPickerDlg_Click(object sender, EventArgs e)
+        int ctv_i = 0;
+        private void m_btnColorTreeView_Click(object sender, EventArgs e)
         {
-            //using(var dlg = new ColorPickerDialog())
-            //{
-            //    dlg.Color = SystemColors.ActiveCaption;
-            //    DialogResult result = dlg.ShowDialog(this);
-            //    Debug.WriteLine($"ColorPickerDialog Result={dlg.Color}");
-            //}
+            switch (ctv_i % 5)
+            {
+                case 0: m_ctvColorTreeView.Selected = Color.Red; break;
+                case 1: m_ctvColorTreeView.Selected = Color.Yellow; break;
+                case 2: m_ctvColorTreeView.Selected = SystemColors.ControlText; break;
+                case 3: m_ctvColorTreeView.Selected = Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B); break;
+                case 4: m_ctvColorTreeView.Selected = Color.FromArgb(1, 2, 3); break; //not in list
+                default: throw new Exception("Should not get here!");
+            }
+            ctv_i++;
+        }
+
+        int cbb_i = 0;
+        private void m_btnColorComboBox_Click(object sender, EventArgs e)
+        {
+            switch (cbb_i % 5)
+            {
+                case 0: m_cbbColorComboBox.Selected = Color.Red; break;
+                case 1: m_cbbColorComboBox.Selected = Color.Yellow; break;
+                case 2: m_cbbColorComboBox.Selected = SystemColors.ControlText; break;
+                case 3: m_cbbColorComboBox.Selected = Color.FromArgb(128, 204, 242, 140); break;
+                case 4: m_cbbColorComboBox.Selected = Color.FromArgb(1, 2, 3); break; //not in list
+                default: throw new Exception("Should not get here!");
+            }
+            cbb_i++;
+        }
+
+        [Conditional("DEBUG")]
+        private void ValidateImageAttributeClass()
+        {
+            Image a;
+
+            var absolutePath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), @"Resources\ImageAttributeTest1.bmp");
+            a = new ImageAttribute(absolutePath).Image;
+            Debug.Assert(a != null, "ImageAttribute (file): BMP Absolute File Path");
+
+            a = new ImageAttribute(@"Resources\ImageAttributeTest2.tif").Image;
+            Debug.Assert(a != null, "ImageAttribute (file): TIF Relative File Path: Copy Local");
+
+            a = new ImageAttribute(@"Resources\ImageAttributeTest3.jpg").Image;
+            Debug.Assert(a != null, "ImageAttribute (file): JPG Relative File Path: Copy Local");
+
+            a = new ImageAttribute(@"Resources\ImageAttributeTest4.png").Image;
+            Debug.Assert(a != null, "ImageAttribute (file): PNG Relative File Path: Copy Local");
+
+            a = new ImageAttribute(@"Resources\ImageAttributeTest5.ico").Image;
+            Debug.Assert(a != null, "ImageAttribute (file): ICO Relative File Path: Copy Local");
+
+            a = new ImageAttribute(typeof(FormMain)).Image;
+            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(FormMain) => FormMain.png");
+
+            //Manually adding anything to a Form resource will will be erased by the designer.... However we can access designer-generated resources...
+            a = new ImageAttribute(typeof(FormMain), "$this.Icon").Image;
+            Debug.Assert(a != null, "ImageAttribute (Form resource): typeof(FormMain) => $this.Icon");
+
+            a = new ImageAttribute(typeof(Panel)).Image;
+            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(Panel) => Panel.bmp");
+
+            a = new ImageAttribute(typeof(Panel), "CheckBox").Image;
+            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(Panel),CheckBox => CheckBox.bmp");
+
+            a = new ImageAttribute(typeof(Panel), "CheckBox.jpg").Image;
+            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(Panel),CheckBox.jpg => CheckBox.bmp");
+
+            a = new ImageAttribute(typeof(Panel), "checkbox").Image;
+            Debug.Assert(a == null, "ImageAttribute (manifest): typeof(Panel),checkbox => not case-sensitive");
+
+            a = new ImageAttribute(this.GetType(), "ImageAttributeTest5").Image;
+            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico");
+            Debug.Assert(a.Width == 32 && a.Height == 32, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico not 32x32");
         }
     }
 }
