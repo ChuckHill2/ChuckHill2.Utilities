@@ -32,10 +32,10 @@ namespace ColorEditor
             this.m_btnColorTreeView = new System.Windows.Forms.Button();
             this.m_btnColorListBox = new System.Windows.Forms.Button();
             this.m_btnSystemCustomColorDialog = new System.Windows.Forms.Button();
-            this.m_clbColorListBox = new ChuckHill2.Utilities.NamedColorListBox();
-            this.m_ctvColorTreeView = new ChuckHill2.Utilities.NamedColorTreeView();
             this.m_btnColorComboBox = new System.Windows.Forms.Button();
             this.m_cbbColorComboBox = new ChuckHill2.Utilities.NamedColorComboBox();
+            this.m_ctvColorTreeView = new ChuckHill2.Utilities.NamedColorTreeView();
+            this.m_clbColorListBox = new ChuckHill2.Utilities.NamedColorListBox();
             this.SuspendLayout();
             // 
             // m_btnSystemColorDialog
@@ -82,26 +82,6 @@ namespace ColorEditor
             this.m_btnSystemCustomColorDialog.UseVisualStyleBackColor = true;
             this.m_btnSystemCustomColorDialog.Click += new System.EventHandler(this.m_btnSystemCustomColorDialog_Click);
             // 
-            // m_clbColorListBox
-            // 
-            this.m_clbColorListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.m_clbColorListBox.IntegralHeight = false;
-            this.m_clbColorListBox.ItemHeight = 15;
-            this.m_clbColorListBox.Location = new System.Drawing.Point(141, 47);
-            this.m_clbColorListBox.Name = "m_clbColorListBox";
-            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 478);
-            this.m_clbColorListBox.TabIndex = 7;
-            // 
-            // m_ctvColorTreeView
-            // 
-            this.m_ctvColorTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.m_ctvColorTreeView.Location = new System.Drawing.Point(329, 48);
-            this.m_ctvColorTreeView.Name = "m_ctvColorTreeView";
-            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 477);
-            this.m_ctvColorTreeView.TabIndex = 8;
-            // 
             // m_btnColorComboBox
             // 
             this.m_btnColorComboBox.Location = new System.Drawing.Point(560, 13);
@@ -118,6 +98,30 @@ namespace ColorEditor
             this.m_cbbColorComboBox.Name = "m_cbbColorComboBox";
             this.m_cbbColorComboBox.Size = new System.Drawing.Size(180, 23);
             this.m_cbbColorComboBox.TabIndex = 9;
+            this.m_cbbColorComboBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_cbbColorComboBox_SelectionChanged);
+            // 
+            // m_ctvColorTreeView
+            // 
+            this.m_ctvColorTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.m_ctvColorTreeView.HideSelection = false;
+            this.m_ctvColorTreeView.Location = new System.Drawing.Point(329, 48);
+            this.m_ctvColorTreeView.Name = "m_ctvColorTreeView";
+            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 477);
+            this.m_ctvColorTreeView.TabIndex = 8;
+            this.m_ctvColorTreeView.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_ctvColorTreeView_SelectionChanged);
+            // 
+            // m_clbColorListBox
+            // 
+            this.m_clbColorListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.m_clbColorListBox.IntegralHeight = false;
+            this.m_clbColorListBox.ItemHeight = 17;
+            this.m_clbColorListBox.Location = new System.Drawing.Point(141, 47);
+            this.m_clbColorListBox.Name = "m_clbColorListBox";
+            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 478);
+            this.m_clbColorListBox.TabIndex = 7;
+            this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
             // 
             // FormMain
             // 

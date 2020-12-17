@@ -147,5 +147,20 @@ namespace ColorEditor
             Debug.Assert(a != null, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico");
             Debug.Assert(a.Width == 32 && a.Height == 32, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico not 32x32");
         }
+
+        private void m_ctvColorTreeView_SelectionChanged(object sender, NamedColorEventArgs e)
+        {
+            Debug.WriteLine($"Selected TreeView Color is {e.Color.GetName()}");
+        }
+
+        private void m_cbbColorComboBox_SelectionChanged(object sender, NamedColorEventArgs e)
+        {
+            Debug.WriteLine($"Selected ComboBox Color is {e.Color.GetName()}");
+        }
+
+        private void m_clbColorListBox_SelectionChanged(object sender, NamedColorEventArgs e)
+        {
+            Debug.WriteLine($"Selected ListBox Color is {e.Color.GetName()}");
+        }
     }
 }

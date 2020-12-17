@@ -157,6 +157,7 @@
     <Compile Include="NamedColorComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="NamedColorEventHandler.cs" />
     <Compile Include="NamedColorListBox.cs">
       <SubType>Component</SubType>
     </Compile>

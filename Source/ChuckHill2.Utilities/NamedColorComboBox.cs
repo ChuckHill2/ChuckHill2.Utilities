@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -7,26 +8,14 @@ using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities
 {
-    /// <summary>
-    /// Specify how the list of colors is ordered
-    /// </summary>
-    public enum OrderBy
-    {
-        /// <summary>
-        /// Colors are ordered by color and shade.
-        /// </summary>
-        Color,
-        /// <summary>
-        /// Colors are ordered by name alphabetically.
-        /// </summary>
-        Name
-    }
-
     ///  @image html NamedColorComboBox.png
     /// <summary>
     ///  Color picker ComboBox. It includes known Web and System colors (read-only)
     ///  plus custom user-defined colors that may be added or removed.
     /// </summary>
+    [ToolboxBitmap(typeof(ComboBox))]
+    [DefaultEvent("SelectionChanged")]
+    [Description("Select from a dropdown list of known colors.")]
     public class NamedColorComboBox : ComboBox
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
@@ -67,31 +56,93 @@ namespace ChuckHill2.Utilities
         }
 
         #region Hidden/Disabled Properties
+        private const string NOTUSED = "Not used in "+nameof(NamedColorComboBox)+".";
         //! @cond DOXYGENHIDE 
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new AutoCompleteStringCollection AutoCompleteCustomSource { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new AutoCompleteSource AutoCompleteSource { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new AutoCompleteMode AutoCompleteMode { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new object DataSource { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string DisplayMember { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new DrawMode DrawMode { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new ComboBoxStyle DropDownStyle { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string FormatString { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new bool FormattingEnabled { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new bool Text { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new ObjectCollection Items { get; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string ValueMember { get; set; }
+        [Obsolete(NOTUSED + " See property OrderBy", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new string Sorted { get; set; }
+
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new int SelectionStart { get; set; }
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new int SelectionLength { get; set; }
+        [Obsolete(NOTUSED + " See property Selected", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new object SelectedItem { get; set; }
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new int SelectedIndex { get; set; }
+        [Obsolete(NOTUSED + " See property Selected", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new string SelectedText { get; set; }
+        [Obsolete(NOTUSED + " See property Selected", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new object SelectedValue { get; set; }
+
+        #pragma warning disable CS0067 //The event is never used
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event MeasureItemEventHandler MeasureItem;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event PaintEventHandler Paint;
+        [Obsolete(NOTUSED + " See event SelectionChanged", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler TextUpdate;
+        [Obsolete(NOTUSED + " See event SelectionChanged", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler SelectedIndexChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler DropDown;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler BackgroundImageLayoutChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler DoubleClick;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler PaddingChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler BackgroundImageChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler DropDownClosed;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event DrawItemEventHandler DrawItem;
+        [Obsolete(NOTUSED + " See event SelectionChanged", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler SelectionChangeCommitted;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler DropDownStyleChanged;
+
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler DataSourceChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler DisplayMemberChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event ListControlConvertEventHandler Format;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler FormatInfoChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler FormatStringChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler FormattingEnabledChanged;
+        [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler ValueMemberChanged;
+        [Obsolete(NOTUSED + " See event SelectionChanged", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new event EventHandler SelectedValueChanged;
+        #pragma warning restore CS0067 //The event is never used
         //! @endcond
         #endregion
 
@@ -137,7 +188,7 @@ namespace ChuckHill2.Utilities
 
             if (ci.Color.A < 255) //add  background trasparency  checkerboard
             {
-                using (var br = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.Transparent))
+                using (var br = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White))
                     g.FillRectangle(br, imageBounds);
             }
 
@@ -146,7 +197,7 @@ namespace ChuckHill2.Utilities
 
             g.DrawRectangle(SystemPens.WindowText, imageBounds.X, imageBounds.Y, imageBounds.Width - 1, imageBounds.Height - 1);
 
-            TextRenderer.DrawText(g, ci.Name, base.Font, textOffset, base.ForeColor, Color.Transparent);
+            TextRenderer.DrawText(g, ci.Name, base.Font, textOffset, e.ForeColor, Color.Transparent);
 
             // Create a divider line between CustomColors, WebColors, and SystemColors or if
             // sorted alphabetically, just between CustomColors and all other known colors.
@@ -209,6 +260,24 @@ namespace ChuckHill2.Utilities
                 ColorItem item = base.Items.Cast<ColorItem>().FirstOrDefault(ci => Equals(value, ci.Color));
                 base.SelectedItem = item;
             }
+        }
+
+        /// <summary>
+        /// Occurs when a color has been selected.
+        /// </summary>
+        [Category("Behavior"), Description("Occurs when a color has been selected.")]
+        public event NamedColorEventHandler SelectionChanged;
+
+        protected override void OnSelectionChangeCommitted(EventArgs e)
+        {
+            if (SelectionChanged != null)
+            {
+                var selected = this.Selected;
+                if (!selected.IsEmpty)
+                    SelectionChanged.Invoke(this, new NamedColorEventArgs(selected));
+            }
+
+            base.OnSelectionChangeCommitted(e);
         }
 
         private static bool Equals(Color c1, Color c2, bool ignoreAlpha = false)
