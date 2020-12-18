@@ -20,6 +20,8 @@ namespace ChuckHill2.Utilities
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
 
+        private Brush _transparentIconBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White);
+        private Brush _disabledTranslucentBackground = new SolidBrush(Color.FromArgb(32, SystemColors.InactiveCaption));
         private Rectangle ImageBounds;
         private Point TextOffset;
 
@@ -36,7 +38,8 @@ namespace ChuckHill2.Utilities
             {
                 if (__orderBy == value) return;
                 __orderBy = value;
-                this.SuspendLayout();
+
+                base.BeginUpdate();
 
                 var customItems = base.Items.Cast<ColorItem>().TakeWhile(ci => !ci.Color.IsKnownColor);
                 base.Items.Clear();
@@ -51,7 +54,7 @@ namespace ChuckHill2.Utilities
                     foreach (var c in ColorEx.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
                 }
 
-                this.ResumeLayout();
+                base.EndUpdate();
             }
         }
 
@@ -160,13 +163,29 @@ namespace ChuckHill2.Utilities
         {
             base.OnHandleCreated(e);
 
+            base.BeginUpdate();
+
             if (this.OrderBy == OrderBy.Color)
                 foreach (var c in ColorEx.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
             else
                 foreach (var c in ColorEx.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
 
+            base.EndUpdate();
+
             ImageBounds = new Rectangle(2, 1, graphicWidth, base.ItemHeight - 1 - 2);
             TextOffset = new Point(2 + graphicWidth + 2, -1); //-1 because we want to be vertically centered in in the blue selected rectangle
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_transparentIconBrush != null)
+            {
+                _transparentIconBrush.Dispose();
+                _transparentIconBrush = null;
+                _disabledTranslucentBackground.Dispose();
+                _disabledTranslucentBackground = null;
+            }
+            base.Dispose(disposing);
         }
 
         protected override void OnDrawItem(DrawItemEventArgs e)
@@ -178,27 +197,28 @@ namespace ChuckHill2.Utilities
             Graphics g = e.Graphics;
             e.DrawBackground();
 
+            #region Draw Icon
             var imageBounds = ImageBounds;
             imageBounds.X += e.Bounds.X;
             imageBounds.Y += e.Bounds.Y;
 
-            var textOffset = TextOffset;
-            textOffset.X += e.Bounds.X;
-            textOffset.Y += e.Bounds.Y;
-
-            if (ci.Color.A < 255) //add  background trasparency  checkerboard
-            {
-                using (var br = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White))
-                    g.FillRectangle(br, imageBounds);
-            }
+            //add  background trasparency  checkerboard
+            if (ci.Color.A < 255) g.FillRectangle(_transparentIconBrush, imageBounds);
 
             using (var solidBrush = new SolidBrush(ci.Color))
                 g.FillRectangle(solidBrush, imageBounds);
 
             g.DrawRectangle(SystemPens.WindowText, imageBounds.X, imageBounds.Y, imageBounds.Width - 1, imageBounds.Height - 1);
+            #endregion
 
-            TextRenderer.DrawText(g, ci.Name, base.Font, textOffset, e.ForeColor, Color.Transparent);
+            #region Draw Text
+            var textOffset = TextOffset;
+            textOffset.X += e.Bounds.X;
+            textOffset.Y += e.Bounds.Y;
+            TextRenderer.DrawText(g, ci.Name, base.Font, textOffset, base.Enabled ? e.ForeColor : SystemColors.GrayText, Color.Transparent);
+            #endregion
 
+            #region Draw Divider
             // Create a divider line between CustomColors, WebColors, and SystemColors or if
             // sorted alphabetically, just between CustomColors and all other known colors.
 
@@ -221,6 +241,9 @@ namespace ChuckHill2.Utilities
                     }
                 }
             }
+            #endregion
+
+            if (!base.Enabled) g.FillRectangle(_disabledTranslucentBackground, e.Bounds);
         }
 
         /// <summary>

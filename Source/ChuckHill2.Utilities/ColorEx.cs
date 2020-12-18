@@ -95,6 +95,8 @@ namespace ChuckHill2.Utilities
         /// <returns>The known color that most closely resembles the specified color</returns>
         public static Color NearestKnownColor(this Color color)
         {
+            //using (var g = Graphics.FromHwnd(IntPtr.Zero)) return g.GetNearestColor(color);
+
             // For finding nearest known perceptual color, using the LAB color space gives much better results than weighted HSL.
             double L, A, B;
 

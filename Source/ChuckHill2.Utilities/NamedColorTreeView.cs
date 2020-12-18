@@ -21,6 +21,8 @@ namespace ChuckHill2.Utilities
     {
         private int graphicWidth = 22;  // width of color icon image at 96dpi. Hight is always height of row -1px on the top and bottom.
 
+        private Brush _transparentIconBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White);
+        private Brush _disabledTranslucentBackground = new SolidBrush(Color.FromArgb(32, SystemColors.InactiveCaption));
         private Rectangle ImageBounds; // Create rect of color icon image rectangle
         private Point TextOffset;      // Create offset to the starting position to write the text.
 
@@ -129,25 +131,60 @@ namespace ChuckHill2.Utilities
             TextOffset = new Point(2 + graphicWidth + 2, 0);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (_transparentIconBrush != null)
+            {
+                _transparentIconBrush.Dispose();
+                _transparentIconBrush = null;
+                _disabledTranslucentBackground.Dispose();
+                _disabledTranslucentBackground = null;
+            }
+            base.Dispose(disposing);
+        }
+
+        // In the space between OnBeforeExpand and OnAfterExpand, OnDrawNode is called for all the nodes ON THE SAME Y-OFFSET!
+        private bool PauseDrawNode = false;
+        protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
+        {
+            PauseDrawNode = true;
+            //Debug.WriteLine("OnBeforeExpand");
+            base.OnBeforeExpand(e);
+        }
+        protected override void OnAfterExpand(TreeViewEventArgs e)
+        {
+            PauseDrawNode = false;
+            base.OnAfterExpand(e);
+            //Debug.WriteLine("OnAfterExpand");
+        }
+
         protected override void OnDrawNode(DrawTreeNodeEventArgs e)
         {
+            if (PauseDrawNode) return;
+
+            //Debug.WriteLine($"OnDrawNode: {e.Node.Text}");
+
+            var selected = e.Node.IsSelected || (e.State & TreeNodeStates.Selected) == TreeNodeStates.Selected;
+            var focused = e.Node.TreeView.Focused;
+
             if (!(e.Node.Tag is Color) || e.Bounds.IsEmpty) //no custom drawing needed
             {
-                e.DrawDefault = true;
+                using (var br = new SolidBrush(base.BackColor)) e.Graphics.FillRectangle(br, e.Bounds);
+                TextRenderer.DrawText(e.Graphics,
+                    e.Node.Text,
+                    e.Node.NodeFont ?? e.Node.TreeView.Font, e.Bounds,
+                    base.Enabled ? base.ForeColor : SystemColors.GrayText,
+                    Color.Transparent);
                 return;
             }
 
             var color = (Color)e.Node.Tag;
             var g = Graphics.FromHwnd(this.Handle);  //g.Graphics clip region is wrong!
 
-            // Draw row background
-
-            var selected = e.Node.IsSelected || (e.State & TreeNodeStates.Selected) == TreeNodeStates.Selected;
-            var focused = e.Node.TreeView.Focused;
-
-            var foreColor = selected ? (focused ? SystemColors.HighlightText : base.ForeColor) : base.ForeColor;
+            #region Draw Background
+            var foreColor = base.Enabled ? (focused ? (selected ? SystemColors.HighlightText : base.ForeColor) : base.ForeColor) : SystemColors.GrayText;
             var backColor = selected ? (focused ? SystemColors.Highlight : SystemColors.GradientInactiveCaption) : base.BackColor;
-            if (base.HideSelection && selected && !focused) { backColor = base.BackColor; foreColor = base.ForeColor; }
+            if (base.HideSelection && selected) { backColor = base.BackColor; foreColor = base.Enabled ? base.ForeColor : SystemColors.GrayText; }
 
             var bounds = base.FullRowSelect ?
                 new Rectangle(0, e.Bounds.Y, base.ClientRectangle.Width, e.Bounds.Height) :
@@ -155,31 +192,28 @@ namespace ChuckHill2.Utilities
 
             using (var br = new SolidBrush(backColor)) 
                 g.FillRectangle(br, bounds);
+            #endregion
 
-            // Draw color icon
-
+            #region Draw Icon
             var imageBounds = ImageBounds;
             imageBounds.X += e.Bounds.X;
             imageBounds.Y += e.Bounds.Y;
 
-            var textOffset = TextOffset;
-            textOffset.X += e.Bounds.X;
-            textOffset.Y += e.Bounds.Y;
-
-            if (color.A < 255) //add  background trasparency  checkerboard
-            {
-                using (var br = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White))
-                    g.FillRectangle(br, imageBounds);
-            }
+            //add  background trasparency  checkerboard
+            if (color.A < 255) g.FillRectangle(_transparentIconBrush, imageBounds);
 
             using (var solidBrush = new SolidBrush(color))
                 g.FillRectangle(solidBrush, imageBounds);
 
             g.DrawRectangle(SystemPens.WindowText, imageBounds.X, imageBounds.Y, imageBounds.Width - 1, imageBounds.Height - 1);
+            #endregion
 
-            //finally draw text.
-
+            #region Draw Text
+            var textOffset = TextOffset;
+            textOffset.X += e.Bounds.X;
+            textOffset.Y += e.Bounds.Y;
             TextRenderer.DrawText(g, e.Node.Text, e.Node.NodeFont ?? e.Node.TreeView.Font, textOffset, foreColor, Color.Transparent);
+            #endregion
 
             g.Dispose(); //cleanup our graphics object that we created.
 
@@ -253,5 +287,22 @@ namespace ChuckHill2.Utilities
             if (ignoreAlpha) return c1.R == c2.R && c1.G == c2.G && c1.B == c2.B;
             return c1.A == c2.A && c1.R == c2.R && c1.G == c2.G && c1.B == c2.B;
         }
+
+        //protected override void WndProc(ref Message m)
+        //{
+        //    var msg = (Win32.WM)m.Msg;
+        //    if (msg != Win32.WM.WM_MOUSEMOVE
+        //        && msg != Win32.WM.WM_TIMER
+        //        && msg != Win32.WM.WM_SYSTIMER
+        //        && msg != Win32.WM.WM_NCHITTEST
+        //        && msg != Win32.WM.WM_SETCURSOR
+        //        && msg != Win32.WM.WM_NCMOUSEMOVE
+        //        && msg != Win32.WM.WM_MOUSEHOVER
+        //        && msg != Win32.WM.TVM_HITTEST
+        //        )
+        //        Debug.WriteLine($"WndProc: {(m.HWnd == IntPtr.Zero ? "(null)" : Control.FromChildHandle(m.HWnd)?.Name ?? m.HWnd.ToString())} {Win32.TranslateWMMessage(m.HWnd, m.Msg)}");
+
+        //    base.WndProc(ref m);
+        //}
     }
 }

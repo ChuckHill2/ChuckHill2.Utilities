@@ -162,5 +162,13 @@ namespace ColorEditor
         {
             Debug.WriteLine($"Selected ListBox Color is {e.Color.GetName()}");
         }
+
+        private void m_radEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            var c = sender as RadioButton;
+            m_ctvColorTreeView.Enabled = c.Checked;
+            m_cbbColorComboBox.Enabled = c.Checked;
+            m_clbColorListBox.Enabled = c.Checked;
+        }
     }
 }

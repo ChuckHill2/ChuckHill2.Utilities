@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace ChuckHill2.Utilities
     {
         private int graphicWidth = 22;  //default pixel values at 96dpi
 
+        private Brush _transparentIconBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White);
+        private Brush _disabledTranslucentBackground = new SolidBrush(Color.FromArgb(32, SystemColors.InactiveCaption));
         private Rectangle ImageBounds;
         private Point TextOffset;
 
@@ -36,7 +39,8 @@ namespace ChuckHill2.Utilities
             {
                 if (__orderBy == value) return;
                 __orderBy = value;
-                this.SuspendLayout();
+
+                base.BeginUpdate();
 
                 var customItems = base.Items.Cast<ColorItem>().TakeWhile(ci => !ci.Color.IsKnownColor);
                 base.Items.Clear();
@@ -51,7 +55,7 @@ namespace ChuckHill2.Utilities
                     foreach (var c in ColorEx.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
                 }
 
-                this.ResumeLayout();
+                base.EndUpdate();
             }
         }
 
@@ -139,6 +143,12 @@ namespace ChuckHill2.Utilities
         {
             base.Name = "NamedColorListBox";
             base.DrawMode = DrawMode.OwnerDrawFixed;
+            // http://yacsharpblog.blogspot.com/2008/07/listbox-flicker.html
+            base.SetStyle(
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.ResizeRedraw |
+                ControlStyles.UserPaint,
+                true);
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -146,19 +156,36 @@ namespace ChuckHill2.Utilities
             base.OnHandleCreated(e);
             base.ItemHeight = base.Font.Height + 2; //So wierd.  ItemHeight here is fontheight-2. For comboboxes it's fontheight+2  and treeviews it's fontheight+3. Go figure. We set it consistantly here.
 
+            base.BeginUpdate();
+
             if (this.OrderBy == OrderBy.Color)
                 foreach (var c in ColorEx.KnownColors) base.Items.Add(new ColorItem(c.Name, c));
             else
                 foreach (var c in ColorEx.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
 
+            base.EndUpdate();
+
             ImageBounds = new Rectangle(2, 1, graphicWidth, base.ItemHeight - 1 - 2);
             TextOffset = new Point(2 + graphicWidth + 2, -1); //-1 because we want to be vertically centered in the blue selected rectangle
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_transparentIconBrush != null)
+            {
+                _transparentIconBrush.Dispose();
+                _transparentIconBrush = null;
+                _disabledTranslucentBackground.Dispose();
+                _disabledTranslucentBackground = null;
+            }
+            base.Dispose(disposing);
         }
 
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
             if (e.Index == -1) return;
 
+            #region Set Selected Row Highlight
             if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
                 e = new DrawItemEventArgs(e.Graphics,
                                           e.Font,
@@ -167,33 +194,35 @@ namespace ChuckHill2.Utilities
                                           e.State ^ DrawItemState.Selected,
                                           base.Focused ? SystemColors.HighlightText : SystemColors.ControlText,
                                           base.Focused ? SystemColors.Highlight : SystemColors.GradientInactiveCaption);//Choose the color
+            #endregion
 
             var ci = (ColorItem)base.Items[e.Index];
 
             Graphics g = e.Graphics;
             e.DrawBackground();
 
+            #region Draw Icon
             var imageBounds = ImageBounds;
             imageBounds.X += e.Bounds.X;
             imageBounds.Y += e.Bounds.Y;
 
-            var textOffset = TextOffset;
-            textOffset.X += e.Bounds.X;
-            textOffset.Y += e.Bounds.Y;
-
-            if (ci.Color.A < 255) //add  background trasparency  checkerboard
-            {
-                using (var br = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White))
-                    g.FillRectangle(br, imageBounds);
-            }
+            //add  background trasparency  checkerboard
+            if (ci.Color.A < 255) g.FillRectangle(_transparentIconBrush, imageBounds);
 
             using (var solidBrush = new SolidBrush(ci.Color))
                 g.FillRectangle(solidBrush, imageBounds);
 
             g.DrawRectangle(SystemPens.WindowText, imageBounds.X, imageBounds.Y, imageBounds.Width - 1, imageBounds.Height - 1);
+            #endregion
 
-            TextRenderer.DrawText(g, ci.Name, base.Font, textOffset, e.ForeColor, Color.Transparent);
+            #region Draw Text
+            var textOffset = TextOffset;
+            textOffset.X += e.Bounds.X;
+            textOffset.Y += e.Bounds.Y;
+            TextRenderer.DrawText(g, ci.Name, base.Font, textOffset, base.Enabled ? e.ForeColor : SystemColors.GrayText, Color.Transparent);
+            #endregion
 
+            #region Draw Divider
             // Create a divider line between CustomColors, WebColors, and SystemColors or if
             // sorted alphabetically, just between CustomColors and all other known colors.
 
@@ -216,6 +245,46 @@ namespace ChuckHill2.Utilities
                     }
                 }
             }
+            #endregion
+
+            if (!base.Enabled) g.FillRectangle(_disabledTranslucentBackground, e.Bounds);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            Region iRegion = new Region(e.ClipRectangle);
+            using(var br = new SolidBrush(base.BackColor))  e.Graphics.FillRegion(br, iRegion);
+            if (!base.Enabled) e.Graphics.FillRectangle(_disabledTranslucentBackground, base.ClientRectangle);
+
+            if (base.Items.Count > 0)
+            {
+                for (int i = 0; i < base.Items.Count; ++i)
+                {
+                    System.Drawing.Rectangle irect = base.GetItemRectangle(i);
+                    if (e.ClipRectangle.IntersectsWith(irect))
+                    {
+                        if ((base.SelectionMode == SelectionMode.One && base.SelectedIndex == i)
+                        || (base.SelectionMode == SelectionMode.MultiSimple && base.SelectedIndices.Contains(i))
+                        || (base.SelectionMode == SelectionMode.MultiExtended && base.SelectedIndices.Contains(i)))
+                        {
+                            OnDrawItem(new DrawItemEventArgs(e.Graphics, base.Font,
+                                irect, i,
+                                DrawItemState.Selected, base.Enabled ? base.ForeColor : SystemColors.GrayText,
+                                base.BackColor));
+                        }
+                        else
+                        {
+                            OnDrawItem(new DrawItemEventArgs(e.Graphics, base.Font,
+                                irect, i,
+                                DrawItemState.Default, base.Enabled ? base.ForeColor : SystemColors.GrayText,
+                                base.BackColor));
+                        }
+                        iRegion.Complement(irect);
+                    }
+                }
+            }
+
+            base.OnPaint(e);
         }
 
         /// <summary>

@@ -33,9 +33,13 @@ namespace ColorEditor
             this.m_btnColorListBox = new System.Windows.Forms.Button();
             this.m_btnSystemCustomColorDialog = new System.Windows.Forms.Button();
             this.m_btnColorComboBox = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.m_radEnabled = new System.Windows.Forms.RadioButton();
+            this.m_radDisabled = new System.Windows.Forms.RadioButton();
             this.m_cbbColorComboBox = new ChuckHill2.Utilities.NamedColorComboBox();
             this.m_ctvColorTreeView = new ChuckHill2.Utilities.NamedColorTreeView();
             this.m_clbColorListBox = new ChuckHill2.Utilities.NamedColorListBox();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // m_btnSystemColorDialog
@@ -92,6 +96,39 @@ namespace ColorEditor
             this.m_btnColorComboBox.UseVisualStyleBackColor = true;
             this.m_btnColorComboBox.Click += new System.EventHandler(this.m_btnColorComboBox_Click);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.m_radDisabled);
+            this.groupBox1.Controls.Add(this.m_radEnabled);
+            this.groupBox1.Location = new System.Drawing.Point(12, 125);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(121, 82);
+            this.groupBox1.TabIndex = 11;
+            this.groupBox1.TabStop = false;
+            // 
+            // m_radEnabled
+            // 
+            this.m_radEnabled.AutoSize = true;
+            this.m_radEnabled.Checked = true;
+            this.m_radEnabled.Location = new System.Drawing.Point(19, 21);
+            this.m_radEnabled.Name = "m_radEnabled";
+            this.m_radEnabled.Size = new System.Drawing.Size(77, 20);
+            this.m_radEnabled.TabIndex = 0;
+            this.m_radEnabled.TabStop = true;
+            this.m_radEnabled.Text = "Enabled";
+            this.m_radEnabled.UseVisualStyleBackColor = true;
+            this.m_radEnabled.CheckedChanged += new System.EventHandler(this.m_radEnabled_CheckedChanged);
+            // 
+            // m_radDisabled
+            // 
+            this.m_radDisabled.AutoSize = true;
+            this.m_radDisabled.Location = new System.Drawing.Point(19, 47);
+            this.m_radDisabled.Name = "m_radDisabled";
+            this.m_radDisabled.Size = new System.Drawing.Size(81, 20);
+            this.m_radDisabled.TabIndex = 1;
+            this.m_radDisabled.Text = "Disabled";
+            this.m_radDisabled.UseVisualStyleBackColor = true;
+            // 
             // m_cbbColorComboBox
             // 
             this.m_cbbColorComboBox.Location = new System.Drawing.Point(560, 48);
@@ -129,6 +166,7 @@ namespace ColorEditor
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(752, 538);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.m_btnColorComboBox);
             this.Controls.Add(this.m_cbbColorComboBox);
             this.Controls.Add(this.m_ctvColorTreeView);
@@ -141,6 +179,8 @@ namespace ColorEditor
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "FormMain";
             this.Text = "ColorEditor Test";
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -155,6 +195,9 @@ namespace ColorEditor
         private ChuckHill2.Utilities.NamedColorTreeView m_ctvColorTreeView;
         private System.Windows.Forms.Button m_btnColorComboBox;
         private ChuckHill2.Utilities.NamedColorComboBox m_cbbColorComboBox;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RadioButton m_radDisabled;
+        private System.Windows.Forms.RadioButton m_radEnabled;
     }
 }
 
