@@ -1995,15 +1995,23 @@ namespace ChuckHill2.Utilities
         public static bool SetDpiAware()
         {
             string releaseId = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId", "0").ToString();
-            if (!int.TryParse(releaseId, out var WINVER)) return false;
+            int.TryParse(releaseId, out var WINVER);  //Is registry ReleaseId a numeric string?
 
-            if (WINVER >= 0x0605)
+            //Due to Microsoft's sketchy/undocumented versioning practices, we just wrap everything in a try/catch block. Just in case the Win32 API does not exist for this OS..
+            try
             {
-                return SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT.PER_MONITOR_AWARE_V2);
+                if (WINVER >= 0x0605)
+                    return SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT.PER_MONITOR_AWARE_V2);
+            
+                if (WINVER >= 0x0600)
+                    return SetProcessDPIAware();
+
+                if (WINVER == 0) //ReleaseId is a non-numeric string?
+                    return SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT.PER_MONITOR_AWARE_V2);
             }
-            else if (WINVER >= 0x0600)
+            catch
             {
-                return SetProcessDPIAware();
+                return false;
             }
 
             return false;

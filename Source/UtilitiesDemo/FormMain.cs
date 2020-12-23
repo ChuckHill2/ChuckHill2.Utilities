@@ -87,6 +87,21 @@ namespace UtilitiesDemo
             cbb_i++;
         }
 
+        private void m_clbColorListBox_SelectionChanged(object sender, NamedColorEventArgs e)
+        {
+            m_lblColorSelectStatus.Text = $"NamedColorListBox Selected Color is {e.Color.GetName()}.";
+        }
+
+        private void m_ctvColorTreeView_SelectionChanged(object sender, NamedColorEventArgs e)
+        {
+            m_lblColorSelectStatus.Text = $"NamedColorTreeView Selected Color is {e.Color.GetName()}.";
+        }
+
+        private void m_cbbColorComboBox_SelectionChanged(object sender, NamedColorEventArgs e)
+        {
+            m_lblColorSelectStatus.Text = $"NamedColorComboBox Selected Color is {e.Color.GetName()}.";
+        }
+
         [Conditional("DEBUG")]
         private void ValidateImageAttributeClass()
         {
@@ -133,6 +148,9 @@ namespace UtilitiesDemo
         }
     }
 
+    /// <summary>
+    /// Example of all the Designer Type Editors.
+    /// </summary>
     public class TestUITypeEditors
     {
         private Control Host;

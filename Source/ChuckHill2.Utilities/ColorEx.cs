@@ -7,6 +7,9 @@ using System.Reflection;
 
 namespace ChuckHill2.Utilities
 {
+    /// <summary>
+    /// Extra Color struct functionality.
+    /// </summary>
     public static class ColorEx
     {
         // Nice perceptual color ordering from https://en.wikipedia.org/wiki/Web_colors.

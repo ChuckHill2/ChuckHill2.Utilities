@@ -59,6 +59,61 @@ namespace ChuckHill2.Utilities
             }
         }
 
+        /// <summary>
+        ///  Gets or sets the font of the text displayed by the control.
+        /// </summary>
+        [RefreshProperties(RefreshProperties.Repaint)]
+        [Category("Appearance"), Description("The font used to display text in the control.")]
+        public override Font Font
+        {
+            get => base.Font;
+            set
+            {
+                base.Font = value;
+                UpdateDrawingBounds();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the height, in pixels, of items in the list box.
+        /// </summary>
+        [RefreshProperties(RefreshProperties.Repaint)]
+        [Category("Behavior"), Description("The height, in pixels, of items in the list box.")]
+        public int ItemsHeight
+        {
+            //We have to create our own uniquely named ItemsHeight field because the original [DefaultValueAttribute(16)] ItemHeight
+            //takes precedence over ShouldSerializeItemHeight()/ResetItemHeight()
+            get
+            {
+                if (__itemsHeight == -1) return DefaultItemsHeight;
+                return __itemsHeight;
+            }
+            set
+            {
+                if (value < 2) value = 2;
+                if (value >= short.MaxValue - 2) value = short.MaxValue - 2;
+                if (value == __itemsHeight) return;
+                __itemsHeight = value;
+                base.ItemHeight = __itemsHeight;
+                UpdateDrawingBounds();
+            }
+        }
+        private int __itemsHeight = -1;
+        private bool ShouldSerializeItemsHeight() => ItemsHeight != DefaultItemsHeight; //In lieu of using [DefaultValue(someConst)]
+        private void ResetItemsHeight() => ItemsHeight = DefaultItemsHeight;
+        private int DefaultItemsHeight => new ImageFontMetrics(this.Font).EmHeightPixels + 2;
+
+        private void UpdateDrawingBounds()
+        {
+            ImageBounds = new Rectangle(2, 1, graphicWidth, this.ItemsHeight - 2);
+
+            // Need to properly center the *visible* text within the ItemHeight.
+            var fi = new ImageFontMetrics(this.Font);
+            var yOffset = (this.ItemsHeight - fi.EmHeightPixels - fi.InternalLeadingPixels) / 2.0f;
+
+            TextOffset = new Point(2 + graphicWidth + 2, (int)Math.Floor(yOffset));
+        }
+
         #region Hidden/Disabled Properties
         private const string NOTUSED = "Not used in " + nameof(NamedColorListBox) + ".";
         //! @cond DOXYGENHIDE 
@@ -93,6 +148,10 @@ namespace ChuckHill2.Utilities
         public new int TopIndex { get; set; }
         [Obsolete(NOTUSED + " See property Selected", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new object SelectedValue { get; set; }
+        [Obsolete(NOTUSED + "Use property ItemsHeight", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new int ItemHeight { get; set; }
+        [Obsolete(NOTUSED + "Use field DefaultItemsHeight", true)]
+        public new int DefaultItemHeight;
 
         #pragma warning disable CS0067 //The event is never used
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -149,12 +208,15 @@ namespace ChuckHill2.Utilities
                 ControlStyles.ResizeRedraw |
                 ControlStyles.UserPaint,
                 true);
+            base.ItemHeight = this.ItemsHeight;
         }
 
         protected override void OnHandleCreated(EventArgs e)
         {
+            //Event Sequence: Control.HandleCreated. Control.BindingContextChanged. Form.Load. Control.VisibleChanged. Form.Activated. Form.Shown
             base.OnHandleCreated(e);
-            base.ItemHeight = base.Font.Height + 2; //So wierd.  ItemHeight here is fontheight-2. For comboboxes it's fontheight+2  and treeviews it's fontheight+3. Go figure. We set it consistantly here.
+            base.ItemHeight = this.ItemsHeight;
+            UpdateDrawingBounds();
 
             base.BeginUpdate();
 
@@ -164,9 +226,6 @@ namespace ChuckHill2.Utilities
                 foreach (var c in ColorEx.KnownColors.OrderBy(c => c.Name)) base.Items.Add(new ColorItem(c.Name, c));
 
             base.EndUpdate();
-
-            ImageBounds = new Rectangle(2, 1, graphicWidth, base.ItemHeight - 1 - 2);
-            TextOffset = new Point(2 + graphicWidth + 2, -1); //-1 because we want to be vertically centered in the blue selected rectangle
         }
 
         protected override void Dispose(bool disposing)
@@ -219,7 +278,7 @@ namespace ChuckHill2.Utilities
             var textOffset = TextOffset;
             textOffset.X += e.Bounds.X;
             textOffset.Y += e.Bounds.Y;
-            TextRenderer.DrawText(g, ci.Name, base.Font, textOffset, base.Enabled ? e.ForeColor : SystemColors.GrayText, Color.Transparent);
+            TextRenderer.DrawText(g, ci.Name, this.Font, textOffset, base.Enabled ? e.ForeColor : SystemColors.GrayText, Color.Transparent);
             #endregion
 
             #region Draw Divider
@@ -267,14 +326,14 @@ namespace ChuckHill2.Utilities
                         || (base.SelectionMode == SelectionMode.MultiSimple && base.SelectedIndices.Contains(i))
                         || (base.SelectionMode == SelectionMode.MultiExtended && base.SelectedIndices.Contains(i)))
                         {
-                            OnDrawItem(new DrawItemEventArgs(e.Graphics, base.Font,
+                            OnDrawItem(new DrawItemEventArgs(e.Graphics, this.Font,
                                 irect, i,
                                 DrawItemState.Selected, base.Enabled ? base.ForeColor : SystemColors.GrayText,
                                 base.BackColor));
                         }
                         else
                         {
-                            OnDrawItem(new DrawItemEventArgs(e.Graphics, base.Font,
+                            OnDrawItem(new DrawItemEventArgs(e.Graphics, this.Font,
                                 irect, i,
                                 DrawItemState.Default, base.Enabled ? base.ForeColor : SystemColors.GrayText,
                                 base.BackColor));

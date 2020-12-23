@@ -128,6 +128,7 @@
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\ScreenColorPicker.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="FontMetrics.cs" />
     <Compile Include="GradientControls\GradientFlowLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -209,7 +210,6 @@
     <None Include="ChuckHill2.Utilities.nuspec" />
     <None Include="Cyotek.Windows.Forms.ColorPicker\.editorconfig" />
     <None Include="Doxygen.config" />
-    <None Include="packages.config" />
     <None Include="PostBuildEvent.bat" />
     <None Include="ProjectLogo.png" />
   </ItemGroup>

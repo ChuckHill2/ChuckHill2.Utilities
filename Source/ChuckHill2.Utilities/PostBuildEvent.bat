@@ -12,7 +12,7 @@
 @REM
 @REM Created by Chuck Hill, 07/13/2020
 @REM -------------------------------------------------------------------------
-@ECHO OFF
+
 SETLOCAL
 @REM Batch commandline properties that match MSBuild properties.
 SET ProjectDir=%~dp0
@@ -71,17 +71,28 @@ IF EXIST %HtmlHelp% RD /S /Q %HtmlHelp%
 @REM Copy Readme.md images to target destination because Doxygen wont.
 @REM XCOPY ..\..\ReadmeImages %HtmlHelp%\ReadmeImages /S /I
 
-SET DOXYGEN=..\packages\Doxygen.1.8.14\tools\doxygen.exe
-IF NOT EXIST %DOXYGEN% (
-ECHO Error: Doxygen 1.8.14 document generator has not been installed via nuget. Cannot continue.
+@REM Cannot use nuget because its latest is version 1.8.14. The actual latest is 1.8.20. We need the newer features.
+SET DOXYGEN=%ProgramFiles%\doxygen\bin\doxygen.exe
+IF NOT EXIST "%DOXYGEN%" SET DOXYGEN=%ProgramFiles(x86)%\doxygen\bin\doxygen.exe
+IF NOT EXIST "%DOXYGEN%" CALL :GETFILE DOXYGEN doxygen.exe
+IF NOT EXIST "%DOXYGEN%" (
+ECHO Error: Doxygen document generator has not been installed. Cannot continue.
+ECHO The latest version may be downloaded from https://www.doxygen.nl/download.html
+EXIT /B 1
+)
+
+FOR /F "tokens=1,2,3 delims=. " %%A in ('"%DOXYGEN%" -v') DO SET /A "DOXVERSION=%%A << 16 | %%B << 8 | %%C"
+IF %DOXVERSION% LSS 67604 (
+ECHO Error: The version of %DOXYGEN% is less than 1.8.20. Cannot continue.
+ECHO The latest version may be downloaded from https://www.doxygen.nl/download.html
 EXIT /B 1
 )
 
 ECHO.
-ECHO %DOXYGEN% Doxygen.config
+ECHO "%DOXYGEN%" Doxygen.config
 ECHO.
 @REM Doxygen formats errors just like MSBUILD causing build failure, so we have to hide them with '2^>NUL'
-%DOXYGEN% Doxygen.config 2>NUL
+"%DOXYGEN%" Doxygen.config 2>NUL
 ECHO.
 
 @REM Nuget pack requires chm help file as a part of its build.
@@ -102,3 +113,8 @@ nuget.exe pack %ProjectName%.csproj -properties configuration=%Configuration%;Ou
 ECHO.
 
 EXIT /B 0
+
+:GETFILE
+SET %~1=%~$PATH:2
+GOTO :EOF
+

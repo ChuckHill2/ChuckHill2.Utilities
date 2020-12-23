@@ -24,6 +24,63 @@ using System.Windows.Forms;
 namespace ChuckHill2.Utilities
 {
     /// <summary>
+    /// Known styles for the simple 2-color GradientBrush
+    /// </summary>
+    public enum GradientStyle
+    {
+        /// <summary>
+        ///  @image{inline} html GradientSolid.png
+        /// Simple solid color represented by GradientBrush.Color1. All other GradientBrush properties are ignored.
+        /// </summary>
+        Solid,   //uninitialized/default value.
+
+        /// <summary>
+        /// Gradient from left to right.
+        /// </summary>
+        Horizontal,
+
+        /// <summary>
+        /// Gradient from top to bottom.
+        /// </summary>
+        Vertical,
+
+        /// <summary>
+        ///  Gradient forward '/' diagonal from top-left to bottom-right
+        /// </summary>
+        ForwardDiagonal,
+
+        /// <summary>
+        ///  Gradient backward '\' diagonal from top-right to bottom-left
+        /// </summary>
+        BackwardDiagonal,
+
+        /// <summary>
+        /// Gradient from center to periphery.
+        /// </summary>
+        Center,
+
+        /// <summary>
+        /// Gradient from left and right to center.
+        /// </summary>
+        CenterHorizontal,
+
+        /// <summary>
+        /// Gradient from top and bottom to center.
+        /// </summary>
+        CenterVertical,
+
+        /// <summary>
+        ///  Gradient forward '/' diagonal from top-left and bottom-right to center.
+        /// </summary>
+        CenterForwardDiagonal,
+
+        /// <summary>
+        ///  Gradient backward '\' diagonal from top-right and bottom-left to center.
+        /// </summary>
+        CenterBackwardDiagonal
+    }
+
+    /// <summary>
     /// Create a simple 2-color gradient brush that is editable in the Winforms Designer.
     /// </summary>
     [Editor(typeof(GradientBrushEditor), typeof(UITypeEditor))]
@@ -31,25 +88,12 @@ namespace ChuckHill2.Utilities
     [Category("Appearance"), Description("The gradient brush used to fill the background.")]
     public class GradientBrush
     {
-        public enum BrushStyle
-        {
-            Solid = 0,   //uninitialized/default value.
-            Horizontal,
-            Vertical,
-            ForwardDiagonal,
-            BackwardDiagonal,
-            Center,
-            CenterHorizontal,
-            CenterVertical,
-            CenterForwardDiagonal,
-            CenterBackwardDiagonal
-        }
 
         // This is all for attempting to gather default properties based upon parent current properties, which may change and these defaults along with the parent.
         private Control Host = null; //this is only required at design time
         private Color DefaultColor1 => Host == null ? SystemColors.Control : Host is IGradientControl ? ((IGradientControl)Host).BackgroundGradient.Color1 == SystemColors.Control ? Host.BackColor : ((IGradientControl)Host).BackgroundGradient.Color1 : Host.BackColor;
         private Color DefaultColor2 => Host == null ? SystemColors.Control : Host is IGradientControl ? ((IGradientControl)Host).BackgroundGradient.Color2 == SystemColors.Control ? Host.BackColor : ((IGradientControl)Host).BackgroundGradient.Color2 : Host.BackColor;
-        private GradientBrush.BrushStyle DefaultStyle => Host == null ? GradientBrush.BrushStyle.Solid : Host is IGradientControl ? ((IGradientControl)Host).BackgroundGradient.Style : GradientBrush.BrushStyle.Solid;
+        private GradientStyle DefaultStyle => Host == null ? GradientStyle.Solid : Host is IGradientControl ? ((IGradientControl)Host).BackgroundGradient.Style : GradientStyle.Solid;
         private bool DefaultGammaCorrection => Host == null ? false : Host is IGradientControl ? ((IGradientControl)Host).BackgroundGradient.GammaCorrection : false;
 
         #region Properties
@@ -58,7 +102,7 @@ namespace ChuckHill2.Utilities
         /// </summary>
         [Editor(typeof(EnumUIEditor), typeof(UITypeEditor))]
         [Category("Appearance"), Description("The style of the gradient.")]
-        public BrushStyle Style { get; set; }
+        public GradientStyle Style { get; set; }
         //private bool ShouldSerializeStyle() => Style != DefaultStyle;  //In lieu of using [DefaultValue(someConst)]
         //private void ResetStyle() => Style = DefaultStyle;
 
@@ -124,7 +168,7 @@ namespace ChuckHill2.Utilities
         /// <param name="color2">The second color of the gradient.</param>
         /// <param name="style">The gradient style for the brush.</param>
         /// <param name="gammaCorrection">Controls the overall brightness and ratio of red to green to blue hues. Enables a more uniform intensity across the gradient. This is ignored if the style is Solid.</param>
-        public GradientBrush(Control parent, Color color1, Color color2, BrushStyle style, bool gammaCorrection)
+        public GradientBrush(Control parent, Color color1, Color color2, GradientStyle style, bool gammaCorrection)
         {
             Host = parent;
             Color1 = color1;
@@ -158,30 +202,30 @@ namespace ChuckHill2.Utilities
         {
             //https://docs.microsoft.com/en-us/dotnet/desktop/winforms/advanced/how-to-create-a-path-gradient?view=netframeworkdesktop-4.8
             //https://www.codeproject.com/Articles/20018/Gradients-made-easy
-            if (!rect.HasValue || Style == BrushStyle.Solid) return new SolidBrush(Color1);
+            if (!rect.HasValue || Style == GradientStyle.Solid) return new SolidBrush(Color1);
             var rc = rect.Value;
             var center = new PointF(rc.Width / 2f, rc.Height / 2f);
 
             LinearGradientBrush lbr = null;
             switch (Style)
             {
-                case BrushStyle.Horizontal:
+                case GradientStyle.Horizontal:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.Horizontal) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipX };
                     break;
 
-                case BrushStyle.Vertical:
+                case GradientStyle.Vertical:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.Vertical) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipY };
                     break;
 
-                case BrushStyle.ForwardDiagonal:
+                case GradientStyle.ForwardDiagonal:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.ForwardDiagonal) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipXY };
                     break;
 
-                case BrushStyle.BackwardDiagonal:
+                case GradientStyle.BackwardDiagonal:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.BackwardDiagonal) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipXY };
                     break;
 
-                case BrushStyle.Center:
+                case GradientStyle.Center:
                     GraphicsPath path = new GraphicsPath();
                     rc.Inflate(rc.Width / 4.8f, rc.Height / 4.8f);
                     path.AddEllipse(rc);
@@ -193,22 +237,22 @@ namespace ChuckHill2.Utilities
                     pbr.SurroundColors = new[] { Color2 };
                     return pbr;
 
-                case BrushStyle.CenterHorizontal:
+                case GradientStyle.CenterHorizontal:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.Horizontal) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipX };
                     lbr.SetSigmaBellShape(0.5f, 1.0f);
                     break;
 
-                case BrushStyle.CenterVertical:
+                case GradientStyle.CenterVertical:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.Vertical) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipY };
                     lbr.SetSigmaBellShape(0.5f, 1.0f);
                     break;
 
-                case BrushStyle.CenterForwardDiagonal:
+                case GradientStyle.CenterForwardDiagonal:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.ForwardDiagonal) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipXY };
                     lbr.SetSigmaBellShape(0.5f, 1.0f);
                     break;
 
-                case BrushStyle.CenterBackwardDiagonal:
+                case GradientStyle.CenterBackwardDiagonal:
                     lbr = new LinearGradientBrush(rc, Color1, Color2, LinearGradientMode.BackwardDiagonal) { GammaCorrection = GammaCorrection, WrapMode = WrapMode.TileFlipXY };
                     lbr.SetSigmaBellShape(0.5f, 1.0f);
                     break;
@@ -244,14 +288,14 @@ namespace ChuckHill2.Utilities
             {
                 int hash = 13;
                 hash = (hash * 7) + Color1.GetHashCode();
-                hash = (hash * 7) + this.Style == BrushStyle.Solid ? 0 : Color2.GetHashCode();
+                hash = (hash * 7) + this.Style == GradientStyle.Solid ? 0 : Color2.GetHashCode();
                 hash = (hash * 7) + Style.GetHashCode();
-                hash = (hash * 7) + this.Style == BrushStyle.Solid ? 0 : GammaCorrection.GetHashCode();
+                hash = (hash * 7) + this.Style == GradientStyle.Solid ? 0 : GammaCorrection.GetHashCode();
                 return hash;
             }
         }
 
-        public override string ToString() => $"{ColorToString(Color1)}{(Style == BrushStyle.Solid ? "" : ", " + ColorToString(Color2))}, {Style}";
+        public override string ToString() => $"{ColorToString(Color1)}{(Style == GradientStyle.Solid ? "" : ", " + ColorToString(Color2))}, {Style}";
 
         //! @endcond
         #endregion
@@ -272,7 +316,7 @@ namespace ChuckHill2.Utilities
   (?:[\[\(\{{\<']?
      (?<COLOR2>[0-9]{{1,3}},\s?[0-9]{{1,3}},\s?[0-9]{{1,3}}(?:,\s?[0-9]{{1,3}})?|[a-z]+)
      [\]\)\}}\>']?,\s*)?
-  (?<STYLE>{ string.Join("|", Enum.GetNames(typeof(GradientBrush.BrushStyle))) })$";
+  (?<STYLE>{ string.Join("|", Enum.GetNames(typeof(GradientStyle))) })$";
         private static readonly Regex reSplitter = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
         private PropertyDescriptorCollection GradientProps = null;
@@ -293,7 +337,7 @@ namespace ChuckHill2.Utilities
                 SolidProps = new PropertyDescriptorCollection(new[] { props[0], props[1] }).Sort(new[] { "Style", "Color1" });
             }
 
-            return ((GradientBrush)value).Style == GradientBrush.BrushStyle.Solid ? SolidProps : GradientProps;
+            return ((GradientBrush)value).Style == GradientStyle.Solid ? SolidProps : GradientProps;
         }
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
@@ -311,7 +355,7 @@ namespace ChuckHill2.Utilities
 
             return new GradientBrush(GetHost(context))
             {
-                Style = (GradientBrush.BrushStyle)Enum.Parse(typeof(GradientBrush.BrushStyle), m.Groups["STYLE"].Value, true),
+                Style = (GradientStyle)Enum.Parse(typeof(GradientStyle), m.Groups["STYLE"].Value, true),
                 Color1 = ColorFromString(m.Groups["COLOR1"].Value),
                 Color2 = color2,
                 GammaCorrection = false
@@ -332,7 +376,7 @@ namespace ChuckHill2.Utilities
             {
                 GradientBrush props = (GradientBrush)value;
 
-                MemberInfo constructor = (MemberInfo)typeof(GradientBrush).GetConstructor(new[] { typeof(Control), typeof(Color), typeof(Color), typeof(GradientBrush.BrushStyle), typeof(bool) });
+                MemberInfo constructor = (MemberInfo)typeof(GradientBrush).GetConstructor(new[] { typeof(Control), typeof(Color), typeof(Color), typeof(GradientStyle), typeof(bool) });
                 if (constructor != (MemberInfo)null) return (object)new InstanceDescriptor(constructor, new object[] { GetHost(context), props.Color1, props.Color2, props.Style, props.GammaCorrection });
             }
 
@@ -357,10 +401,10 @@ namespace ChuckHill2.Utilities
             if (obj3 == null) obj3 = defalt.Style;
             if (obj4 == null) obj4 = defalt.GammaCorrection;
 
-            if (!(obj1 is Color) || !(obj2 is Color) || !(obj3 is GradientBrush.BrushStyle) || !(obj4 is bool))
+            if (!(obj1 is Color) || !(obj2 is Color) || !(obj3 is GradientStyle) || !(obj4 is bool))
                 throw new ArgumentException("One or more entries are not valid in the IDictionary parameter. Verify that all values match up to the object's properties.");
 
-            return (object)new GradientBrush(GetHost(context), (Color)obj1, (Color)obj2, (GradientBrush.BrushStyle)obj3, (bool)obj4);
+            return (object)new GradientBrush(GetHost(context), (Color)obj1, (Color)obj2, (GradientStyle)obj3, (bool)obj4);
         }
 
         //! @endcond

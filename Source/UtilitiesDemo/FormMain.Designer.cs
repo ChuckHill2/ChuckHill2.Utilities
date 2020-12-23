@@ -30,16 +30,17 @@ namespace UtilitiesDemo
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.m_tpGradientControls = new System.Windows.Forms.TabPage();
-            this.m_tabGradientControls = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.m_tcSubGradientControls = new System.Windows.Forms.TabControl();
+            this.m_tpGradientBrushStyles = new System.Windows.Forms.TabPage();
+            this.m_tpMiscControls = new System.Windows.Forms.TabPage();
             this.gradientLabel4 = new ChuckHill2.Utilities.GradientLabel();
             this.gradientGroupBox1 = new ChuckHill2.Utilities.GradientGroupBox();
             this.gradientLabel3 = new ChuckHill2.Utilities.GradientLabel();
             this.gradientPanel1 = new ChuckHill2.Utilities.GradientPanel();
             this.label25 = new System.Windows.Forms.Label();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.m_tpFlowLayoutPanel = new System.Windows.Forms.TabPage();
             this.gradientLabel1 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientFlowLayoutPanel1 = new ChuckHill2.Utilities.GradientFlowLayoutPanel();
+            this.m_flpGradientFlowLayoutPanel = new ChuckHill2.Utilities.GradientFlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -60,85 +61,118 @@ namespace UtilitiesDemo
             this.label22 = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.m_tpTableLayoutPanel = new System.Windows.Forms.TabPage();
             this.label2 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientTableLayoutPanel1 = new ChuckHill2.Utilities.GradientTableLayoutPanel();
+            this.m_tlpGradientTableLayoutPanel = new ChuckHill2.Utilities.GradientTableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.m_tpBrushProperties = new System.Windows.Forms.TabPage();
             this.label1 = new ChuckHill2.Utilities.GradientLabel();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.tabControl2 = new System.Windows.Forms.TabControl();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.m_tcMain = new System.Windows.Forms.TabControl();
+            this.m_tpColorPickers = new System.Windows.Forms.TabPage();
+            this.m_tcSubColorPickers = new System.Windows.Forms.TabControl();
+            this.m_tpLists = new System.Windows.Forms.TabPage();
+            this.m_lblColorSelectStatus = new System.Windows.Forms.Label();
             this.m_btnColorComboBox = new System.Windows.Forms.Button();
             this.m_btnColorTreeView = new System.Windows.Forms.Button();
             this.m_btnColorListBox = new System.Windows.Forms.Button();
             this.m_cbbColorComboBox = new ChuckHill2.Utilities.NamedColorComboBox();
             this.m_ctvColorTreeView = new ChuckHill2.Utilities.NamedColorTreeView();
             this.m_clbColorListBox = new ChuckHill2.Utilities.NamedColorListBox();
-            this.tabPage6 = new System.Windows.Forms.TabPage();
-            this.colorPickerPanelHorz1 = new ChuckHill2.Utilities.ColorPickerPanelHorz();
-            this.tabPage7 = new System.Windows.Forms.TabPage();
-            this.colorPickerPanelVert1 = new ChuckHill2.Utilities.ColorPickerPanelVert();
+            this.m_tpColorEditorHorz = new System.Windows.Forms.TabPage();
+            this.m_cppColorPickerPanelHorz = new ChuckHill2.Utilities.ColorPickerPanelHorz();
+            this.m_tpColorEditorVert = new System.Windows.Forms.TabPage();
+            this.m_cppColorPickerPanelVert = new ChuckHill2.Utilities.ColorPickerPanelVert();
+            this.gradientLabel2 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel5 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel6 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel7 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel8 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel9 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel10 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel11 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel12 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel13 = new ChuckHill2.Utilities.GradientLabel();
             this.m_tpGradientControls.SuspendLayout();
-            this.m_tabGradientControls.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.m_tcSubGradientControls.SuspendLayout();
+            this.m_tpGradientBrushStyles.SuspendLayout();
+            this.m_tpMiscControls.SuspendLayout();
             this.gradientPanel1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            this.gradientFlowLayoutPanel1.SuspendLayout();
-            this.tabPage3.SuspendLayout();
-            this.gradientTableLayoutPanel1.SuspendLayout();
+            this.m_tpFlowLayoutPanel.SuspendLayout();
+            this.m_flpGradientFlowLayoutPanel.SuspendLayout();
+            this.m_tpTableLayoutPanel.SuspendLayout();
+            this.m_tlpGradientTableLayoutPanel.SuspendLayout();
             this.m_tpBrushProperties.SuspendLayout();
-            this.tabControl1.SuspendLayout();
-            this.tabPage4.SuspendLayout();
-            this.tabControl2.SuspendLayout();
-            this.tabPage5.SuspendLayout();
-            this.tabPage6.SuspendLayout();
-            this.tabPage7.SuspendLayout();
+            this.m_tcMain.SuspendLayout();
+            this.m_tpColorPickers.SuspendLayout();
+            this.m_tcSubColorPickers.SuspendLayout();
+            this.m_tpLists.SuspendLayout();
+            this.m_tpColorEditorHorz.SuspendLayout();
+            this.m_tpColorEditorVert.SuspendLayout();
             this.SuspendLayout();
             // 
             // m_tpGradientControls
             // 
             this.m_tpGradientControls.BackColor = System.Drawing.Color.Transparent;
-            this.m_tpGradientControls.Controls.Add(this.m_tabGradientControls);
+            this.m_tpGradientControls.Controls.Add(this.m_tcSubGradientControls);
             this.m_tpGradientControls.Location = new System.Drawing.Point(4, 24);
             this.m_tpGradientControls.Name = "m_tpGradientControls";
             this.m_tpGradientControls.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpGradientControls.Size = new System.Drawing.Size(750, 559);
+            this.m_tpGradientControls.Size = new System.Drawing.Size(750, 570);
             this.m_tpGradientControls.TabIndex = 4;
             this.m_tpGradientControls.Text = "Gradient Controls";
             // 
-            // m_tabGradientControls
+            // m_tcSubGradientControls
             // 
-            this.m_tabGradientControls.Controls.Add(this.tabPage1);
-            this.m_tabGradientControls.Controls.Add(this.tabPage2);
-            this.m_tabGradientControls.Controls.Add(this.tabPage3);
-            this.m_tabGradientControls.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.m_tabGradientControls.Location = new System.Drawing.Point(3, 3);
-            this.m_tabGradientControls.Name = "m_tabGradientControls";
-            this.m_tabGradientControls.SelectedIndex = 0;
-            this.m_tabGradientControls.Size = new System.Drawing.Size(744, 553);
-            this.m_tabGradientControls.TabIndex = 9;
+            this.m_tcSubGradientControls.Controls.Add(this.m_tpGradientBrushStyles);
+            this.m_tcSubGradientControls.Controls.Add(this.m_tpMiscControls);
+            this.m_tcSubGradientControls.Controls.Add(this.m_tpFlowLayoutPanel);
+            this.m_tcSubGradientControls.Controls.Add(this.m_tpTableLayoutPanel);
+            this.m_tcSubGradientControls.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.m_tcSubGradientControls.Location = new System.Drawing.Point(3, 3);
+            this.m_tcSubGradientControls.Name = "m_tcSubGradientControls";
+            this.m_tcSubGradientControls.SelectedIndex = 0;
+            this.m_tcSubGradientControls.Size = new System.Drawing.Size(744, 564);
+            this.m_tcSubGradientControls.TabIndex = 9;
             // 
-            // tabPage1
+            // m_tpGradientBrushStyles
             // 
-            this.tabPage1.Controls.Add(this.gradientLabel4);
-            this.tabPage1.Controls.Add(this.gradientGroupBox1);
-            this.tabPage1.Controls.Add(this.gradientLabel3);
-            this.tabPage1.Controls.Add(this.gradientPanel1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 24);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(736, 525);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Miscellaneous";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel13);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel12);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel11);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel10);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel9);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel8);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel7);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel6);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel5);
+            this.m_tpGradientBrushStyles.Controls.Add(this.gradientLabel2);
+            this.m_tpGradientBrushStyles.Location = new System.Drawing.Point(4, 24);
+            this.m_tpGradientBrushStyles.Name = "m_tpGradientBrushStyles";
+            this.m_tpGradientBrushStyles.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpGradientBrushStyles.Size = new System.Drawing.Size(736, 536);
+            this.m_tpGradientBrushStyles.TabIndex = 3;
+            this.m_tpGradientBrushStyles.Text = "GradientBrush Styles";
+            this.m_tpGradientBrushStyles.UseVisualStyleBackColor = true;
+            // 
+            // m_tpMiscControls
+            // 
+            this.m_tpMiscControls.Controls.Add(this.gradientLabel4);
+            this.m_tpMiscControls.Controls.Add(this.gradientGroupBox1);
+            this.m_tpMiscControls.Controls.Add(this.gradientLabel3);
+            this.m_tpMiscControls.Controls.Add(this.gradientPanel1);
+            this.m_tpMiscControls.Location = new System.Drawing.Point(4, 24);
+            this.m_tpMiscControls.Name = "m_tpMiscControls";
+            this.m_tpMiscControls.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpMiscControls.Size = new System.Drawing.Size(736, 536);
+            this.m_tpMiscControls.TabIndex = 0;
+            this.m_tpMiscControls.Text = "Misc Contols";
+            this.m_tpMiscControls.UseVisualStyleBackColor = true;
             // 
             // gradientLabel4
             // 
-            this.gradientLabel4.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Center, false);
+            this.gradientLabel4.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Transparent, System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(192))))), ChuckHill2.Utilities.GradientStyle.Center, true);
             this.gradientLabel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.gradientLabel4.Location = new System.Drawing.Point(450, 37);
             this.gradientLabel4.Name = "gradientLabel4";
@@ -148,7 +182,7 @@ namespace UtilitiesDemo
             // 
             // gradientGroupBox1
             // 
-            this.gradientGroupBox1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Transparent, System.Drawing.Color.Peru, ChuckHill2.Utilities.GradientBrush.BrushStyle.Vertical, false);
+            this.gradientGroupBox1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.LightCyan, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Vertical, true);
             this.gradientGroupBox1.Location = new System.Drawing.Point(225, 29);
             this.gradientGroupBox1.Name = "gradientGroupBox1";
             this.gradientGroupBox1.Size = new System.Drawing.Size(212, 138);
@@ -158,18 +192,18 @@ namespace UtilitiesDemo
             // 
             // gradientLabel3
             // 
-            this.gradientLabel3.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
+            this.gradientLabel3.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
             this.gradientLabel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.gradientLabel3.Location = new System.Drawing.Point(3, 3);
             this.gradientLabel3.Name = "gradientLabel3";
             this.gradientLabel3.Size = new System.Drawing.Size(730, 23);
             this.gradientLabel3.TabIndex = 10;
-            this.gradientLabel3.Text = "Example of EnumUIEditor Usage";
+            this.gradientLabel3.Text = "Miscellaneous Gradient Controls";
             this.gradientLabel3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // gradientPanel1
             // 
-            this.gradientPanel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Pink, System.Drawing.Color.CornflowerBlue, ChuckHill2.Utilities.GradientBrush.BrushStyle.CenterHorizontal, true);
+            this.gradientPanel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
             this.gradientPanel1.Controls.Add(this.label25);
             this.gradientPanel1.Location = new System.Drawing.Point(11, 37);
             this.gradientPanel1.Name = "gradientPanel1";
@@ -179,6 +213,7 @@ namespace UtilitiesDemo
             // label25
             // 
             this.label25.AutoSize = true;
+            this.label25.BackColor = System.Drawing.Color.Transparent;
             this.label25.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label25.Location = new System.Drawing.Point(41, 49);
             this.label25.Name = "label25";
@@ -186,23 +221,23 @@ namespace UtilitiesDemo
             this.label25.TabIndex = 0;
             this.label25.Text = "GradientPanel";
             // 
-            // tabPage2
+            // m_tpFlowLayoutPanel
             // 
-            this.tabPage2.Controls.Add(this.gradientLabel1);
-            this.tabPage2.Controls.Add(this.gradientFlowLayoutPanel1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 24);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(736, 525);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "FlowLayoutPanel";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.m_tpFlowLayoutPanel.Controls.Add(this.gradientLabel1);
+            this.m_tpFlowLayoutPanel.Controls.Add(this.m_flpGradientFlowLayoutPanel);
+            this.m_tpFlowLayoutPanel.Location = new System.Drawing.Point(4, 24);
+            this.m_tpFlowLayoutPanel.Name = "m_tpFlowLayoutPanel";
+            this.m_tpFlowLayoutPanel.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpFlowLayoutPanel.Size = new System.Drawing.Size(736, 536);
+            this.m_tpFlowLayoutPanel.TabIndex = 1;
+            this.m_tpFlowLayoutPanel.Text = "FlowLayoutPanel";
+            this.m_tpFlowLayoutPanel.UseVisualStyleBackColor = true;
             // 
             // gradientLabel1
             // 
             this.gradientLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gradientLabel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
+            this.gradientLabel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
             this.gradientLabel1.Location = new System.Drawing.Point(3, 3);
             this.gradientLabel1.Name = "gradientLabel1";
             this.gradientLabel1.Size = new System.Drawing.Size(730, 23);
@@ -210,37 +245,37 @@ namespace UtilitiesDemo
             this.gradientLabel1.Text = "Example GradientFlowLayoutPanel";
             this.gradientLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // gradientFlowLayoutPanel1
+            // m_flpGradientFlowLayoutPanel
             // 
-            this.gradientFlowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.m_flpGradientFlowLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gradientFlowLayoutPanel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.ForestGreen, System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192))))), ChuckHill2.Utilities.GradientBrush.BrushStyle.Center, false);
-            this.gradientFlowLayoutPanel1.BackgroundImage = global::UtilitiesDemo.Properties.Resources.CartoonPeople;
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label5);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label6);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label7);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label8);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label9);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label10);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label11);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label12);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label13);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label14);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label15);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label16);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label17);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label18);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label19);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label20);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label21);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label22);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label23);
-            this.gradientFlowLayoutPanel1.Controls.Add(this.label24);
-            this.gradientFlowLayoutPanel1.Location = new System.Drawing.Point(3, 29);
-            this.gradientFlowLayoutPanel1.Name = "gradientFlowLayoutPanel1";
-            this.gradientFlowLayoutPanel1.Size = new System.Drawing.Size(730, 499);
-            this.gradientFlowLayoutPanel1.TabIndex = 6;
+            this.m_flpGradientFlowLayoutPanel.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.m_flpGradientFlowLayoutPanel.BackgroundImage = global::UtilitiesDemo.Properties.Resources.CartoonPeople;
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label5);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label6);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label7);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label8);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label9);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label10);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label11);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label12);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label13);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label14);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label15);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label16);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label17);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label18);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label19);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label20);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label21);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label22);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label23);
+            this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label24);
+            this.m_flpGradientFlowLayoutPanel.Location = new System.Drawing.Point(3, 29);
+            this.m_flpGradientFlowLayoutPanel.Name = "m_flpGradientFlowLayoutPanel";
+            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(730, 505);
+            this.m_flpGradientFlowLayoutPanel.TabIndex = 6;
             // 
             // label5
             // 
@@ -442,23 +477,23 @@ namespace UtilitiesDemo
             this.label24.Text = "Flow Layout Item";
             this.label24.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // tabPage3
+            // m_tpTableLayoutPanel
             // 
-            this.tabPage3.Controls.Add(this.label2);
-            this.tabPage3.Controls.Add(this.gradientTableLayoutPanel1);
-            this.tabPage3.Location = new System.Drawing.Point(4, 24);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(736, 525);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "TableLayoutPanel";
-            this.tabPage3.UseVisualStyleBackColor = true;
+            this.m_tpTableLayoutPanel.Controls.Add(this.label2);
+            this.m_tpTableLayoutPanel.Controls.Add(this.m_tlpGradientTableLayoutPanel);
+            this.m_tpTableLayoutPanel.Location = new System.Drawing.Point(4, 24);
+            this.m_tpTableLayoutPanel.Name = "m_tpTableLayoutPanel";
+            this.m_tpTableLayoutPanel.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpTableLayoutPanel.Size = new System.Drawing.Size(736, 536);
+            this.m_tpTableLayoutPanel.TabIndex = 2;
+            this.m_tpTableLayoutPanel.Text = "TableLayoutPanel";
+            this.m_tpTableLayoutPanel.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
+            this.label2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
             this.label2.Location = new System.Drawing.Point(3, 3);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(730, 23);
@@ -466,25 +501,25 @@ namespace UtilitiesDemo
             this.label2.Text = "Example GradientTableLayoutPanel";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // gradientTableLayoutPanel1
+            // m_tlpGradientTableLayoutPanel
             // 
-            this.gradientTableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.m_tlpGradientTableLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gradientTableLayoutPanel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.DarkRed, System.Drawing.Color.PaleGoldenrod, ChuckHill2.Utilities.GradientBrush.BrushStyle.CenterForwardDiagonal, false);
-            this.gradientTableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.OutsetPartial;
-            this.gradientTableLayoutPanel1.ColumnCount = 2;
-            this.gradientTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.gradientTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.gradientTableLayoutPanel1.Controls.Add(this.label3, 0, 0);
-            this.gradientTableLayoutPanel1.Controls.Add(this.label4, 1, 0);
-            this.gradientTableLayoutPanel1.Location = new System.Drawing.Point(3, 29);
-            this.gradientTableLayoutPanel1.Name = "gradientTableLayoutPanel1";
-            this.gradientTableLayoutPanel1.RowCount = 2;
-            this.gradientTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.gradientTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.gradientTableLayoutPanel1.Size = new System.Drawing.Size(730, 499);
-            this.gradientTableLayoutPanel1.TabIndex = 5;
+            this.m_tlpGradientTableLayoutPanel.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, true);
+            this.m_tlpGradientTableLayoutPanel.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.OutsetPartial;
+            this.m_tlpGradientTableLayoutPanel.ColumnCount = 2;
+            this.m_tlpGradientTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.m_tlpGradientTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.m_tlpGradientTableLayoutPanel.Controls.Add(this.label3, 0, 0);
+            this.m_tlpGradientTableLayoutPanel.Controls.Add(this.label4, 1, 0);
+            this.m_tlpGradientTableLayoutPanel.Location = new System.Drawing.Point(3, 29);
+            this.m_tlpGradientTableLayoutPanel.Name = "m_tlpGradientTableLayoutPanel";
+            this.m_tlpGradientTableLayoutPanel.RowCount = 2;
+            this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(730, 505);
+            this.m_tlpGradientTableLayoutPanel.TabIndex = 5;
             // 
             // label3
             // 
@@ -514,14 +549,14 @@ namespace UtilitiesDemo
             this.m_tpBrushProperties.Location = new System.Drawing.Point(4, 24);
             this.m_tpBrushProperties.Name = "m_tpBrushProperties";
             this.m_tpBrushProperties.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpBrushProperties.Size = new System.Drawing.Size(750, 559);
+            this.m_tpBrushProperties.Size = new System.Drawing.Size(750, 570);
             this.m_tpBrushProperties.TabIndex = 0;
             this.m_tpBrushProperties.Text = "UITypeEditors";
             this.m_tpBrushProperties.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
-            this.label1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.WhiteSmoke, ChuckHill2.Utilities.GradientBrush.BrushStyle.Horizontal, false);
+            this.label1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
             this.label1.Dock = System.Windows.Forms.DockStyle.Top;
             this.label1.Location = new System.Drawing.Point(3, 3);
             this.label1.Name = "label1";
@@ -539,62 +574,74 @@ namespace UtilitiesDemo
             this.propertyGrid1.HelpBackColor = System.Drawing.Color.Azure;
             this.propertyGrid1.Location = new System.Drawing.Point(6, 26);
             this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(738, 526);
+            this.propertyGrid1.Size = new System.Drawing.Size(738, 522);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.ToolbarVisible = false;
             // 
-            // tabControl1
+            // m_tcMain
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.m_tcMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.m_tpBrushProperties);
-            this.tabControl1.Controls.Add(this.m_tpGradientControls);
-            this.tabControl1.Controls.Add(this.tabPage4);
-            this.tabControl1.Location = new System.Drawing.Point(12, 12);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(758, 587);
-            this.tabControl1.TabIndex = 3;
+            this.m_tcMain.Controls.Add(this.m_tpBrushProperties);
+            this.m_tcMain.Controls.Add(this.m_tpGradientControls);
+            this.m_tcMain.Controls.Add(this.m_tpColorPickers);
+            this.m_tcMain.Location = new System.Drawing.Point(12, 12);
+            this.m_tcMain.Name = "m_tcMain";
+            this.m_tcMain.SelectedIndex = 0;
+            this.m_tcMain.Size = new System.Drawing.Size(758, 598);
+            this.m_tcMain.TabIndex = 3;
             // 
-            // tabPage4
+            // m_tpColorPickers
             // 
-            this.tabPage4.Controls.Add(this.tabControl2);
-            this.tabPage4.Location = new System.Drawing.Point(4, 24);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(750, 559);
-            this.tabPage4.TabIndex = 5;
-            this.tabPage4.Text = "Color Pickers";
-            this.tabPage4.UseVisualStyleBackColor = true;
+            this.m_tpColorPickers.Controls.Add(this.m_tcSubColorPickers);
+            this.m_tpColorPickers.Location = new System.Drawing.Point(4, 24);
+            this.m_tpColorPickers.Name = "m_tpColorPickers";
+            this.m_tpColorPickers.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpColorPickers.Size = new System.Drawing.Size(750, 570);
+            this.m_tpColorPickers.TabIndex = 5;
+            this.m_tpColorPickers.Text = "Color Pickers";
+            this.m_tpColorPickers.UseVisualStyleBackColor = true;
             // 
-            // tabControl2
+            // m_tcSubColorPickers
             // 
-            this.tabControl2.Controls.Add(this.tabPage5);
-            this.tabControl2.Controls.Add(this.tabPage6);
-            this.tabControl2.Controls.Add(this.tabPage7);
-            this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl2.Location = new System.Drawing.Point(3, 3);
-            this.tabControl2.Name = "tabControl2";
-            this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(744, 553);
-            this.tabControl2.TabIndex = 0;
+            this.m_tcSubColorPickers.Controls.Add(this.m_tpLists);
+            this.m_tcSubColorPickers.Controls.Add(this.m_tpColorEditorHorz);
+            this.m_tcSubColorPickers.Controls.Add(this.m_tpColorEditorVert);
+            this.m_tcSubColorPickers.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.m_tcSubColorPickers.Location = new System.Drawing.Point(3, 3);
+            this.m_tcSubColorPickers.Name = "m_tcSubColorPickers";
+            this.m_tcSubColorPickers.SelectedIndex = 0;
+            this.m_tcSubColorPickers.Size = new System.Drawing.Size(744, 564);
+            this.m_tcSubColorPickers.TabIndex = 0;
             // 
-            // tabPage5
+            // m_tpLists
             // 
-            this.tabPage5.Controls.Add(this.m_btnColorComboBox);
-            this.tabPage5.Controls.Add(this.m_btnColorTreeView);
-            this.tabPage5.Controls.Add(this.m_btnColorListBox);
-            this.tabPage5.Controls.Add(this.m_cbbColorComboBox);
-            this.tabPage5.Controls.Add(this.m_ctvColorTreeView);
-            this.tabPage5.Controls.Add(this.m_clbColorListBox);
-            this.tabPage5.Location = new System.Drawing.Point(4, 24);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(736, 525);
-            this.tabPage5.TabIndex = 0;
-            this.tabPage5.Text = "Lists";
-            this.tabPage5.UseVisualStyleBackColor = true;
+            this.m_tpLists.Controls.Add(this.m_lblColorSelectStatus);
+            this.m_tpLists.Controls.Add(this.m_btnColorComboBox);
+            this.m_tpLists.Controls.Add(this.m_btnColorTreeView);
+            this.m_tpLists.Controls.Add(this.m_btnColorListBox);
+            this.m_tpLists.Controls.Add(this.m_cbbColorComboBox);
+            this.m_tpLists.Controls.Add(this.m_ctvColorTreeView);
+            this.m_tpLists.Controls.Add(this.m_clbColorListBox);
+            this.m_tpLists.Location = new System.Drawing.Point(4, 24);
+            this.m_tpLists.Name = "m_tpLists";
+            this.m_tpLists.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpLists.Size = new System.Drawing.Size(736, 536);
+            this.m_tpLists.TabIndex = 0;
+            this.m_tpLists.Text = "Lists";
+            this.m_tpLists.UseVisualStyleBackColor = true;
+            // 
+            // m_lblColorSelectStatus
+            // 
+            this.m_lblColorSelectStatus.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.m_lblColorSelectStatus.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.m_lblColorSelectStatus.Location = new System.Drawing.Point(3, 507);
+            this.m_lblColorSelectStatus.Name = "m_lblColorSelectStatus";
+            this.m_lblColorSelectStatus.Size = new System.Drawing.Size(730, 26);
+            this.m_lblColorSelectStatus.TabIndex = 7;
+            this.m_lblColorSelectStatus.Text = "[Selection Status]";
+            this.m_lblColorSelectStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // m_btnColorComboBox
             // 
@@ -630,107 +677,221 @@ namespace UtilitiesDemo
             // 
             this.m_cbbColorComboBox.Location = new System.Drawing.Point(422, 36);
             this.m_cbbColorComboBox.Name = "m_cbbColorComboBox";
-            this.m_cbbColorComboBox.Size = new System.Drawing.Size(180, 24);
+            this.m_cbbColorComboBox.Size = new System.Drawing.Size(180, 19);
             this.m_cbbColorComboBox.TabIndex = 2;
+            this.m_cbbColorComboBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_cbbColorComboBox_SelectionChanged);
             // 
             // m_ctvColorTreeView
             // 
             this.m_ctvColorTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.m_ctvColorTreeView.HideSelection = false;
             this.m_ctvColorTreeView.Location = new System.Drawing.Point(192, 36);
             this.m_ctvColorTreeView.Name = "m_ctvColorTreeView";
-            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 489);
+            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 466);
             this.m_ctvColorTreeView.TabIndex = 1;
+            this.m_ctvColorTreeView.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_ctvColorTreeView_SelectionChanged);
             // 
             // m_clbColorListBox
             // 
             this.m_clbColorListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.m_clbColorListBox.IntegralHeight = false;
-            this.m_clbColorListBox.ItemHeight = 15;
             this.m_clbColorListBox.Location = new System.Drawing.Point(6, 36);
             this.m_clbColorListBox.Name = "m_clbColorListBox";
-            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 489);
+            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 466);
             this.m_clbColorListBox.TabIndex = 0;
+            this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
             // 
-            // tabPage6
+            // m_tpColorEditorHorz
             // 
-            this.tabPage6.Controls.Add(this.colorPickerPanelHorz1);
-            this.tabPage6.Location = new System.Drawing.Point(4, 24);
-            this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage6.Size = new System.Drawing.Size(736, 525);
-            this.tabPage6.TabIndex = 1;
-            this.tabPage6.Text = "Color Editor (horizontal)";
-            this.tabPage6.UseVisualStyleBackColor = true;
+            this.m_tpColorEditorHorz.Controls.Add(this.m_cppColorPickerPanelHorz);
+            this.m_tpColorEditorHorz.Location = new System.Drawing.Point(4, 24);
+            this.m_tpColorEditorHorz.Name = "m_tpColorEditorHorz";
+            this.m_tpColorEditorHorz.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpColorEditorHorz.Size = new System.Drawing.Size(736, 536);
+            this.m_tpColorEditorHorz.TabIndex = 1;
+            this.m_tpColorEditorHorz.Text = "Color Editor (horizontal)";
+            this.m_tpColorEditorHorz.UseVisualStyleBackColor = true;
             // 
-            // colorPickerPanelHorz1
+            // m_cppColorPickerPanelHorz
             // 
-            this.colorPickerPanelHorz1.BackColor = System.Drawing.Color.Transparent;
-            this.colorPickerPanelHorz1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.colorPickerPanelHorz1.Color = System.Drawing.Color.Empty;
-            this.colorPickerPanelHorz1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.colorPickerPanelHorz1.Font = new System.Drawing.Font("Tahoma", 8F);
-            this.colorPickerPanelHorz1.Location = new System.Drawing.Point(3, 3);
-            this.colorPickerPanelHorz1.Margin = new System.Windows.Forms.Padding(0);
-            this.colorPickerPanelHorz1.MaximumSize = new System.Drawing.Size(1000, 999);
-            this.colorPickerPanelHorz1.MinimumSize = new System.Drawing.Size(376, 182);
-            this.colorPickerPanelHorz1.Name = "colorPickerPanelHorz1";
-            this.colorPickerPanelHorz1.Size = new System.Drawing.Size(730, 519);
-            this.colorPickerPanelHorz1.TabIndex = 0;
+            this.m_cppColorPickerPanelHorz.BackColor = System.Drawing.Color.Transparent;
+            this.m_cppColorPickerPanelHorz.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.m_cppColorPickerPanelHorz.Color = System.Drawing.Color.Empty;
+            this.m_cppColorPickerPanelHorz.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.m_cppColorPickerPanelHorz.Font = new System.Drawing.Font("Tahoma", 8F);
+            this.m_cppColorPickerPanelHorz.Location = new System.Drawing.Point(3, 3);
+            this.m_cppColorPickerPanelHorz.Margin = new System.Windows.Forms.Padding(0);
+            this.m_cppColorPickerPanelHorz.MaximumSize = new System.Drawing.Size(1000, 999);
+            this.m_cppColorPickerPanelHorz.MinimumSize = new System.Drawing.Size(376, 182);
+            this.m_cppColorPickerPanelHorz.Name = "m_cppColorPickerPanelHorz";
+            this.m_cppColorPickerPanelHorz.Size = new System.Drawing.Size(730, 530);
+            this.m_cppColorPickerPanelHorz.TabIndex = 0;
             // 
-            // tabPage7
+            // m_tpColorEditorVert
             // 
-            this.tabPage7.Controls.Add(this.colorPickerPanelVert1);
-            this.tabPage7.Location = new System.Drawing.Point(4, 24);
-            this.tabPage7.Name = "tabPage7";
-            this.tabPage7.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage7.Size = new System.Drawing.Size(736, 525);
-            this.tabPage7.TabIndex = 2;
-            this.tabPage7.Text = "Color Editor (vertical)";
-            this.tabPage7.UseVisualStyleBackColor = true;
+            this.m_tpColorEditorVert.Controls.Add(this.m_cppColorPickerPanelVert);
+            this.m_tpColorEditorVert.Location = new System.Drawing.Point(4, 24);
+            this.m_tpColorEditorVert.Name = "m_tpColorEditorVert";
+            this.m_tpColorEditorVert.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tpColorEditorVert.Size = new System.Drawing.Size(736, 536);
+            this.m_tpColorEditorVert.TabIndex = 2;
+            this.m_tpColorEditorVert.Text = "Color Editor (vertical)";
+            this.m_tpColorEditorVert.UseVisualStyleBackColor = true;
             // 
-            // colorPickerPanelVert1
+            // m_cppColorPickerPanelVert
             // 
-            this.colorPickerPanelVert1.BackColor = System.Drawing.Color.Transparent;
-            this.colorPickerPanelVert1.Color = System.Drawing.Color.Empty;
-            this.colorPickerPanelVert1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.colorPickerPanelVert1.Font = new System.Drawing.Font("Tahoma", 8F);
-            this.colorPickerPanelVert1.Location = new System.Drawing.Point(3, 3);
-            this.colorPickerPanelVert1.Margin = new System.Windows.Forms.Padding(0);
-            this.colorPickerPanelVert1.MinimumSize = new System.Drawing.Size(192, 497);
-            this.colorPickerPanelVert1.Name = "colorPickerPanelVert1";
-            this.colorPickerPanelVert1.Size = new System.Drawing.Size(730, 519);
-            this.colorPickerPanelVert1.TabIndex = 0;
+            this.m_cppColorPickerPanelVert.BackColor = System.Drawing.Color.Transparent;
+            this.m_cppColorPickerPanelVert.Color = System.Drawing.Color.Empty;
+            this.m_cppColorPickerPanelVert.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.m_cppColorPickerPanelVert.Font = new System.Drawing.Font("Tahoma", 8F);
+            this.m_cppColorPickerPanelVert.Location = new System.Drawing.Point(3, 3);
+            this.m_cppColorPickerPanelVert.Margin = new System.Windows.Forms.Padding(0);
+            this.m_cppColorPickerPanelVert.MinimumSize = new System.Drawing.Size(192, 497);
+            this.m_cppColorPickerPanelVert.Name = "m_cppColorPickerPanelVert";
+            this.m_cppColorPickerPanelVert.Size = new System.Drawing.Size(730, 530);
+            this.m_cppColorPickerPanelVert.TabIndex = 0;
+            // 
+            // gradientLabel2
+            // 
+            this.gradientLabel2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.SystemColors.Control, ChuckHill2.Utilities.GradientStyle.Solid, false);
+            this.gradientLabel2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel2.Location = new System.Drawing.Point(6, 6);
+            this.gradientLabel2.Name = "gradientLabel2";
+            this.gradientLabel2.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel2.TabIndex = 7;
+            this.gradientLabel2.Text = "Solid";
+            this.gradientLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel5
+            // 
+            this.gradientLabel5.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.gradientLabel5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel5.Location = new System.Drawing.Point(6, 112);
+            this.gradientLabel5.Name = "gradientLabel5";
+            this.gradientLabel5.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel5.TabIndex = 8;
+            this.gradientLabel5.Text = "Horizontal";
+            this.gradientLabel5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel6
+            // 
+            this.gradientLabel6.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Vertical, false);
+            this.gradientLabel6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel6.Location = new System.Drawing.Point(6, 218);
+            this.gradientLabel6.Name = "gradientLabel6";
+            this.gradientLabel6.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel6.TabIndex = 9;
+            this.gradientLabel6.Text = "Vertical";
+            this.gradientLabel6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel7
+            // 
+            this.gradientLabel7.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.ForwardDiagonal, false);
+            this.gradientLabel7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel7.Location = new System.Drawing.Point(6, 324);
+            this.gradientLabel7.Name = "gradientLabel7";
+            this.gradientLabel7.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel7.TabIndex = 10;
+            this.gradientLabel7.Text = "ForwardDiagonal";
+            this.gradientLabel7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel8
+            // 
+            this.gradientLabel8.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.BackwardDiagonal, false);
+            this.gradientLabel8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel8.Location = new System.Drawing.Point(6, 430);
+            this.gradientLabel8.Name = "gradientLabel8";
+            this.gradientLabel8.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel8.TabIndex = 11;
+            this.gradientLabel8.Text = "BackwardDiagonal";
+            this.gradientLabel8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel9
+            // 
+            this.gradientLabel9.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Center, false);
+            this.gradientLabel9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel9.Location = new System.Drawing.Point(162, 6);
+            this.gradientLabel9.Name = "gradientLabel9";
+            this.gradientLabel9.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel9.TabIndex = 12;
+            this.gradientLabel9.Text = "Center";
+            this.gradientLabel9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel10
+            // 
+            this.gradientLabel10.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterHorizontal, false);
+            this.gradientLabel10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel10.Location = new System.Drawing.Point(162, 112);
+            this.gradientLabel10.Name = "gradientLabel10";
+            this.gradientLabel10.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel10.TabIndex = 13;
+            this.gradientLabel10.Text = "CenterHorizontal";
+            this.gradientLabel10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel11
+            // 
+            this.gradientLabel11.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterVertical, false);
+            this.gradientLabel11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel11.Location = new System.Drawing.Point(162, 218);
+            this.gradientLabel11.Name = "gradientLabel11";
+            this.gradientLabel11.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel11.TabIndex = 14;
+            this.gradientLabel11.Text = "CenterVertical";
+            this.gradientLabel11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel12
+            // 
+            this.gradientLabel12.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterForwardDiagonal, false);
+            this.gradientLabel12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel12.Location = new System.Drawing.Point(162, 324);
+            this.gradientLabel12.Name = "gradientLabel12";
+            this.gradientLabel12.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel12.TabIndex = 15;
+            this.gradientLabel12.Text = "CenterForwardDiagonal";
+            this.gradientLabel12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel13
+            // 
+            this.gradientLabel13.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterBackwardDiagonal, false);
+            this.gradientLabel13.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel13.Location = new System.Drawing.Point(162, 430);
+            this.gradientLabel13.Name = "gradientLabel13";
+            this.gradientLabel13.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel13.TabIndex = 16;
+            this.gradientLabel13.Text = "CenterBackwardDiagonal";
+            this.gradientLabel13.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(780, 609);
-            this.Controls.Add(this.tabControl1);
+            this.ClientSize = new System.Drawing.Size(780, 620);
+            this.Controls.Add(this.m_tcMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "FormMain";
             this.Text = "Gradient Test";
             this.m_tpGradientControls.ResumeLayout(false);
-            this.m_tabGradientControls.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
+            this.m_tcSubGradientControls.ResumeLayout(false);
+            this.m_tpGradientBrushStyles.ResumeLayout(false);
+            this.m_tpMiscControls.ResumeLayout(false);
             this.gradientPanel1.ResumeLayout(false);
             this.gradientPanel1.PerformLayout();
-            this.tabPage2.ResumeLayout(false);
-            this.gradientFlowLayoutPanel1.ResumeLayout(false);
-            this.tabPage3.ResumeLayout(false);
-            this.gradientTableLayoutPanel1.ResumeLayout(false);
-            this.gradientTableLayoutPanel1.PerformLayout();
+            this.m_tpFlowLayoutPanel.ResumeLayout(false);
+            this.m_flpGradientFlowLayoutPanel.ResumeLayout(false);
+            this.m_tpTableLayoutPanel.ResumeLayout(false);
+            this.m_tlpGradientTableLayoutPanel.ResumeLayout(false);
+            this.m_tlpGradientTableLayoutPanel.PerformLayout();
             this.m_tpBrushProperties.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage4.ResumeLayout(false);
-            this.tabControl2.ResumeLayout(false);
-            this.tabPage5.ResumeLayout(false);
-            this.tabPage6.ResumeLayout(false);
-            this.tabPage7.ResumeLayout(false);
+            this.m_tcMain.ResumeLayout(false);
+            this.m_tpColorPickers.ResumeLayout(false);
+            this.m_tcSubColorPickers.ResumeLayout(false);
+            this.m_tpLists.ResumeLayout(false);
+            this.m_tpColorEditorHorz.ResumeLayout(false);
+            this.m_tpColorEditorVert.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -738,16 +899,16 @@ namespace UtilitiesDemo
         #endregion
 
         private System.Windows.Forms.TabPage m_tpGradientControls;
-        private System.Windows.Forms.TabControl m_tabGradientControls;
-        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabControl m_tcSubGradientControls;
+        private System.Windows.Forms.TabPage m_tpMiscControls;
         private ChuckHill2.Utilities.GradientLabel gradientLabel4;
         private ChuckHill2.Utilities.GradientGroupBox gradientGroupBox1;
         private ChuckHill2.Utilities.GradientLabel gradientLabel3;
         private ChuckHill2.Utilities.GradientPanel gradientPanel1;
         private System.Windows.Forms.Label label25;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage m_tpFlowLayoutPanel;
         private ChuckHill2.Utilities.GradientLabel gradientLabel1;
-        private ChuckHill2.Utilities.GradientFlowLayoutPanel gradientFlowLayoutPanel1;
+        private ChuckHill2.Utilities.GradientFlowLayoutPanel m_flpGradientFlowLayoutPanel;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
@@ -768,28 +929,40 @@ namespace UtilitiesDemo
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label24;
-        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TabPage m_tpTableLayoutPanel;
         private ChuckHill2.Utilities.GradientLabel label2;
-        private ChuckHill2.Utilities.GradientTableLayoutPanel gradientTableLayoutPanel1;
+        private ChuckHill2.Utilities.GradientTableLayoutPanel m_tlpGradientTableLayoutPanel;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TabPage m_tpBrushProperties;
         private ChuckHill2.Utilities.GradientLabel label1;
         private System.Windows.Forms.PropertyGrid propertyGrid1;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.TabControl tabControl2;
-        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.TabControl m_tcMain;
+        private System.Windows.Forms.TabPage m_tpColorPickers;
+        private System.Windows.Forms.TabControl m_tcSubColorPickers;
+        private System.Windows.Forms.TabPage m_tpLists;
         private ChuckHill2.Utilities.NamedColorComboBox m_cbbColorComboBox;
         private ChuckHill2.Utilities.NamedColorTreeView m_ctvColorTreeView;
         private ChuckHill2.Utilities.NamedColorListBox m_clbColorListBox;
-        private System.Windows.Forms.TabPage tabPage6;
-        private System.Windows.Forms.TabPage tabPage7;
-        private ChuckHill2.Utilities.ColorPickerPanelHorz colorPickerPanelHorz1;
-        private ChuckHill2.Utilities.ColorPickerPanelVert colorPickerPanelVert1;
+        private System.Windows.Forms.TabPage m_tpColorEditorHorz;
+        private System.Windows.Forms.TabPage m_tpColorEditorVert;
+        private ChuckHill2.Utilities.ColorPickerPanelHorz m_cppColorPickerPanelHorz;
+        private ChuckHill2.Utilities.ColorPickerPanelVert m_cppColorPickerPanelVert;
         private System.Windows.Forms.Button m_btnColorComboBox;
         private System.Windows.Forms.Button m_btnColorTreeView;
         private System.Windows.Forms.Button m_btnColorListBox;
+        private System.Windows.Forms.Label m_lblColorSelectStatus;
+        private System.Windows.Forms.TabPage m_tpGradientBrushStyles;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel13;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel12;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel11;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel10;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel9;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel8;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel7;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel6;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel5;
+        private ChuckHill2.Utilities.GradientLabel gradientLabel2;
     }
 }
 

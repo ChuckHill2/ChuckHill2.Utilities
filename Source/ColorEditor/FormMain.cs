@@ -19,21 +19,21 @@ namespace ColorEditor
 
         protected override void OnLoad(EventArgs e)
         {
-            m_clbColorListBox.AddColor(Color.FromArgb(178, 0, 255)); //nearest color==Color.DarkViolet
-            m_clbColorListBox.AddColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
-            m_clbColorListBox.AddColor(Color.CadetBlue); //Not added because it already exists
-            m_clbColorListBox.AddColor(Color.Empty); //Not added because it is invalid.
-            m_clbColorListBox.Selected = Color.CadetBlue;
+            //m_clbColorListBox.AddColor(Color.FromArgb(178, 0, 255)); //nearest color==Color.DarkViolet
+            //m_clbColorListBox.AddColor(Color.FromArgb(128, Color.Peru.R, Color.Peru.G, Color.Peru.B));
+            //m_clbColorListBox.AddColor(Color.CadetBlue); //Not added because it already exists
+            //m_clbColorListBox.AddColor(Color.Empty); //Not added because it is invalid.
+            //m_clbColorListBox.Selected = Color.CadetBlue;
 
-            m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen
-            m_ctvColorTreeView.AddColor(Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B));
-            m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen Already added.
-            m_ctvColorTreeView.AddColor(Color.FromArgb(218, 165, 32)); //==Color.Goldenrod. Not added. Equivalant to known color
-            m_ctvColorTreeView.Selected = Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B);
+            //m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen
+            //m_ctvColorTreeView.AddColor(Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B));
+            //m_ctvColorTreeView.AddColor(Color.FromArgb(57, 198, 149)); //nearest color==Color.MediumSeaGreen Already added.
+            //m_ctvColorTreeView.AddColor(Color.FromArgb(218, 165, 32)); //==Color.Goldenrod. Not added. Equivalant to known color
+            //m_ctvColorTreeView.Selected = Color.FromArgb(128, Color.MediumSeaGreen.R, Color.MediumSeaGreen.G, Color.MediumSeaGreen.B);
 
-            m_cbbColorComboBox.AddColor(Color.FromArgb(218, 255, 127)); //nearest color==Color.YellowGreen
-            m_cbbColorComboBox.AddColor(Color.FromArgb(128, 204, 242, 140)); //A=128, nearest color==Color.Khaki
-            m_cbbColorComboBox.Selected = Color.MediumSeaGreen;
+            //m_cbbColorComboBox.AddColor(Color.FromArgb(218, 255, 127)); //nearest color==Color.YellowGreen
+            //m_cbbColorComboBox.AddColor(Color.FromArgb(128, 204, 242, 140)); //A=128, nearest color==Color.Khaki
+            //m_cbbColorComboBox.Selected = Color.MediumSeaGreen;
 
             //base.OnLoad(e);
         }
@@ -169,6 +169,14 @@ namespace ColorEditor
             m_ctvColorTreeView.Enabled = c.Checked;
             m_cbbColorComboBox.Enabled = c.Checked;
             m_clbColorListBox.Enabled = c.Checked;
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            var fm = new NetFontMetrics(this.Font);
+            using (var g = Graphics.FromHwnd(this.Handle))
+                TextRenderer.DrawText(g, "HhjyH", this.Font, new Point(0, (int)Math.Floor(-fm.InternalLeadingPixels)), Color.White, Color.Black);
         }
     }
 }
