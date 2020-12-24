@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Cyotek.Windows.Forms;
+using ChuckHill2.Utilities.Extensions;
 
 namespace ChuckHill2.Utilities
 {

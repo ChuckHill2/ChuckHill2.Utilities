@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ChuckHill2.Utilities;
 
 namespace ColorEditor
 {
@@ -16,7 +17,7 @@ namespace ColorEditor
         [STAThread]
         static void Main()
         {
-            var success = ChuckHill2.Utilities.Win32.SetDpiAware();
+            var success = Win32.SetDpiAware();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

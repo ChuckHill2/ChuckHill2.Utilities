@@ -29,52 +29,61 @@ namespace ChuckHill2.Utilities
     public enum GradientStyle
     {
         /// <summary>
-        ///  @image{inline} html GradientSolid.png
+        /// @image{inline} html GradientSolid.png
         /// Simple solid color represented by GradientBrush.Color1. All other GradientBrush properties are ignored.
         /// </summary>
         Solid,   //uninitialized/default value.
 
         /// <summary>
+        /// @image{inline} html GradientHorizontal.png
         /// Gradient from left to right.
         /// </summary>
         Horizontal,
 
         /// <summary>
+        /// @image{inline} html GradientVertical.png
         /// Gradient from top to bottom.
         /// </summary>
         Vertical,
 
         /// <summary>
-        ///  Gradient forward '/' diagonal from top-left to bottom-right
+        /// @image{inline} html GradientForwardDiagonal.png
+        /// Gradient forward '/' diagonal from top-left to bottom-right
         /// </summary>
         ForwardDiagonal,
 
         /// <summary>
-        ///  Gradient backward '\' diagonal from top-right to bottom-left
+        /// @image{inline} html GradientBackwardDiagonal.png
+        /// Gradient backward '\' diagonal from top-right to bottom-left
         /// </summary>
         BackwardDiagonal,
 
         /// <summary>
+        /// @image{inline} html GradientCenter.png
         /// Gradient from center to periphery.
         /// </summary>
         Center,
 
         /// <summary>
+        /// @image{inline} html GradientCenterHorizontal.png
         /// Gradient from left and right to center.
         /// </summary>
         CenterHorizontal,
 
         /// <summary>
+        /// @image{inline} html GradientCenterVertical.png
         /// Gradient from top and bottom to center.
         /// </summary>
         CenterVertical,
 
         /// <summary>
+        /// @image{inline} html GradientCenterForwardDiagonal.png
         ///  Gradient forward '/' diagonal from top-left and bottom-right to center.
         /// </summary>
         CenterForwardDiagonal,
 
         /// <summary>
+        /// @image{inline} html GradientCenterBackwardDiagonal.png
         ///  Gradient backward '\' diagonal from top-right and bottom-left to center.
         /// </summary>
         CenterBackwardDiagonal

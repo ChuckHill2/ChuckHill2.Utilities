@@ -56,7 +56,8 @@
       <DependentUpon>ColorPickerPanelHorz.cs</DependentUpon>
     </Compile>
     <Compile Include="ColorUIEditor.cs" />
-    <Compile Include="CommonExtensions.cs" />
+    <Compile Include="Extensions\Cast.cs" />
+    <Compile Include="Extensions\CommonExtensions.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobeColorTablePaletteSerializer.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoshopColorSwatchColorSpace.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoshopColorSwatchFileVersion.cs" />
