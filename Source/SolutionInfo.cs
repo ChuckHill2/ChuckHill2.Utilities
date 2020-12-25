@@ -6,7 +6,7 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("RELEASE")]
 #endif
 [assembly: AssemblyCompany("Chuck Hill")]
-[assembly: AssemblyCopyright("Copyright © 2018 Chuck Hill")]
+[assembly: AssemblyCopyright("Copyright © 2020 Chuck Hill")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

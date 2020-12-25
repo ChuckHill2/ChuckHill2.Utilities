@@ -32,6 +32,16 @@ namespace UtilitiesDemo
             this.m_tpGradientControls = new System.Windows.Forms.TabPage();
             this.m_tcSubGradientControls = new System.Windows.Forms.TabControl();
             this.m_tpGradientBrushStyles = new System.Windows.Forms.TabPage();
+            this.gradientLabel13 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel12 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel11 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel10 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel9 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel8 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel7 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel6 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel5 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel2 = new ChuckHill2.Utilities.GradientLabel();
             this.m_tpMiscControls = new System.Windows.Forms.TabPage();
             this.gradientLabel4 = new ChuckHill2.Utilities.GradientLabel();
             this.gradientGroupBox1 = new ChuckHill2.Utilities.GradientGroupBox();
@@ -84,16 +94,6 @@ namespace UtilitiesDemo
             this.m_cppColorPickerPanelHorz = new ChuckHill2.Utilities.ColorPickerPanelHorz();
             this.m_tpColorEditorVert = new System.Windows.Forms.TabPage();
             this.m_cppColorPickerPanelVert = new ChuckHill2.Utilities.ColorPickerPanelVert();
-            this.gradientLabel2 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel5 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel6 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel7 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel8 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel9 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel10 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel11 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel12 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel13 = new ChuckHill2.Utilities.GradientLabel();
             this.m_tpGradientControls.SuspendLayout();
             this.m_tcSubGradientControls.SuspendLayout();
             this.m_tpGradientBrushStyles.SuspendLayout();
@@ -155,6 +155,116 @@ namespace UtilitiesDemo
             this.m_tpGradientBrushStyles.TabIndex = 3;
             this.m_tpGradientBrushStyles.Text = "GradientBrush Styles";
             this.m_tpGradientBrushStyles.UseVisualStyleBackColor = true;
+            // 
+            // gradientLabel13
+            // 
+            this.gradientLabel13.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterBackwardDiagonal, false);
+            this.gradientLabel13.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel13.Location = new System.Drawing.Point(162, 430);
+            this.gradientLabel13.Name = "gradientLabel13";
+            this.gradientLabel13.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel13.TabIndex = 16;
+            this.gradientLabel13.Text = "CenterBackwardDiagonal";
+            this.gradientLabel13.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel12
+            // 
+            this.gradientLabel12.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterForwardDiagonal, false);
+            this.gradientLabel12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel12.Location = new System.Drawing.Point(162, 324);
+            this.gradientLabel12.Name = "gradientLabel12";
+            this.gradientLabel12.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel12.TabIndex = 15;
+            this.gradientLabel12.Text = "CenterForwardDiagonal";
+            this.gradientLabel12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel11
+            // 
+            this.gradientLabel11.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterVertical, false);
+            this.gradientLabel11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel11.Location = new System.Drawing.Point(162, 218);
+            this.gradientLabel11.Name = "gradientLabel11";
+            this.gradientLabel11.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel11.TabIndex = 14;
+            this.gradientLabel11.Text = "CenterVertical";
+            this.gradientLabel11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel10
+            // 
+            this.gradientLabel10.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterHorizontal, false);
+            this.gradientLabel10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel10.Location = new System.Drawing.Point(162, 112);
+            this.gradientLabel10.Name = "gradientLabel10";
+            this.gradientLabel10.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel10.TabIndex = 13;
+            this.gradientLabel10.Text = "CenterHorizontal";
+            this.gradientLabel10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel9
+            // 
+            this.gradientLabel9.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Center, false);
+            this.gradientLabel9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel9.Location = new System.Drawing.Point(162, 6);
+            this.gradientLabel9.Name = "gradientLabel9";
+            this.gradientLabel9.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel9.TabIndex = 12;
+            this.gradientLabel9.Text = "Center";
+            this.gradientLabel9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel8
+            // 
+            this.gradientLabel8.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.BackwardDiagonal, false);
+            this.gradientLabel8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel8.Location = new System.Drawing.Point(6, 430);
+            this.gradientLabel8.Name = "gradientLabel8";
+            this.gradientLabel8.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel8.TabIndex = 11;
+            this.gradientLabel8.Text = "BackwardDiagonal";
+            this.gradientLabel8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel7
+            // 
+            this.gradientLabel7.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.ForwardDiagonal, false);
+            this.gradientLabel7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel7.Location = new System.Drawing.Point(6, 324);
+            this.gradientLabel7.Name = "gradientLabel7";
+            this.gradientLabel7.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel7.TabIndex = 10;
+            this.gradientLabel7.Text = "ForwardDiagonal";
+            this.gradientLabel7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel6
+            // 
+            this.gradientLabel6.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Vertical, false);
+            this.gradientLabel6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel6.Location = new System.Drawing.Point(6, 218);
+            this.gradientLabel6.Name = "gradientLabel6";
+            this.gradientLabel6.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel6.TabIndex = 9;
+            this.gradientLabel6.Text = "Vertical";
+            this.gradientLabel6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel5
+            // 
+            this.gradientLabel5.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.gradientLabel5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel5.Location = new System.Drawing.Point(6, 112);
+            this.gradientLabel5.Name = "gradientLabel5";
+            this.gradientLabel5.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel5.TabIndex = 8;
+            this.gradientLabel5.Text = "Horizontal";
+            this.gradientLabel5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // gradientLabel2
+            // 
+            this.gradientLabel2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.SystemColors.Control, ChuckHill2.Utilities.GradientStyle.Solid, false);
+            this.gradientLabel2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gradientLabel2.Location = new System.Drawing.Point(6, 6);
+            this.gradientLabel2.Name = "gradientLabel2";
+            this.gradientLabel2.Size = new System.Drawing.Size(150, 100);
+            this.gradientLabel2.TabIndex = 7;
+            this.gradientLabel2.Text = "Solid";
+            this.gradientLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // m_tpMiscControls
             // 
@@ -274,7 +384,7 @@ namespace UtilitiesDemo
             this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label24);
             this.m_flpGradientFlowLayoutPanel.Location = new System.Drawing.Point(3, 29);
             this.m_flpGradientFlowLayoutPanel.Name = "m_flpGradientFlowLayoutPanel";
-            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(730, 505);
+            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(730, 507);
             this.m_flpGradientFlowLayoutPanel.TabIndex = 6;
             // 
             // label5
@@ -518,7 +628,7 @@ namespace UtilitiesDemo
             this.m_tlpGradientTableLayoutPanel.RowCount = 2;
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(730, 505);
+            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(730, 507);
             this.m_tlpGradientTableLayoutPanel.TabIndex = 5;
             // 
             // label3
@@ -688,7 +798,7 @@ namespace UtilitiesDemo
             this.m_ctvColorTreeView.HideSelection = false;
             this.m_ctvColorTreeView.Location = new System.Drawing.Point(192, 36);
             this.m_ctvColorTreeView.Name = "m_ctvColorTreeView";
-            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 466);
+            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 468);
             this.m_ctvColorTreeView.TabIndex = 1;
             this.m_ctvColorTreeView.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_ctvColorTreeView_SelectionChanged);
             // 
@@ -699,7 +809,7 @@ namespace UtilitiesDemo
             this.m_clbColorListBox.IntegralHeight = false;
             this.m_clbColorListBox.Location = new System.Drawing.Point(6, 36);
             this.m_clbColorListBox.Name = "m_clbColorListBox";
-            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 466);
+            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 468);
             this.m_clbColorListBox.TabIndex = 0;
             this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
             // 
@@ -753,116 +863,6 @@ namespace UtilitiesDemo
             this.m_cppColorPickerPanelVert.Size = new System.Drawing.Size(730, 530);
             this.m_cppColorPickerPanelVert.TabIndex = 0;
             // 
-            // gradientLabel2
-            // 
-            this.gradientLabel2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.SystemColors.Control, ChuckHill2.Utilities.GradientStyle.Solid, false);
-            this.gradientLabel2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel2.Location = new System.Drawing.Point(6, 6);
-            this.gradientLabel2.Name = "gradientLabel2";
-            this.gradientLabel2.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel2.TabIndex = 7;
-            this.gradientLabel2.Text = "Solid";
-            this.gradientLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel5
-            // 
-            this.gradientLabel5.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
-            this.gradientLabel5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel5.Location = new System.Drawing.Point(6, 112);
-            this.gradientLabel5.Name = "gradientLabel5";
-            this.gradientLabel5.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel5.TabIndex = 8;
-            this.gradientLabel5.Text = "Horizontal";
-            this.gradientLabel5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel6
-            // 
-            this.gradientLabel6.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Vertical, false);
-            this.gradientLabel6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel6.Location = new System.Drawing.Point(6, 218);
-            this.gradientLabel6.Name = "gradientLabel6";
-            this.gradientLabel6.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel6.TabIndex = 9;
-            this.gradientLabel6.Text = "Vertical";
-            this.gradientLabel6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel7
-            // 
-            this.gradientLabel7.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.ForwardDiagonal, false);
-            this.gradientLabel7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel7.Location = new System.Drawing.Point(6, 324);
-            this.gradientLabel7.Name = "gradientLabel7";
-            this.gradientLabel7.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel7.TabIndex = 10;
-            this.gradientLabel7.Text = "ForwardDiagonal";
-            this.gradientLabel7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel8
-            // 
-            this.gradientLabel8.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.BackwardDiagonal, false);
-            this.gradientLabel8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel8.Location = new System.Drawing.Point(6, 430);
-            this.gradientLabel8.Name = "gradientLabel8";
-            this.gradientLabel8.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel8.TabIndex = 11;
-            this.gradientLabel8.Text = "BackwardDiagonal";
-            this.gradientLabel8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel9
-            // 
-            this.gradientLabel9.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Center, false);
-            this.gradientLabel9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel9.Location = new System.Drawing.Point(162, 6);
-            this.gradientLabel9.Name = "gradientLabel9";
-            this.gradientLabel9.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel9.TabIndex = 12;
-            this.gradientLabel9.Text = "Center";
-            this.gradientLabel9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel10
-            // 
-            this.gradientLabel10.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterHorizontal, false);
-            this.gradientLabel10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel10.Location = new System.Drawing.Point(162, 112);
-            this.gradientLabel10.Name = "gradientLabel10";
-            this.gradientLabel10.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel10.TabIndex = 13;
-            this.gradientLabel10.Text = "CenterHorizontal";
-            this.gradientLabel10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel11
-            // 
-            this.gradientLabel11.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterVertical, false);
-            this.gradientLabel11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel11.Location = new System.Drawing.Point(162, 218);
-            this.gradientLabel11.Name = "gradientLabel11";
-            this.gradientLabel11.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel11.TabIndex = 14;
-            this.gradientLabel11.Text = "CenterVertical";
-            this.gradientLabel11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel12
-            // 
-            this.gradientLabel12.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterForwardDiagonal, false);
-            this.gradientLabel12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel12.Location = new System.Drawing.Point(162, 324);
-            this.gradientLabel12.Name = "gradientLabel12";
-            this.gradientLabel12.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel12.TabIndex = 15;
-            this.gradientLabel12.Text = "CenterForwardDiagonal";
-            this.gradientLabel12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // gradientLabel13
-            // 
-            this.gradientLabel13.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterBackwardDiagonal, false);
-            this.gradientLabel13.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gradientLabel13.Location = new System.Drawing.Point(162, 430);
-            this.gradientLabel13.Name = "gradientLabel13";
-            this.gradientLabel13.Size = new System.Drawing.Size(150, 100);
-            this.gradientLabel13.TabIndex = 16;
-            this.gradientLabel13.Text = "CenterBackwardDiagonal";
-            this.gradientLabel13.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -870,10 +870,9 @@ namespace UtilitiesDemo
             this.ClientSize = new System.Drawing.Size(780, 620);
             this.Controls.Add(this.m_tcMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "FormMain";
-            this.Text = "Gradient Test";
+            this.Text = "ChuckHill2 Utilities Demo";
             this.m_tpGradientControls.ResumeLayout(false);
             this.m_tcSubGradientControls.ResumeLayout(false);
             this.m_tpGradientBrushStyles.ResumeLayout(false);

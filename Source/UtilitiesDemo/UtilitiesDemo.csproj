@@ -80,32 +80,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\CartoonPeople.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Up.png" />
-    <None Include="Resources\Right.png" />
-    <None Include="Resources\Down.png" />
-    <None Include="Resources\Left.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="FormMain.png" />
-    <Content Include="Resources\FormMainResx.png" />
-    <None Include="Resources\ImageAttributeTest1.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\ImageAttributeTest2.tif">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\ImageAttributeTest3.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\ImageAttributeTest4.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\ImageAttributeTest5.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Content Include="Resources\CartoonPeople.png" />
+    <Content Include="Resources\Down.png" />
+    <Content Include="Resources\Left.png" />
+    <Content Include="Resources\Right.png" />
+    <Content Include="Resources\Up.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -15,7 +15,6 @@ namespace UtilitiesDemo
     {
         public FormMain()
         {
-            ValidateImageAttributeClass();
             InitializeComponent();
         }
 
@@ -102,50 +101,6 @@ namespace UtilitiesDemo
             m_lblColorSelectStatus.Text = $"NamedColorComboBox Selected Color is {e.Color.GetName()}.";
         }
 
-        [Conditional("DEBUG")]
-        private void ValidateImageAttributeClass()
-        {
-            Image a;
-
-            var absolutePath = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), @"Resources\ImageAttributeTest1.bmp");
-            a = new ImageAttribute(absolutePath).Image;
-            Debug.Assert(a != null, "ImageAttribute (file): BMP Absolute File Path");
-
-            a = new ImageAttribute(@"Resources\ImageAttributeTest2.tif").Image;
-            Debug.Assert(a != null, "ImageAttribute (file): TIF Relative File Path: Copy Local");
-
-            a = new ImageAttribute(@"Resources\ImageAttributeTest3.jpg").Image;
-            Debug.Assert(a != null, "ImageAttribute (file): JPG Relative File Path: Copy Local");
-
-            a = new ImageAttribute(@"Resources\ImageAttributeTest4.png").Image;
-            Debug.Assert(a != null, "ImageAttribute (file): PNG Relative File Path: Copy Local");
-
-            a = new ImageAttribute(@"Resources\ImageAttributeTest5.ico").Image;
-            Debug.Assert(a != null, "ImageAttribute (file): ICO Relative File Path: Copy Local");
-
-            a = new ImageAttribute(typeof(FormMain)).Image;
-            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(FormMain) => FormMain.png");
-
-            //Manually adding anything to a Form resource will will be erased by the designer.... However we can access designer-generated resources...
-            a = new ImageAttribute(typeof(FormMain), "$this.Icon").Image;
-            Debug.Assert(a != null, "ImageAttribute (Form resource): typeof(FormMain) => $this.Icon");
-
-            a = new ImageAttribute(typeof(Panel)).Image;
-            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(Panel) => Panel.bmp");
-
-            a = new ImageAttribute(typeof(Panel), "CheckBox").Image;
-            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(Panel),CheckBox => CheckBox.bmp");
-
-            a = new ImageAttribute(typeof(Panel), "CheckBox.jpg").Image;
-            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(Panel),CheckBox.jpg => CheckBox.bmp");
-
-            a = new ImageAttribute(typeof(Panel), "checkbox").Image;
-            Debug.Assert(a == null, "ImageAttribute (manifest): typeof(Panel),checkbox => not case-sensitive");
-
-            a = new ImageAttribute(this.GetType(), "ImageAttributeTest5").Image;
-            Debug.Assert(a != null, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico");
-            Debug.Assert(a.Width == 32 && a.Height == 32, "ImageAttribute (manifest): typeof(this),ImageAttributeTest5 => ImageAttributeTest5.ico not 32x32");
-        }
     }
 
     /// <summary>

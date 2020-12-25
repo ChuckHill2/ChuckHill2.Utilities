@@ -262,19 +262,17 @@ namespace ChuckHill2.Utilities
 
         private static Image GetFileImage(string fn)
         {
-            string fn2 = null;
+            string fn2 = fn;
 
             if (!Path.IsPathRooted(fn))
-                fn2 = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), fn);
-            else fn2 = fn;
+            {
+                fn2 = GetExistingPath(Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), fn));
+                if (fn2 == null) fn2 = GetExistingPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), fn));
+                if (fn2 == null) fn2 = GetExistingPath(Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), fn));
+                if (fn2 == null) fn2 = GetExistingPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), fn));  //will be different from GetCurrentProcess() if this is not running in the main AppDomain.
+            }
 
-            fn2 = GetExistingPath(fn2);
-
-            if (fn2 == null)
-                fn2 = Path.GetFullPath(fn);
-
-            fn2 = GetExistingPath(fn2);
-
+            if (fn2 == null) fn2 = GetExistingPath(Path.GetFullPath(fn));
             if (fn2 == null) return null;
 
             if (fn2.EndsWith(".ico", StringComparison.OrdinalIgnoreCase))

@@ -39,7 +39,6 @@ namespace ChuckHill2.Utilities.Extensions
 {
     public static class Cast
     {
-        private static readonly TimeSpan TZ = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1); // Unix Epoch
         private static readonly string[] Bools = new string[]
         {
@@ -346,15 +345,18 @@ namespace ChuckHill2.Utilities.Extensions
                     {
                         // Warning: .NET beginning of time is 1/1/0001. Office Automation Beginning of time 1/1/1900
                         // Also, OA does not understand DateTimeOffset. So we expand it from DateTime.
-                        return new DateTimeOffset(DateTime.FromOADate((double)value), DateTimeKind == DateTimeKind.Local ? TZ : TimeSpan.Zero);
+                        var dt = DateTime.FromOADate((double)value);
+                        return new DateTimeOffset(dt, DateTimeKind == DateTimeKind.Local ? TimeZoneInfo.Local.GetUtcOffset(dt) : TimeSpan.Zero);
                     }
                     else if (value is int)
                     {
-                        return new DateTimeOffset(Epoch.AddSeconds((int)value), DateTimeKind == DateTimeKind.Local ? TZ : TimeSpan.Zero);
+                        var dt = Epoch.AddSeconds((int)value);
+                        return new DateTimeOffset(dt, DateTimeKind == DateTimeKind.Local ? TimeZoneInfo.Local.GetUtcOffset(dt) : TimeSpan.Zero);
                     }
                     else if (value is long)
                     {
-                        return new DateTimeOffset(new DateTime().AddTicks((long)value), DateTimeKind == DateTimeKind.Local ? TZ : TimeSpan.Zero);
+                        var dt = new DateTime().AddTicks((long)value);
+                        return new DateTimeOffset(dt, DateTimeKind == DateTimeKind.Local ? TimeZoneInfo.Local.GetUtcOffset(dt) : TimeSpan.Zero);
                     }
                     else if (value is DateTime)
                     {
@@ -362,7 +364,7 @@ namespace ChuckHill2.Utilities.Extensions
                         switch (DateTimeKind)
                         {
                             case DateTimeKind.Unspecified: return new DateTimeOffset(dt, TimeSpan.Zero);
-                            case DateTimeKind.Local:       return new DateTimeOffset(dt.Kind == DateTimeKind.Unspecified ? dt : dt.ToLocalTime(), TZ);
+                            case DateTimeKind.Local:       return new DateTimeOffset(dt.Kind == DateTimeKind.Unspecified ? dt : dt.ToLocalTime(), TimeZoneInfo.Local.GetUtcOffset(dt));
                             case DateTimeKind.Utc:         return new DateTimeOffset(dt.Kind == DateTimeKind.Unspecified ? dt : dt.ToUniversalTime(), TimeSpan.Zero);
                             default:                       return new DateTimeOffset(dt, TimeSpan.Zero);
                         }
@@ -375,7 +377,7 @@ namespace ChuckHill2.Utilities.Extensions
                         // Try converting from numeric string (yyyyMMddhhmmssfff) format.
                         if (TryNumericStringToDateTime(s, out DateTime dt))
                         {
-                            return new DateTimeOffset(dt, DateTimeKind == DateTimeKind.Local ? TZ : TimeSpan.Zero);
+                            return new DateTimeOffset(dt, DateTimeKind == DateTimeKind.Local ? TimeZoneInfo.Local.GetUtcOffset(dt) : TimeSpan.Zero);
                         }
 
                         // Try converting in context of the current culture region.

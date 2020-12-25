@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("C# WinForms Utility Library")]
 [assembly: AssemblyDescription(@"C# WinForms Utility Library
@@ -9,3 +10,5 @@ using System.Reflection;
 * Gradient common controls")]
 
 [assembly: AssemblyProduct("ChuckHill2.Utilities")]
+[assembly: InternalsVisibleTo("ChuckHill2.Utilities.UnitTests")]
+
