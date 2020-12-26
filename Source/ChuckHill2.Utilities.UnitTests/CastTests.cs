@@ -2,20 +2,17 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using ChuckHill2.Utilities.Extensions;
+using NUnit.Framework;
 
 namespace ChuckHill2.Utilities.UnitTests
 {
     [TestFixture]
-    public class CastTest
+    public class CastTests
     {
         private enum Numbers { Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten }
 
-        [SetUp]
-        public void Setup()
-        {
-        }
+        [SetUp] public void Setup() { }
 
         [Test]
         public void TestCastTo()

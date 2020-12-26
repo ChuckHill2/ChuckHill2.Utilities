@@ -52,7 +52,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="CastTest.cs" />
+    <Compile Include="CastTests.cs" />
     <Compile Include="ComponentTests.cs" />
     <Compile Include="DataModel.cs" />
     <Compile Include="DataModel2.cs" />
@@ -62,6 +62,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="CommonExtensionsTests.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="TestForm.cs">
       <SubType>Form</SubType>

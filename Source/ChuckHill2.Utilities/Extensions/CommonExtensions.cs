@@ -44,11 +44,12 @@ namespace ChuckHill2.Utilities.Extensions
 
             if (v < 1024) return d.ToString("0 B");
             string szPrecision = precision <= 0 ? "0" : "0.".PadRight(precision + 2, '#');
-            if (v < (1024 * 1024)) return (d / (1024.0m)).ToString(szPrecision + " KB");
-            if (v < (1024 * 1024 * 1024)) return (d / (1024 * 1024.0m)).ToString(szPrecision + " MB");
-            if (v < (1024 * 1024 * 1024 * 1024m)) return (d / (1024 * 1024 * 1024.0m)).ToString(szPrecision + " GB");
-            if (v < (1024 * 1024 * 1024 * 1024m * 1024m)) return (d / (1024 * 1024 * 1024.0m * 1024.0m)).ToString(szPrecision + " TB");
-            return v.ToString();  //shouldn't get here.
+            if (v < (1024 * 1024)) return (d / (1024.0m)).ToString(szPrecision + " KB"); //kilobyte
+            if (v < (1024 * 1024 * 1024)) return (d / (1024.0m * 1024.0m)).ToString(szPrecision + " MB"); //megabyte
+            if (v < (1024 * 1024 * 1024 * 1024m)) return (d / (1024.0m * 1024.0m * 1024.0m)).ToString(szPrecision + " GB"); //gigabyte
+            if (v < (1024 * 1024 * 1024 * 1024m * 1024m)) return (d / (1024.0m * 1024.0m * 1024.0m * 1024.0m)).ToString(szPrecision + " TB"); //terabyte
+            if (v < (1024 * 1024 * 1024 * 1024m * 1024m * 1024m)) return (d / (1024.0m * 1024.0m * 1024.0m * 1024.0m * 1024.0m)).ToString(szPrecision + " PB"); //petabyte
+            return (d / (1024.0m * 1024.0m * 1024.0m * 1024.0m * 1024.0m * 1024.0m)).ToString(szPrecision + " EB"); //exabyte -- max 64bit int == 18.4 exabytes.
         }
     }
 
