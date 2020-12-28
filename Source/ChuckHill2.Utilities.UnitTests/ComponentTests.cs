@@ -143,22 +143,22 @@ namespace ChuckHill2.Utilities.UnitTests
         public void TestColorEx()
         {
             Color c = Color.FromArgb(216, 39, 187);
-            Assert.AreEqual(c.GetName(), "(216,39,187)","GetName() failed.");
+            Assert.AreEqual("(216,39,187)", c.GetName(), "GetName() failed.");
 
             Color c1 = c.MakeNamed("AlmostMediumVioletRed");
             Assert.IsTrue(c1.Name == "AlmostMediumVioletRed" && c1.IsNamedColor && !c1.IsKnownColor && !c1.IsSystemColor && c.A == 255 && c.R == 216 && c.B == 187, "MakeNamed() failed.");
 
             Color c2 = c1.NearestKnownColor();
-            Assert.AreEqual(c2.Name, "MediumVioletRed", "NearestKnownColor() failed");
+            Assert.AreEqual("MediumVioletRed", c2.Name, "NearestKnownColor() failed");
 
             Color c3 = Color.FromArgb(128, 216, 39, 187);
-            Assert.AreEqual(c3.GetName(), "(128,216,39,187)", "Translucent GetName() failed.");
+            Assert.AreEqual("(128,216,39,187)", c3.GetName(), "Translucent GetName() failed.");
 
             Color c4 = c3.MakeNamed("TranslucentAlmostMediumVioletRed");
             Assert.IsTrue(c4.Name == "TranslucentAlmostMediumVioletRed" && c4.IsNamedColor && !c4.IsKnownColor && !c4.IsSystemColor && c4.A == 128 && c4.R == 216 && c4.B == 187, "MakeNamed() failed.");
 
             Color c5 = Color.FromArgb(128, c3.NearestKnownColor());
-            Assert.AreEqual(c5.GetName(), "(128,MediumVioletRed)", "Translucent GetName() failed.");
+            Assert.AreEqual("(128,MediumVioletRed)", c5.GetName(), "Translucent GetName() failed.");
         }
     }
 }

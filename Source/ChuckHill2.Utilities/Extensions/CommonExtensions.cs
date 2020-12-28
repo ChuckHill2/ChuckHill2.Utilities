@@ -64,7 +64,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// </list>
         /// </summary>
         /// <returns>fixed up string</returns>
-        public static string Beautify(this string s) { return Beautify(s, false, null); }
+        public static string Beautify(this string s) => Beautify(s, false, null);
         /// <summary>
         /// For SQL, C# and C++ strings, perform the following:
         /// <list type="bullit">
@@ -80,7 +80,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="s">String to operate upon</param>
         /// <param name="indent">string to indent each line with</param>
         /// <returns>fixed up string</returns>
-        public static string Beautify(this string s, string indent) { return Beautify(s, false, indent); }
+        public static string Beautify(this string s, string indent) => Beautify(s, false, indent);
         /// <summary>
         /// For SQL, C# and C++ strings, perform the following:
         /// <list type="bullit">
@@ -120,6 +120,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <param name="s">String to operate upon</param>
         /// <returns>The squeezed single-line string</returns>
+        /// <remarks>Whitespace chars consist of ASCII chars 0-32 only. No UNICODE whitespace.</remarks>
         public static string Squeeze(this string s)
         {
             if (s.IsNullOrEmpty()) return string.Empty;
@@ -167,49 +168,61 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <param name="s">String to operate upon</param>
         /// <returns>True or False</returns>
-        public static bool IsNullOrEmpty(this string s) { return string.IsNullOrWhiteSpace(s); }
+        public static bool IsNullOrEmpty(this string s) => string.IsNullOrWhiteSpace(s);
 
         /// <summary>
-        /// List of all known whitespace characters
+        /// List of all whitespace characters
         /// </summary>
+        /// <remarks>
+        /// See: https://en.wikipedia.org/wiki/Whitespace_character
+        /// </remarks>
         public static readonly char[] WhiteSpace = new char[]{
             '\xFEFF', '\xFFFE', //UTF-8 Byte order marks. .NET 3.5 used to consider these whitespace, but 4.0 does not!
             '\0', '\a', '\b', '\f', '\n', '\r', '\t', '\v', ' ', '\xA0', //ASCII whitespace
             '\x1680', '\x2000', '\x2001', '\x2002', '\x2003', '\x2004',  //Unicode Whitespace
             '\x2005', '\x2006', '\x2007', '\x2008', '\x2009', '\x200A',
-            '\x202F', '\x205F', '\x3000' };
+            '\x2028', '\x2029', '\x202F', '\x205F', '\x3000',
+            //'\x180E', '\x200B', '\x200C', '\x200D', '\x2060', //zero-width Whitespace-like
+        };
 
-        /// <summary>
-        /// Safe string formatter. Similar to String.Format() except it will NEVER throw an error. Internally if an 
-        /// ArgumentNullException or FormatException exception occurs, the returned string will simply be a 
-        /// comma-delimited list of the format string and its arguments.
-        /// </summary>
-        /// <param name="format">A composite format string.</param>
-        /// <param name="args">An System.Object array containing zero or more objects to format.</param>
-        /// <returns>Resulting formatted string</returns>
-        public static string Format(this string format, params object[] args)
+        private static string TrimBase(string s, char[] trimChars, int ends)
         {
-            //This is needed if the caller screws up the format string.
-            try
+            //const int BothEnds = 3;
+            const int BeginningOnly = 1;
+            const int EndOnly = 2;
+            if (s == null) return s;
+            if (s.Length == 0) return s;
+            int startIdx = 0;
+            int endIdx = 0;
+
+            //Pre-Truncate string at char '\0'.  May occur in pInvoke or InstallShield
+            for (; endIdx < s.Length; endIdx++)
             {
-                //nothing to do!
-                if (format.IsNullOrEmpty()) return format;
-                //if string contains "{0}", but arg list is empty, just return the string.
-                if (args == null || args.Length == 0) return format;
-                //If the format arg is null, say so!
-                for (int i = 0; i < args.Length; i++) { if (args[i] == null) args[i] = "null"; }
-                return string.Format(format, args);
+                var c = s[endIdx];
+                if (c == '\0') { endIdx--; break; }
             }
-            catch
+
+            if ((ends & BeginningOnly) == BeginningOnly)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendFormat("(string format error) \"{0}\"", format);
-                for (int i = 0; i < args.Length; i++)
+                for (; startIdx <= endIdx; startIdx++)
                 {
-                    sb.AppendFormat(", \"{0}\"", args[i].ToString());
+                    var c = s[startIdx];
+                    if (trimChars.Contains(c)) continue;
+                    break;
                 }
-                return sb.ToString();
             }
+
+            if ((ends & EndOnly) == EndOnly)
+            {
+                for (; endIdx >= startIdx; endIdx--)
+                {
+                    var c = s[endIdx];
+                    if (trimChars.Contains(c)) continue;
+                    break;
+                }
+            }
+
+            return s.Substring(startIdx, endIdx-startIdx + 1);
         }
 
         /// <summary>
@@ -224,34 +237,24 @@ namespace ChuckHill2.Utilities.Extensions
         /// object. If trimChars is null, standard white-space characters are removed instead.
         /// </returns>
         /// <remarks>
-        /// String is automatically truncated at '\0' char within the string AFTER the leading and trailing trimChars are removed.
-        /// This may occur when using strings via pInvoke.
+        /// String is automatically pre-truncated at '\0' char within the string BEFORE any leading or trailing trimChars are removed.
+        /// This may occur when using strings via pInvoke or InstallShield.
         /// </remarks>
-        public static string TrimEx(this string s, params char[] trimChars)
-        {
-            if (s == null) return s;
-            if (s.Length == 0) return s;
-            var sb = new StringBuilder(s.Length); //string will always be <= s.Length
-            foreach (char c in s)
-            {
-                if (c == '\0') break;
-                sb.Append(c);
-            }
-            return sb.ToString().Trim(trimChars);
-        }
+        public static string TrimEx(this string s, params char[] trimChars) => TrimBase(s, trimChars, 3);
+
         /// <summary>
         ///  Safely removes all leading and trailing white-space characters from the current System.String object.
         ///  Will not throw an error, even if the string is null.
         /// </summary>
         /// <param name="s">String to trim</param>
         /// <returns>
-        /// The string that remains after all white-space characters are removed from the start and end of the current System.String object.
+        /// The string that remains after all white-space characters are removed from the start and end of the specified string.
         /// </returns>
         /// <remarks>
-        /// String is automatically truncated at '\0' char within the string AFTER the leading and trailing trimChars are removed.
-        /// This may occur when using strings via pInvoke.
+        /// String is automatically pre-truncated at '\0' char within the string BEFORE any leading or trailing whitespace is removed.
+        /// This may occur when using strings via pInvoke or InstallShield.
         /// </remarks>
-        public static string TrimEx(this string s) { return s.TrimEx(StringExtensions.WhiteSpace); }
+        public static string TrimEx(this string s) => TrimBase(s, StringExtensions.WhiteSpace, 3);
 
         /// <summary>
         ///  Safely removes all leading white-space characters from the current System.String object.
@@ -259,9 +262,13 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <param name="s">String to trim</param>
         /// <returns>
-        /// The string that remains after all white-space characters are removed from the start of the current System.String object.
+        /// The string that remains after all white-space characters are removed from the start of the specified string.
         /// </returns>
-        public static string TrimStartEx(this string s) { return (s == null ? s : s.TrimStart(StringExtensions.WhiteSpace)); }
+        /// <remarks>
+        /// String is automatically pre-truncated at '\0' char within the string BEFORE any leading or trailing whitespace is removed.
+        /// This may occur when using strings via pInvoke or InstallShield.
+        /// </remarks>
+        public static string TrimStartEx(this string s) => TrimBase(s, StringExtensions.WhiteSpace, 1);
 
         /// <summary>
         ///  Safely removes all trailing white-space characters from the current System.String object.
@@ -269,9 +276,13 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <param name="s">String to trim</param>
         /// <returns>
-        /// The string that remains after all white-space characters are removed from the end of the current System.String object.
+        /// The string that remains after all white-space characters are removed from the end of the specified string.
         /// </returns>
-        public static string TrimEndEx(this string s) { return (s == null ? s : s.TrimEnd(StringExtensions.WhiteSpace)); }
+        /// <remarks>
+        /// String is automatically pre-truncated at '\0' char within the string BEFORE any leading or trailing whitespace is removed.
+        /// This may occur when using strings via pInvoke or InstallShield.
+        /// </remarks>
+        public static string TrimEndEx(this string s) => TrimBase(s, StringExtensions.WhiteSpace, 2);
 
         /// <summary>
         /// Returns a value indicating whether the specified string fragment occurs within this string. Safely handles null values
@@ -314,20 +325,17 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="s">String to operate upon</param>
         /// <param name="removeChars">list of characters to remove from this string. If undefined, defaults to whitespace.</param>
         /// <returns>resultant string. If source string is null or empty, it is just returned.</returns>
+        /// <remarks>
+        /// Warning: If there are exactly 2 chars to remove, instead of s.Remove('a', 'b'), use s.Remove(new char[]{'a','b'}) as the compiler will preferentially use built-in s.Remove(int,int).
+        /// </remarks>
         public static string Remove(this string s, params char[] removeChars)
         {
             if (s == null || s.Length == 0) return s;
             if (removeChars == null || removeChars.Length == 0) removeChars = new char[] { ' ', '\t', '\r', '\n', '\b', '\f', '\v', '\a' };
             var sb = new StringBuilder(s.Length);
-            int i, len = removeChars.Length;
-            bool found;
             foreach (char c in s)
             {
-                for (found = false, i = 0; i < len; i++)
-                {
-                    if (removeChars[i] == c) { found = true; break; }
-                }
-                if (found) continue;
+                if (removeChars.Contains(c)) continue;
                 sb.Append(c);
             }
             return sb.ToString();
@@ -356,12 +364,14 @@ namespace ChuckHill2.Utilities.Extensions
         /// <summary>
         /// Convert any enumerable object into an item-delimited string.
         /// </summary>
+        /// <typeparam name="T">Type of items in enumeration</typeparam>
         /// <param name="list">Enumerable object to convert.</param>
         /// <param name="delimiter">String delimiter between items.</param>
         /// <param name="predicate">Optional method to convert enumerated item to a string. The default is item.ToString().</param>
         /// <returns>The generated string.</returns>
-        public static string ToString(this IEnumerable list, string delimiter, Func<object, string> predicate = null)
+        public static string ToString<T>(this IEnumerable<T> list, string delimiter, Func<T, string> predicate = null)
         {
+            if (list == null) return null;
             delimiter = delimiter ?? ", ";
             if (predicate == null) predicate = (o) => o.ToString();
             var sb = new StringBuilder();
@@ -432,7 +442,7 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Convert string into UTF8 encoded array of bytes.
+        /// Convert string into UTF8 encoded array of bytes WITHOUT UTF8 preamble.
         /// </summary>
         /// <param name="s">String to encode</param>
         /// <returns>Array of bytes.</returns>
@@ -441,6 +451,17 @@ namespace ChuckHill2.Utilities.Extensions
             if (s == null) return null;
             if (s == string.Empty) return new byte[0];
             return Encoding.UTF8.GetBytes(s);
+        }
+
+        /// <summary>
+        /// Convert string into a MemoryStream.
+        /// </summary>
+        /// <param name="s">String to read</param>
+        /// <returns>Open MemoryStream</returns>
+        public static Stream ToStream(this string s)
+        {
+            if (s == null) return null;
+            return new MemoryStream(Encoding.UTF8.GetBytes(s));
         }
 
         /// <summary>
@@ -462,17 +483,6 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Convert string into a MemoryStream.
-        /// </summary>
-        /// <param name="s">String to read</param>
-        /// <returns>Open MemoryStream</returns>
-        public static Stream ToStream(this string s)
-        {
-            if (s == null) return null;
-            return new MemoryStream(Encoding.UTF8.GetBytes(s));
-        }
-
-        /// <summary>
         /// Detect if string is an XML string.
         /// </summary>
         /// <param name="s">String to inspect.</param>
@@ -488,18 +498,19 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Detect if string is a filename. Filename does not have to exist.
-        /// Useful for detecting if an overloaded striing could be a filename or something else.
+        /// Detect if string is a absolute local or UNC  filepath. Filename does not have to exist. Relative file paths will fail.
+        /// Useful for detecting if an overloaded string could be a filename or something else.
         /// </summary>
-        /// <param name="path">String to inspect,</param>
-        /// <returns>True if string resembles a valid filename,</returns>
-        public static bool IsFileName(this string path)
+        /// <param name="expression">String to inspect.</param>
+        /// <returns>True if string resembles an absolute filepath.</returns>
+        public static bool IsFileName(this string expression)
         {
-            if (path.IsNullOrEmpty()) return false;
-            if (path.Length > 260) return false; //260 is the max filename length in Microsoft Windows.
-            if (path.IndexOfAny(System.IO.Path.GetInvalidPathChars()) >= 0) return false;
-            try { Path.GetFullPath(path); } catch { return false; }
-            return true;
+            if (expression.IsNullOrEmpty()) return false;
+            if (expression.Length > 260) return false; //260 is the max filename length in Microsoft Windows. Longer in certain circumstnces, but this is good enough.
+            if (expression.IndexOfAny(System.IO.Path.GetInvalidPathChars()) != -1) return false;
+            //const string sPatternX = @"^(([a-zA-Z]:|\\)\\)?(((\.)|(\.\.)|([^\\/:\*\?""\|<>\. ](([^\\/:\*\?""\|<>\. ])|([^\\/:\*\?""\|<>]*[^\\/:\*\?""\|<>\. ]))?))\\)*[^\\/:\*\?""\|<>\. ](([^\\/:\*\?""\|<>\. ])|([^\\/:\*\?""\|<>]*[^\\/:\*\?""\|<>\. ]))?$";
+            const string sPattern = @"^([a-zA-Z]:\\|\\\\)([^\\/]{1,260}?\\)*?([^\\/]{1,260})$";
+            return (Regex.IsMatch(expression, sPattern, RegexOptions.CultureInvariant));
         }
 
         /// <summary>
@@ -509,8 +520,34 @@ namespace ChuckHill2.Utilities.Extensions
         /// <returns>True if string is a base64 string.</returns>
         public static bool IsBase64(this string s)
         {
-            if (s == null || s.Length < 2 || ((s.Length * 3) % 4) == 3) return false;
-            return (s.Length > 0 && s.All(c => ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '+' || c == '/' || c == '=')));
+            if (s == null || s.Length < 4) return false;
+            int inputLength = 0;
+            int eqCount = 0;
+            int eqIndex = 0;
+
+            for(int i=0; i<s.Length; i++)
+            {
+                var c = s[i];
+                if (c <= ' ') continue;
+                if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '+' || c == '/' || c == '=')) return false;
+                if (c == '=')
+                {
+                    eqCount++;
+                    eqIndex = i;
+                    if (eqCount > 2) return false;
+                }
+                inputLength++;
+            }
+
+            if (eqIndex > 0)
+            {
+                if (eqIndex != s.Length - 1 && s[eqIndex+1] != ' ') return false;
+                if (eqCount > 1 && s[eqIndex-1] != '=') return false;
+            }
+
+            if (((inputLength * 3) % 4) != 0) return false;
+
+            return true;
         }
 
         /// <summary>
@@ -520,8 +557,17 @@ namespace ChuckHill2.Utilities.Extensions
         /// <returns>True if string is a hexadecimal string.</returns>
         public static bool IsHex(this string s)
         {
-            if (s == null || s.Length < 2 || (s.Length % 2) == 1) return false; //length must be an even multiple of 2 but not zero.
-            return (s.All(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')));
+            if (s == null || s.Length < 2) return false; //length must be an even multiple of 2 but not zero.
+            int inputLength = 0;
+            foreach(var c in s)
+            {
+                if (c <= ' ') continue;
+                if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) return false;
+                inputLength++;
+            }
+
+            if ((inputLength % 2) == 1) return false; //length must be an even multiple of 2 but not zero.
+            return true;
         }
 
         /// <summary>
@@ -536,20 +582,13 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Detect if file content or string is CSV format.
+        /// Detect if string is CSV format.
         /// </summary>
-        /// <param name="s">Filename path or string literal</param>
+        /// <param name="s">String to inspect.</param>
         /// <returns>True if string or filename is in CSV format</returns>
         public static bool IsCSV(this string s)
         {
-            if (s.IsFileName())
-            {
-                if (!File.Exists(s)) return false;
-                using (var fs = File.Open(s, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                {
-                    return fs.IsCSV();
-                }
-            }
+            if (s.IsNullOrEmpty()) return false;
             return s.ToStream().IsCSV();
         }
 
@@ -560,48 +599,47 @@ namespace ChuckHill2.Utilities.Extensions
         /// <returns>True if streame is in CSV format</returns>
         public static bool IsCSV(this Stream s)
         {
+            const int MinDetectedLines = 2;
+            const int MinDetectedFields = 2;
             if (s == null) return false;
             if (!s.CanSeek) return false;  //we can't seek!
 
             if (s.Length < 4) return false; //too small!
             long pos = s.Position;
-            byte[] bytes = new byte[4096]; //4096==Win32 native minimum memory allocation block size.
-            s.Read(bytes, 0, bytes.Length);
-            s.Position = pos; //restore stream pointer position
-            string line = null;
-            int fieldCount;
-            string[] lines = bytes.ToStringEx().Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-            for (int i = 0; i < lines.Length; i++)
+            int lineCount = 0;
+            StreamReader sr = null;
+            try
             {
-                line = lines[i];
-                //Note: Official CSV does not support any sort of comment delimiter. 
-                //Although '#' comments are sometimes used in custom parsers, but comments are NOT supported by Excel.
-                if (line.IsNullOrEmpty()) continue; //skip empty lines
-                fieldCount = line.Split(',').Length;
-                if (fieldCount > 1) return true; //must have at least 2 header fields
-                //A valid CSV may contain only the header line.
-                //if (fieldCount > 1) //must have at least 2 header fields
-                //{
-                //    for (int j = i + 1; i < lines.Length; j++) //data line fieldcount must equal header line fieldcount
-                //    {
-                //        line = lines[j];
-                //        if (line.IsNullOrEmpty()) continue; //skip empty lines
-                //        int fieldCount2 = line.Split(',').Length;
-                //        if (fieldCount == fieldCount2) return true;
-                //        break;
-                //    }
-                //}
-                break;
+                sr = new StreamReader(s, Encoding.Default, true, 4096, true);
+                string line;
+                int fieldCount = -1;
+
+                while((line = sr.ReadLine()) != null)
+                {
+                    if (line.IsNullOrEmpty()) continue; //skip empty lines
+                    int fc = line.Split(',').Length;
+                    if (fieldCount == -1) fieldCount = fc;
+                    if (fc < MinDetectedFields || fc != fieldCount) return false; //must have at least 2 header fields and all rows have the same number of columns
+
+                    lineCount++;
+                    if (lineCount > MinDetectedLines) break; //we only check the first 2 valid rows.
+                }
             }
-            return false;
+            finally
+            {
+                sr.Dispose();
+                s.Position = pos;
+            }
+
+            return lineCount >= MinDetectedLines;
         }
 
         /// <summary>
         /// Compute unique MD5 hash. Useful for creating hash dictionary.
         /// DO NOT USE for security encryption.
         /// </summary>
-        /// <param name="str">Filename path or string literal</param>
+        /// <param name="str">String to hash.</param>
         /// <returns>Guid</returns>
         public static Guid ToHash(this string str)
         {
@@ -609,15 +647,7 @@ namespace ChuckHill2.Utilities.Extensions
             Stream stream = null;
             try
             {
-                if (str.IsFileName())
-                {
-                    if (!File.Exists(str)) return Guid.Empty;
-                    stream = File.Open(str, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                }
-                else
-                {
-                    stream = str.ToStream();
-                }
+                stream = str.ToStream();
                 return stream.ToHash();
             }
             finally
@@ -690,63 +720,85 @@ namespace ChuckHill2.Utilities.Extensions
         /// Convert byte array to a hexidecimal string
         /// </summary>
         /// <param name="bytes">Byte array to convert</param>
+        /// <param name="maxLine">Insert newline after this many characters. Default is no line breaks.</param>
         /// <returns>converted string</returns>
-        public static string ToHex(this byte[] bytes)
+        public static string ToHex(this byte[] bytes, int maxLine=0)
         {
             if (bytes == null || bytes.Length == 0) return string.Empty;
-
+            maxLine = maxLine / 2;
             StringBuilder result = new StringBuilder(bytes.Length * 2);
             string hexAlphabet = "0123456789ABCDEF";
 
+            int lineCount = 0;
             foreach (byte b in bytes)
             {
                 result.Append(hexAlphabet[(int)(b >> 4)]);
                 result.Append(hexAlphabet[(int)(b & 0xF)]);
+                if (maxLine > 0 && ((++lineCount) % maxLine)==0) result.AppendLine();
             }
 
             return result.ToString();
         }
+
         /// <summary>
-        /// Convert hexidecimal string to byte array.
-        /// Will throw an error if any character in string is not in range of [0-9-A-F].
+        /// Convert hexidecimal string to byte array. Whitespace is ignored.
         /// </summary>
         /// <param name="hex">Hexidecimal string to decode</param>
+        /// <exception cref="InvalidDataException">
+        /// A character in the string is not in the range of [0-9, a-f, A-F].
+        /// </exception>
         /// <returns>byte array</returns>
         public static byte[] FromHex(this string hex)
         {
-            if (hex == null || hex.Length < 2) return new byte[0];
+            Func<char, int> HexNibble = x => (x > 96 ? x - 87 : x > 64 ? x - 55 : x - 48);
 
-            byte[] bytes = new byte[hex.Length / 2];
-            int[] hexValue = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+            if (hex == null) return null;
+            if (hex.Length < 2) return new byte[0];
 
-            for (int x = 0, i = 0; i < hex.Length; i += 2, x += 1)
+            var bytes = new List<byte>(hex.Length / 2);
+
+            byte b = 0;
+            int index = 0;
+            foreach(char c in hex)
             {
-                bytes[x] = (byte)(hexValue[Char.ToUpper(hex[i + 0]) - '0'] << 4 |
-                                  hexValue[Char.ToUpper(hex[i + 1]) - '0']);
+                if (c <= ' ') continue;
+                if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) throw new InvalidDataException($"'{c}' is not a valid hexidecimal character.");
+                if (((++index) % 2) == 1)
+                {
+                    b = (byte)(HexNibble(c) << 4);
+                }
+                else
+                {
+                    b |= (byte)HexNibble(c);
+                    bytes.Add(b);
+                }
             }
-            return bytes;
+
+            return bytes.ToArray();
         }
     }
 
     public static class DictionaryExtensions
     {
         /// <summary>
-        /// Convert any IEnumerable source into a dictionary.
-        /// Note: System.Linq.ToDictionary(...) only supports generic IEnumerable. This also supports old-style non-generic IEnumerable.
+        /// Create a dictionary from an IEnumerable source.
+        /// Note: System.Linq.ToDictionary(...) only supports generic IEnumerable<>. This also supports old-style non-generic IEnumerable.
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="source"></param>
+        /// <typeparam name="TKey">The dictionary Key type.</typeparam>
+        /// <typeparam name="TSource">The dictionary Value type + the source type</typeparam>
+        /// <param name="source">Enumerable list of TSource type items</param>
         /// <param name="keySelector">delegate to return the dictionary key from the enumerated element</param>
         /// <param name="capacity">Set the initial size of the resulting dictionary. Should be greater than or equal to the number of elements in the source otherwise it will auto-expand to support all elements.</param>
         /// <param name="comparer">Key equality comparer</param>
-        /// <returns></returns>
-        public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>(this IEnumerable source, Func<TSource, TKey> keySelector, int capacity, IEqualityComparer<TKey> comparer)
+        /// <returns>A Dictionary<TKey,TSource>(capacity, comparer) </returns>
+        public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>
+            (this IEnumerable source, Func<TSource, TKey> keySelector, int capacity, IEqualityComparer<TKey> comparer)
         {
             Dictionary<TKey, TSource> d = new Dictionary<TKey, TSource>(capacity, comparer);
             foreach (TSource p in source) { d.Add(keySelector(p), p); }
             return d;
         }
+
         /// <summary>
         /// Convert any IEnumerable source into a dictionary.
         /// </summary>
@@ -756,9 +808,8 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="keySelector">delegate to return the dictionary key from the enumerated element</param>
         /// <returns></returns>
         public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>(this IEnumerable source, Func<TSource, TKey> keySelector)
-        {
-            return ToDictionary<TKey, TSource>(source, keySelector, 0, null);
-        }
+            => ToDictionary<TKey, TSource>(source, keySelector, 0, null);
+
         /// <summary>
         /// Convert any IEnumerable source into a dictionary.
         /// </summary>
@@ -769,9 +820,8 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="capacity">Set the initial size of the resulting dictionary. Should be greater than or equal to the number of elements in the source otherwise it will auto-expand to support all elements.</param>
         /// <returns></returns>
         public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>(this IEnumerable source, Func<TSource, TKey> keySelector, int capacity)
-        {
-            return ToDictionary<TKey, TSource>(source, keySelector, capacity, null);
-        }
+            => ToDictionary<TKey, TSource>(source, keySelector, capacity, null);
+
         /// <summary>
         /// Convert any IEnumerable source into a dictionary.
         /// </summary>
@@ -793,10 +843,9 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public static Dictionary<string, string> ToDictionary(this string s)
-        {
-            return ToDictionary<string, string>(s, ',', '=', k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
-        }
+        public static Dictionary<string, string> ToDictionary(this string s) =>
+            ToDictionary<string, string>(s, ',', '=', k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
+
         /// <summary>
         /// Deserialize a formatted string into a string dictionary.
         /// Note that the string keys are case-insensitive.
@@ -806,10 +855,9 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="elementDelimiter">character used between each keyvalue element.</param>
         /// <param name="kvDelimiter">character used between the key and value pairs.</param>
         /// <returns></returns>
-        public static Dictionary<string, string> ToDictionary(this string s, char elementDelimiter, char kvDelimiter)
-        {
-            return ToDictionary<string, string>(s, elementDelimiter, kvDelimiter, k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
-        }
+        public static Dictionary<string, string> ToDictionary(this string s, char elementDelimiter, char kvDelimiter) =>
+            ToDictionary<string, string>(s, elementDelimiter, kvDelimiter, k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
+
         /// <summary>
         /// Deserialize a formatted string into a typed dictionary.
         /// Warning: If a key or value contains one of the delimiters, the results are undefined.
@@ -839,13 +887,13 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Safely gets the value associated with the specified key. 
+        /// Safely gets the value associated with the specified key. An alternatitive to dictionary.TryGetValue().
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
+        /// <typeparam name="TKey">Key type</typeparam>
+        /// <typeparam name="TValue">Value type</typeparam>
         /// <param name="dict"></param>
         /// <param name="key">The key whose value to get.</param>
-        /// <returns>the value for the associated key or the default value if it doesn't exist (null for reference types, the default for value types)</returns>
+        /// <returns>The value for the associated key or the default value if it doesn't exist (null for reference types, the default for value types)</returns>
         public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
         {
             lock (dict)
@@ -866,7 +914,8 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public static List<string> ToList(this string s) { return ToList<string>(s, ',', v => v); }
+        public static List<string> ToList(this string s) => ToList<string>(s, ',', v => v);
+
         /// <summary>
         /// Deserializes a formatted delimited string into a list of strings.
         /// Warning: If a value a delimiter, the results are undefined.
@@ -874,7 +923,8 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="s"></param>
         /// <param name="elementDelimiter">character used between each element.</param>
         /// <returns></returns>
-        public static List<string> ToList(this string s, char elementDelimiter) { return ToList<string>(s, elementDelimiter, v => v); }
+        public static List<string> ToList(this string s, char elementDelimiter) => ToList<string>(s, elementDelimiter, v => v);
+
         /// <summary>
         /// Deserializes a formatted delimited string into a typed list.
         /// Warning: If a value a delimiter, the results are undefined.
@@ -892,6 +942,15 @@ namespace ChuckHill2.Utilities.Extensions
             return list;
         }
 
+        /// <summary>
+        /// Compare 2 string lists of delimited items.
+        /// </summary>
+        /// <param name="s1">First list of delimited items.</param>
+        /// <param name="s2">List of delimited items to compare.</param>
+        /// <param name="ignoreOrder">True to ignore sequence order</param>
+        /// <param name="elementDelimiter">list item delimiter</param>
+        /// <param name="ignoreCase">True to be case-insensitive</param>
+        /// <returns>True if matched.</returns>
         public static bool ListEquals(this string s1, string s2, bool ignoreOrder = true, char elementDelimiter = ',', bool ignoreCase = true)
         {
             if (s1.IsNullOrEmpty() && s2.IsNullOrEmpty()) return true;
@@ -915,7 +974,7 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Get index of the first class array element based upon a matching delegate.
+        /// Get index of the first array element that matches delegate.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
@@ -929,8 +988,9 @@ namespace ChuckHill2.Utilities.Extensions
             }
             return -1;
         }
+
         /// <summary>
-        /// Get index of the last class array element based upon a matching delegate.
+        /// Get index of the last array element that matches delegate.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
