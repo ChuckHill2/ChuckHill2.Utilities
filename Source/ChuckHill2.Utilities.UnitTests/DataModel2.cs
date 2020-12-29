@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace ChuckHill2.Utilities.UnitTests
 {
+    [Serializable]
     public class DataModel2 : IEquatable<DataModel2>, IEqualityComparer<DataModel2>
     {
         public bool? MyBool { get; set; }

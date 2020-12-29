@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -168,28 +169,79 @@ namespace ChuckHill2.Utilities.UnitTests
         [Test]
         public void TestDictionaryExtensions()
         {
+            string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
+            Assert.AreEqual(7, source.ToDictionary().Count, "ToDictionary<string,string>()");
+            Assert.AreEqual(7, source.ToDictionary(',', '=', k => int.Parse(k), v => v).Count, "ToDictionary<int,string>()");
 
+            var dictionary = source.ToDictionary(',', '=');
+            Assert.AreEqual("C", dictionary.GetValue("3"), "dictionary.GetValue(validvalue)");
+            Assert.AreEqual(null, dictionary.GetValue("XXX"), "dictionary.GetValue(invalidvalue)");
         }
+
         [Test]
         public void TestListExtensions()
         {
+            string source = "A,B,C, D  ,E,F, G";
+            var list = source.ToEnumerableList().ToList();
 
+            Assert.AreEqual(7, list.Count, "ToList<string>()");
+
+            string source2 = "A,B,C,E,D,F,G";
+
+            Assert.IsTrue(source.ListEquals(source2), "source.ListEquals(source2)");
+            Assert.IsFalse(source.ListEquals(source2,false), "source.ListEquals(source2,false)");
+
+            Assert.AreEqual(4, list.IndexOf(m => m == "E"), "list.IndexOf()");
+            Assert.AreEqual(4, list.LastIndexOf(m => m == "E"), "list.LastIndexOf()");
         }
+
         [Test]
         public void TestExceptionExtensions()
         {
+            Exception exception = new Exception("Test Exception");
 
+            Assert.AreEqual("Test Exception\r\nSuffix", exception.AppendMessage("Suffix").Message, "AppendMessage()");
+            Assert.AreEqual("Prefix\r\nTest Exception\r\nSuffix", exception.PrefixMessage("Prefix").Message, "PrefixMessage()");
+            Assert.AreEqual("Replaced Message", exception.ReplaceMessage("Replaced Message").Message, "ReplaceMessage()");
+            Assert.IsTrue(exception.WithStackTrace().StackTrace.Length > 10, "WithStackTrace()");
+            exception.AppendInnerException(new Exception("InnerException"));
+            Assert.AreEqual("Exception: Replaced Message / InnerException", exception.FullMessage(), "FullMessage()");
         }
+
         [Test]
         public void TestObjectExtensions()
         {
+            var data = DataModel.GenerateData(1).ToArray()[0];
+            Type t = Type.GetType("System.Windows.Forms.Layout.TableLayout+ContainerInfo, " + typeof(TableLayoutPanel).Assembly.FullName, false, false);
 
+            Assert.AreEqual(data, data.DeepClone(), "DeepClone()");
+            Assert.AreEqual(data, data.ShallowClone(), "ShallowClone()");
+
+            Assert.AreEqual("System.Windows.Forms.Layout.TableLayout+ContainerInfo", ObjectExtensions.GetReflectedType("System.Windows.Forms.Layout.TableLayout+ContainerInfo", typeof(TableLayoutPanel)).FullName, "GetReflectedType()");
+            Assert.AreEqual("System.Windows.Forms.Layout.TableLayout+ContainerInfo", ObjectExtensions.GetReflectedType("System.Windows.Forms.Layout.TableLayout+ContainerInfo").FullName, "GetReflectedType()");
+            Assert.AreEqual("System.Int32", ObjectExtensions.GetReflectedType("System.Int32").FullName, "GetReflectedType()");
+
+            object value = new Exception("This is a Test");
+            Assert.AreEqual("This is a Test", value.GetReflectedValue("_message"), "GetReflectedValue()");
+            value.SetReflectedValue("_message", "This is another Test");
+            Assert.AreEqual("System.Exception: This is another Test", value.ToString(), "SetReflectedValue()");
+
+            Assert.IsNotNull(typeof(DataModel).InvokeReflectedMethod("DataModel") as DataModel, "InvokeReflectedMethod(constructor)");
+            Assert.AreEqual(data.MyDouble, data.InvokeReflectedMethod("get_MyDouble"), "InvokeReflectedMethod(method)");
+
+            var tt = typeof(IEquatable<DataModel>);
+            Assert.IsTrue(data.MemberIs(tt.FullName), "value.MemberIs(typestring)");
+            Assert.IsTrue(data.MemberIs(tt), "value.MemberIs(type)");
+            Assert.IsTrue(typeof(DataModel).MemberIs(tt.FullName), "type.MemberIs(typestring)");
+            Assert.IsTrue(typeof(DataModel).MemberIs(tt), "type.MemberIs(type)");
         }
+
         [Test]
         public void TestEnumExtensions()
         {
 
         }
+
         [Test]
         public void TestAssemblyExtensions()
         {

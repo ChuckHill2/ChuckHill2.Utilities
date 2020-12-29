@@ -56,48 +56,44 @@ namespace ChuckHill2.Utilities.Extensions
     public static class StringExtensions
     {
         /// <summary>
-        /// For SQL, C# and C++ strings, perform the following:
-        /// <list type="bullit">
-        /// <item>Replace all tabs with 2 spaces</item>
-        /// <item>Remove trailing whitespace on each line</item>
-        /// <item>Squeeze out multiple newlines</item>
-        /// </list>
+        /// Reformat SQL, C#,and C++ code fragments. Generally for logging purposes.
         /// </summary>
-        /// <returns>fixed up string</returns>
+        /// <remarks>
+        /// • Replaces all tabs with 2 spaces.<br />
+        /// • Removes trailing whitespace on each line.<br />
+        /// • Squeezes out multiple newlines.
+        /// </remarks>
+        /// <returns>Formatted code fragment</returns>
         public static string Beautify(this string s) => Beautify(s, false, null);
+
         /// <summary>
-        /// For SQL, C# and C++ strings, perform the following:
-        /// <list type="bullit">
-        /// <item>Replace all tabs with 2 spaces</item>
-        /// <item>Remove trailing whitespace on each line</item>
-        /// <item>Squeeze out multiple newlines</item>
-        /// </list>
-        /// Optionally perform the following:
-        /// <list type="bullit">
-        /// <item>Indent all lines with this string (usually whitespace chars)</item>
-        /// </list>
+        /// Reformat SQL, C#,and C++ code fragments. Generally for logging purposes.
         /// </summary>
+        /// <remarks>
+        /// • Replaces all tabs with 2 spaces.<br />
+        /// • Removes trailing whitespace on each line.<br />
+        /// • Squeezes out multiple newlines.<br />
+        /// • Indent all lines with this string (usually whitespace chars)
+        /// </remarks>
         /// <param name="s">String to operate upon</param>
         /// <param name="indent">string to indent each line with</param>
-        /// <returns>fixed up string</returns>
+        /// <returns>Formatted code fragment</returns>
         public static string Beautify(this string s, string indent) => Beautify(s, false, indent);
+
         /// <summary>
-        /// For SQL, C# and C++ strings, perform the following:
-        /// <list type="bullit">
-        /// <item>Replace all tabs with 2 spaces</item>
-        /// <item>Remove trailing whitespace on each line</item>
-        /// <item>Squeeze out multiple newlines</item>
-        /// </list>
-        /// Optionally perform the following:
-        /// <list type="bullit">
-        /// <item>Strip SQL (e.g. --) and/or C comments (e.g. /**/)</item>
-        /// <item>Indent all lines with this string (usually whitespace chars)</item>
-        /// </list>
+        /// Reformat SQL, C#, and C++ code fragments. Generally for logging purposes.
         /// </summary>
+        /// <remarks>
+        /// • Replaces all tabs with 2 spaces.<br />
+        /// • Removes trailing whitespace on each line.<br />
+        /// • Squeezes out multiple newlines.<br />
+        /// • Strip SQL and C/C# comments.<br />
+        /// • Indent all lines with this string (usually whitespace chars)
+        /// </remarks>
         /// <param name="s">String to operate upon</param>
         /// <param name="stripComments">True to strip comments</param>
         /// <param name="indent">string to indent each line with</param>
-        /// <returns>fixed up string</returns>
+        /// <returns>Formatted code fragment</returns>
         public static string Beautify(this string s, bool stripComments, string indent)
         {
             if (stripComments)
@@ -116,11 +112,11 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Strip one or more whitspace chars (including newlines) and replace with a single space char.
+        /// Squeeze one or more whitspace chars (including newlines) and replace with a single space char.
         /// </summary>
         /// <param name="s">String to operate upon</param>
         /// <returns>The squeezed single-line string</returns>
-        /// <remarks>Whitespace chars consist of ASCII chars 0-32 only. No UNICODE whitespace.</remarks>
+        /// <remarks>For speeed, whitespace chars consist of ASCII chars 0-32 only. No UNICODE whitespace.</remarks>
         public static string Squeeze(this string s)
         {
             if (s.IsNullOrEmpty()) return string.Empty;
@@ -138,8 +134,9 @@ namespace ChuckHill2.Utilities.Extensions
             if (prev == ' ') sb.Length = sb.Length - 1;
             return sb.ToString();
         }
+
         /// <summary>
-        /// Squeeze out multiple adjcent specified chars and replace with a single replacement char.
+        /// Squeeze out one or more multiple adjcent specified chars and replace with a single replacement char.
         /// </summary>
         /// <param name="s">String to operate upon</param>
         /// <param name="chars2Remove">Array of chars to remove</param>
@@ -166,7 +163,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// <summary>
         /// Test if a string variable is null or string value is a zero length string after all leading and trailing whitespace has been removed.
         /// </summary>
-        /// <param name="s">String to operate upon</param>
+        /// <param name="s">String to inspect.</param>
         /// <returns>True or False</returns>
         public static bool IsNullOrEmpty(this string s) => string.IsNullOrWhiteSpace(s);
 
@@ -180,10 +177,8 @@ namespace ChuckHill2.Utilities.Extensions
             '\xFEFF', '\xFFFE', //UTF-8 Byte order marks. .NET 3.5 used to consider these whitespace, but 4.0 does not!
             '\0', '\a', '\b', '\f', '\n', '\r', '\t', '\v', ' ', '\xA0', //ASCII whitespace
             '\x1680', '\x2000', '\x2001', '\x2002', '\x2003', '\x2004',  //Unicode Whitespace
-            '\x2005', '\x2006', '\x2007', '\x2008', '\x2009', '\x200A',
-            '\x2028', '\x2029', '\x202F', '\x205F', '\x3000',
-            //'\x180E', '\x200B', '\x200C', '\x200D', '\x2060', //zero-width Whitespace-like
-        };
+            '\x2005', '\x2006', '\x2007', '\x2008', '\x2009', '\x200A',  //'\x180E', '\x200B', '\x200C', '\x200D', '\x2060', //zero-width Whitespace-like
+            '\x2028', '\x2029', '\x202F', '\x205F', '\x3000' };
 
         private static string TrimBase(string s, char[] trimChars, int ends)
         {
@@ -781,107 +776,114 @@ namespace ChuckHill2.Utilities.Extensions
     public static class DictionaryExtensions
     {
         /// <summary>
-        /// Create a dictionary from an IEnumerable source.
-        /// Note: System.Linq.ToDictionary(...) only supports generic IEnumerable<>. This also supports old-style non-generic IEnumerable.
-        /// </summary>
-        /// <typeparam name="TKey">The dictionary Key type.</typeparam>
-        /// <typeparam name="TSource">The dictionary Value type + the source type</typeparam>
-        /// <param name="source">Enumerable list of TSource type items</param>
-        /// <param name="keySelector">delegate to return the dictionary key from the enumerated element</param>
-        /// <param name="capacity">Set the initial size of the resulting dictionary. Should be greater than or equal to the number of elements in the source otherwise it will auto-expand to support all elements.</param>
-        /// <param name="comparer">Key equality comparer</param>
-        /// <returns>A Dictionary<TKey,TSource>(capacity, comparer) </returns>
-        public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>
-            (this IEnumerable source, Func<TSource, TKey> keySelector, int capacity, IEqualityComparer<TKey> comparer)
-        {
-            Dictionary<TKey, TSource> d = new Dictionary<TKey, TSource>(capacity, comparer);
-            foreach (TSource p in source) { d.Add(keySelector(p), p); }
-            return d;
-        }
-
-        /// <summary>
-        /// Convert any IEnumerable source into a dictionary.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="keySelector">delegate to return the dictionary key from the enumerated element</param>
-        /// <returns></returns>
-        public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>(this IEnumerable source, Func<TSource, TKey> keySelector)
-            => ToDictionary<TKey, TSource>(source, keySelector, 0, null);
-
-        /// <summary>
-        /// Convert any IEnumerable source into a dictionary.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="keySelector">delegate to return the dictionary key from the enumerated element</param>
-        /// <param name="capacity">Set the initial size of the resulting dictionary. Should be greater than or equal to the number of elements in the source otherwise it will auto-expand to support all elements.</param>
-        /// <returns></returns>
-        public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>(this IEnumerable source, Func<TSource, TKey> keySelector, int capacity)
-            => ToDictionary<TKey, TSource>(source, keySelector, capacity, null);
-
-        /// <summary>
-        /// Convert any IEnumerable source into a dictionary.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TSource"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="keySelector">delegate to return the dictionary key from the enumerated element</param>
-        /// <param name="comparer">Key equality comparer</param>
-        /// <returns></returns>
-        public static Dictionary<TKey, TSource> ToDictionary<TKey, TSource>(this IEnumerable source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
-        {
-            return ToDictionary<TKey, TSource>(source, keySelector, 0, comparer);
-        }
-
-        /// <summary>
-        /// Deserialize a formatted string into a string dictionary. Must be of the form "key=value,key=value,...".
+        /// Deserialize a formatted string into a string,string dictionary.
+        /// Empty fields are skipped as a null key with a null value are not allowed.
+        /// All leading and trailing whitespace is removed from the elements.
+        /// Duplicate keys are overwritten.
         /// Note that the string keys are case-insensitive.
-        /// Warning: If a key or value contains one of the delimiters, the results are undefined.
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// \code{.cs}
+        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
+        /// The result is:
+        ///    Count = 7
+        ///    [0] {[1, A]}
+        ///    [1] {[2, =B=X]}
+        ///    [2] {[3, C]}
+        ///    [3] {[4, D]}
+        ///    [4] {[5, E]}
+        ///    [5] {[6, ]}
+        ///    [6] {[7, null]}
+        ///   \endcode
+        /// </remarks>
+        /// <param name="s">Source string to parse.</param>
+        /// <returns>Dictionary containing the parsed results.</returns>
         public static Dictionary<string, string> ToDictionary(this string s) =>
             ToDictionary<string, string>(s, ',', '=', k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
-        /// Deserialize a formatted string into a string dictionary.
+        /// Deserialize a formatted string into a string,string dictionary.
+        /// Empty fields are skipped as a null key with a null value are not allowed.
+        /// All leading and trailing whitespace is removed from the elements.
+        /// Duplicate keys are overwritten.
         /// Note that the string keys are case-insensitive.
-        /// Warning: If a key or value contains one of the delimiters, the results are undefined.
         /// </summary>
-        /// <param name="s"></param>
+        /// <remarks>
+        /// \code{.cs}
+        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
+        /// The result is:
+        ///    Count = 7
+        ///    [0] {[1, A]}
+        ///    [1] {[2, =B=X]}
+        ///    [2] {[3, C]}
+        ///    [3] {[4, D]}
+        ///    [4] {[5, E]}
+        ///    [5] {[6, ]}
+        ///    [6] {[7, null]}
+        ///   \endcode
+        /// </remarks>
+        /// <param name="s">Source string to parse.</param>
         /// <param name="elementDelimiter">character used between each keyvalue element.</param>
         /// <param name="kvDelimiter">character used between the key and value pairs.</param>
-        /// <returns></returns>
+        /// <returns>Dictionary containing the parsed results.</returns>
         public static Dictionary<string, string> ToDictionary(this string s, char elementDelimiter, char kvDelimiter) =>
             ToDictionary<string, string>(s, elementDelimiter, kvDelimiter, k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// Deserialize a formatted string into a typed dictionary.
-        /// Warning: If a key or value contains one of the delimiters, the results are undefined.
+        /// Empty fields are skipped as a null key with a null value are not allowed.
+        /// All leading and trailing whitespace is removed from the elements.
+        /// Duplicate keys are overwritten.
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="s"></param>
-        /// <param name="elementDelimiter">character used between each keyvalue element.</param>
-        /// <param name="kvDelimiter">character used between the key and value pairs.</param>
-        /// <param name="keyConverter">delegate used to deserialize key string into the TKey type</param>
-        /// <param name="valueConverter">delegate used to deserialize value string into the TValue type</param>
+        /// <remarks>
+        /// \code{.cs}
+        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
+        /// The result is:
+        ///    Count = 7
+        ///    [0] {[1, A]}
+        ///    [1] {[2, =B=X]}
+        ///    [2] {[3, C]}
+        ///    [3] {[4, D]}
+        ///    [4] {[5, E]}
+        ///    [5] {[6, ]}
+        ///    [6] {[7, null]}
+        ///   \endcode
+        /// </remarks>
+        /// <typeparam name="TKey">The type of the Key in the keyvalue pair.</typeparam>
+        /// <typeparam name="TValue">The type of the Value in the keyvalue pair.</typeparam>
+        /// <param name="s">Source string to parse.</param>
+        /// <param name="elementDelimiter">Character used between each keyvalue element.</param>
+        /// <param name="kvDelimiter">Character used between the key and value pairs.</param>
+        /// <param name="keyConverter">Delegate used to deserialize key string into the TKey type</param>
+        /// <param name="valueConverter">Delegate used to deserialize value string into the TValue type</param>
         /// <param name="comparer">Key equality comparer</param>
-        /// <returns></returns>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this string s, char elementDelimiter, char kvDelimiter, Func<string, TKey> keyConverter, Func<string, TValue> valueConverter, IEqualityComparer<TKey> comparer)
+        /// <returns>Dictionary containing the parsed results.</returns>
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this string s, char elementDelimiter, char kvDelimiter, Func<string, TKey> keyConverter, Func<string, TValue> valueConverter, IEqualityComparer<TKey> comparer=null)
         {
-            if (s == null || s.Length == 0) return new Dictionary<TKey, TValue>(0, comparer);
+            if (s == null || s.Length < 1) return new Dictionary<TKey, TValue>(0, comparer);
             string[] array = s.Split(new Char[] { elementDelimiter }, StringSplitOptions.RemoveEmptyEntries);
             Dictionary<TKey, TValue> d = new Dictionary<TKey, TValue>(array.Length, comparer);
             TValue defalt = default(TValue);
 
             foreach (string item in array)
             {
-                string[] kv = item.Split(new Char[] { kvDelimiter }, StringSplitOptions.RemoveEmptyEntries);
-                d[keyConverter(kv[0].Trim())] = kv.Length > 1 ? valueConverter(kv[1].Trim()) : defalt;
+                if (string.IsNullOrWhiteSpace(item)) continue;
+                string szKey;
+                string szValue;
+
+                int i = item.IndexOf(kvDelimiter);
+                if (i==-1)
+                {
+                    szKey = item.Trim();
+                    szValue = null;
+                }
+                else
+                {
+                    szKey = item.Substring(0, i).Trim();
+                    szValue = item.Substring(i + 1).Trim();
+                }
+
+                d[keyConverter(szKey)] = szValue==null ? defalt : valueConverter(szValue);
             }
             return d;
         }
@@ -909,37 +911,73 @@ namespace ChuckHill2.Utilities.Extensions
     public static class ListExtensions
     {
         /// <summary>
-        /// Deserializes a formatted comma-delimited string into a list of strings.
-        /// Warning: If a value a delimiter, the results are undefined.
+        /// Deserializes a formatted comma-delimited string into an eumerable list of strings.
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static List<string> ToList(this string s) => ToList<string>(s, ',', v => v);
+        /// <remarks>
+        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
+        /// Warning: If an item itself contains a comma, the results are unexpected.
+        /// </remarks>
+        /// <param name="s">Source item-delimited string to parse.</param>
+        /// <returns>Enumerable list of strings.</returns>
+        public static IEnumerable<string> ToEnumerableList(this string s) => ToEnumerableList<string>(s, ',', v => v);
 
         /// <summary>
-        /// Deserializes a formatted delimited string into a list of strings.
-        /// Warning: If a value a delimiter, the results are undefined.
+        /// Deserializes a formatted comma-delimited string into an eumerable list of strings.
         /// </summary>
-        /// <param name="s"></param>
-        /// <param name="elementDelimiter">character used between each element.</param>
-        /// <returns></returns>
-        public static List<string> ToList(this string s, char elementDelimiter) => ToList<string>(s, elementDelimiter, v => v);
+        /// <remarks>
+        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
+        /// Warning: If an item itself contains a delimiter, the results are unexpected.
+        /// </remarks>
+        /// <param name="s">Source item-delimited string to parse.</param>
+        /// <param name="elementDelimiter">Character used between each element.</param>
+        /// <returns>Enumerable list of strings.</returns>
+        public static IEnumerable<string> ToEnumerableList(this string s, char elementDelimiter) => ToEnumerableList<string>(s, elementDelimiter, v => v);
 
         /// <summary>
-        /// Deserializes a formatted delimited string into a typed list.
-        /// Warning: If a value a delimiter, the results are undefined.
+        /// Deserializes a formatted delimited string into a typed enumerable list.
         /// </summary>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="s"></param>
-        /// <param name="elementDelimiter">character used between each element.</param>
-        /// <param name="valueConverter">delegate used to deserialize the value element into the TValue type</param>
-        /// <returns></returns>
-        public static List<TValue> ToList<TValue>(this string s, char elementDelimiter, Func<string, TValue> valueConverter)
+        /// <remarks>
+        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
+        /// Warning: If an item itself contains a delimiter, the results are unexpected.
+        /// </remarks>
+        /// <typeparam name="T">The item Type</typeparam>
+        /// <param name="s">Source item-delimited string to parse.</param>
+        /// <param name="elementDelimiter">Character used between each element.</param>
+        /// <param name="valueConverter">Delegate used to deserialize the value element into the TValue type</param>
+        /// <returns>Enumerable list of values.</returns>
+        public static IEnumerable<T> ToEnumerableList<T>(this string s, char elementDelimiter, Func<string, T> valueConverter)
         {
-            string[] array = s.Split(new Char[] { elementDelimiter }, StringSplitOptions.RemoveEmptyEntries);
-            List<TValue> list = new List<TValue>(array.Length);
-            foreach (string item in array) { list.Add(valueConverter(item.Trim())); }
-            return list;
+            var sb = new StringBuilder();
+            int spCount = 0;
+            foreach(var c in s)
+            {
+                if (c== elementDelimiter)
+                {
+                    sb.Length -= spCount;
+                    yield return valueConverter(sb.ToString());
+                    sb.Length = 0;
+                    continue;
+                }
+                if (sb.Length == 0 && c <= 32) continue;
+
+                spCount = c <= 32 ? spCount + 1 : 0;
+                sb.Append(c);
+            }
+
+            if (sb.Length > 0)
+            {
+                sb.Length -= spCount;
+                yield return valueConverter(sb.ToString());
+            }
+
+            //The following is a vastly simpler version but it creates twice as many temporary strings and does not stream the intermediate items; it creates them all up front. Not memory efficient...
+            //string[] array = s.Split(new Char[] { elementDelimiter });
+            //foreach (string item in array)
+            //{
+            //    yield return valueConverter(item.Trim());
+            //}
+
+            yield break;
         }
 
         /// <summary>
@@ -956,8 +994,8 @@ namespace ChuckHill2.Utilities.Extensions
             if (s1.IsNullOrEmpty() && s2.IsNullOrEmpty()) return true;
             if (s1.IsNullOrEmpty() || s2.IsNullOrEmpty()) return false;
 
-            var L1 = s1.ToList(elementDelimiter);
-            var L2 = s2.ToList(elementDelimiter);
+            var L1 = s1.ToEnumerableList(elementDelimiter).ToList();
+            var L2 = s2.ToEnumerableList(elementDelimiter).ToList();
             if (L1.Count != L2.Count) return false;
             if (ignoreOrder)
             {
@@ -965,6 +1003,7 @@ namespace ChuckHill2.Utilities.Extensions
                 L1.Sort(comparer);
                 L2.Sort(comparer);
             }
+
             StringComparison comparison = ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture;
             for (int i = 0; i < L1.Count; i++)
             {
@@ -976,10 +1015,10 @@ namespace ChuckHill2.Utilities.Extensions
         /// <summary>
         /// Get index of the first array element that matches delegate.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="list"></param>
-        /// <param name="match">delegate to determine if there is a match</param>
-        /// <returns>index of matched element or -1 if not found</returns>
+        /// <typeparam name="T">Type of item in list</typeparam>
+        /// <param name="list">List to search</param>
+        /// <param name="match">Delegate to determine if there is a match</param>
+        /// <returns>Index of matched element or -1 if not found</returns>
         public static int IndexOf<T>(this IList<T> list, Func<T, bool> match) where T : class
         {
             for (int i = 0; i < list.Count; i++)
@@ -992,10 +1031,10 @@ namespace ChuckHill2.Utilities.Extensions
         /// <summary>
         /// Get index of the last array element that matches delegate.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="list"></param>
-        /// <param name="match">delegate to determine if there is a match</param>
-        /// <returns>index of matched element or -1 if not found</returns>
+        /// <typeparam name="T">Type of item in list</typeparam>
+        /// <param name="list">List to search</param>
+        /// <param name="match">Delegate to determine if there is a match</param>
+        /// <returns>Index of matched element or -1 if not found</returns>
         public static int LastIndexOf<T>(this IList<T> list, Func<T, bool> match) where T : class
         {
             for (int i = list.Count - 1; i >= 0; i--)
@@ -1014,28 +1053,33 @@ namespace ChuckHill2.Utilities.Extensions
         /// <summary>
         /// Replace the existing exception message string
         /// </summary>
-        /// <param name="ex"></param>
-        /// <param name="msg"></param>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="msg">New exception message.</param>
+        /// <returns>Updated exception</returns>
         public static Exception ReplaceMessage(this Exception ex, string msg) { _message.SetValue(ex, msg); return ex; }
+
         /// <summary>
         /// Append string to the existing exception message string. A newline is automatically inserted.
         /// </summary>
-        /// <param name="ex"></param>
-        /// <param name="msg"></param>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="msg">Text to append.</param>
+        /// <returns>Updated exception</returns>
         public static Exception AppendMessage(this Exception ex, string msg) { _message.SetValue(ex, ex.Message + Environment.NewLine + msg); return ex; }
+
         /// <summary>
         /// Prefix string to the existing exception message string. A newline is automatically inserted.
         /// </summary>
-        /// <param name="ex"></param>
-        /// <param name="msg"></param>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="msg">Text to prefix</param>
+        /// <returns>Updated exception</returns>
         public static Exception PrefixMessage(this Exception ex, string msg) { _message.SetValue(ex, msg + Environment.NewLine + ex.Message); return ex; }
 
         /// <summary>
-        /// Append child exception as inner exception to this exception.
+        /// Insert child exception as inner exception to this exception.
         /// </summary>
-        /// <param name="ex"></param>
-        /// <param name="childEx"></param>
-        /// <returns></returns>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="childEx">Exception to insert as inner exception.</param>
+        /// <returns>Updated exception</returns>
         public static Exception AppendInnerException(this Exception ex, Exception childEx)
         {
             if (ex.InnerException != null) AppendInnerException(ex.InnerException, childEx);
@@ -1056,8 +1100,8 @@ namespace ChuckHill2.Utilities.Extensions
         /// newly created exception is NOT going to be thrown. This extension method
         /// will NOT overwrite a pre-existing stack trace.
         /// </summary>
-        /// <param name="ex"></param>
-        /// <returns></returns>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <returns>Updated exception</returns>
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static Exception WithStackTrace(this Exception ex)
         {
@@ -1079,10 +1123,13 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Retrieve exception message with all inner exception messages, combined.
+        /// Retrieve exception message with all inner exception messages, appended.
         /// </summary>
-        /// <param name="ex"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// Great for logging when the relevent message is in an inner exception.
+        /// </remarks>
+        /// <param name="ex">Exception to recurse</param>
+        /// <returns>Combined exception message string.</returns>
         public static string FullMessage(this Exception ex)
         {
             StringBuilder sb = new StringBuilder();
@@ -1105,9 +1152,9 @@ namespace ChuckHill2.Utilities.Extensions
         /// Duplicate the entire graph of any class object. Duplicates nested objects as well. Properly handles recursion. 
         /// Class and all nested classes <b>must</b> be marked as [Serializable] or an exception will occur.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Type of this object</typeparam>
         /// <param name="obj">Object to copy</param>
-        /// <returns>independent copy of object</returns>
+        /// <returns>A completely independent copy of object</returns>
         public static T DeepClone<T>(this T obj) where T : class
         {
             if (obj == null) return null;
@@ -1123,11 +1170,11 @@ namespace ChuckHill2.Utilities.Extensions
         /// <summary>
         /// Create a shallow copy of any object. Nested class objects
         /// are not duplicated. They are just referenced again.
-        /// Object does not need to be marked as [Serializable].
+        /// Unlike DeepClone(), this object does not need to be marked as [Serializable].
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Type of this object</typeparam>
         /// <param name="obj">Object to copy</param>
-        /// <returns>copy of object</returns>
+        /// <returns>Shallow copy of object</returns>
         public static T ShallowClone<T>(this T obj)
         {
             if (obj == null) return default(T);
@@ -1145,11 +1192,13 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="relatedType">Optional known public type that is in the same assembly as 'typename'.</param>
         /// <returns>Found type or null if not found</returns>
         /// <remarks>
-        ///    When 'relatedType' is defined, this method is effectively the same as:<br />
+        ///    When 'relatedType' is defined, this method is effectively the same as:
+        ///    \code{.cs}
         ///    Type t = Type.GetType("System.Windows.Forms.Layout.TableLayout+ContainerInfo, " + typeof(TableLayoutPanel).Assembly.FullName, false, false);
+        ///    \endcode
         ///    If 'relatedType' is undefined, this method will search the currently loaded assemblies for a match.
         /// </remarks>
-        private static Type GetReflectedType(string typename, Type relatedType=null)
+        public static Type GetReflectedType(string typename, Type relatedType=null)
         {
             if (typename.IsNullOrEmpty()) return null;
 
@@ -1299,7 +1348,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// This function should not be used in tight loops because reflection is expensive.
         /// </summary>
         /// <param name="t">Type execute static method on. Must not be null.</param>
-        /// <param name="membername">Case-sensitive static method name. If null, must be a constructor.</param>
+        /// <param name="membername">Case-sensitive static method name. If null, "", or class name, then it must be a constructor.</param>
         /// <param name="args">arguments to pass to method</param>
         /// <returns>value returned from method or created object if a constructor</returns>
         public static object InvokeReflectedMethod(this Type t, string membername, params object[] args)
@@ -1307,12 +1356,13 @@ namespace ChuckHill2.Utilities.Extensions
             if (t == null) return null;
             try
             {
-                if (membername.IsNullOrEmpty())
+                if (membername.IsNullOrEmpty() || t.Name == membername)
                 {
                     ConstructorInfo ci = t.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, GetReflectedArgTypes(args), null);
                     if (ci != null) return ci.Invoke(args);
                     return null;
                 }
+
                 MethodInfo mi = t.GetMethod(membername, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, null, GetReflectedArgTypes(args), null);
                 if (mi != null) return mi.Invoke(null, args);
                 return null;
@@ -1342,21 +1392,50 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Determine if the object is of the specified type by string name. Same as 
-        /// (myobject is System.String) except type does not have be in an assembly reference.
+        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable).
+        /// </summary>
+        /// <param name="tMain">Type that may be parent of 'typename'</param>
+        /// <param name="typename">Assembly-qualified type name.
+        ///    Case-insensitive, full type name of the object to invoke OR fully 
+        ///    qualified assembly name just in case the assembly has not already 
+        ///    been loaded into the domain.
+        /// </param>
+        /// <returns>True if 'typename' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
+        public static bool MemberIs(this Type tMain, string typename)
+        {
+            if (tMain == null) return false;
+            Type t = GetReflectedType(typename);
+            if (t == null) return false;
+            return (t.IsAssignableFrom(tMain));
+        }
+
+        /// <summary>
+        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable).
+        /// </summary>
+        /// <param name="tMain">Type that may be parent of 'typename'</param>
+        /// <param name="isType">Type of object it is.</param>
+        ///    Case-insensitive, full type name of the object to invoke OR fully 
+        ///    qualified assembly name just in case the assembly has not already 
+        ///    been loaded into the domain.
+        /// </param>
+        /// <returns>True if 'isType' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
+        public static bool MemberIs(this Type tMain, Type isType)
+        {
+            if (tMain == null || isType == null) return false;
+            return (isType.IsAssignableFrom(tMain));
+        }
+
+        /// <summary>
+        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable) except type is determined at runtime, not compile type.
         /// </summary>
         /// <param name="obj">Object to test.</param>
         /// <param name="typename">Assembly-qualified type name.
         ///    Case-insensitive, full type name of the object to invoke OR fully 
         ///    qualified assembly name just in case the assembly has not already 
         ///    been loaded into the domain.
-        ///    Example: "Infragistics.Win.Misc.UltraButton, Infragistics2.Win.Misc.v10.2" 
-        ///       where the first part is the Type fullname and the second part is the 
-        ///       assembly to which it belogs. The 2nd part of typename is not required 
-        ///       for "System" types.
         /// </param>
-        /// <returns>true if typename is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
-        public static bool ReflectedIs(this Object obj, string typename)
+        /// <returns>True if 'typename' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
+        public static bool MemberIs(this Object obj, string typename)
         {
             if (obj == null) return false;
             Type t = GetReflectedType(typename);
@@ -1365,30 +1444,46 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Determine if the object is of the specified type. Same as 
-        /// (myobject is System.String) except type is determined at 
-        /// runtime, not compile type.
+        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable) except type is determined at runtime, not compile type.
         /// </summary>
         /// <param name="obj">Object to test.</param>
         /// <param name="isType">Type of object it is.</param>
-        /// <returns>true if typename is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
-        public static bool ReflectedIs(this Object obj, Type isType)
+        /// <returns>True if 'isType' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
+        public static bool MemberIs(this Object obj, Type isType)
         {
-            if (obj == null) return false;
+            if (obj == null || isType == null) return false;
             return (isType.IsAssignableFrom(obj.GetType()));
         }
 
         #region Debugging tool: public static string[] GetReflectedObjectMembers(this Object obj)
+        /// <summary>
+        /// Get formatted list of members of a specified type; Great for debugging.
+        /// </summary>
+        /// <param name="typename">Type name as string</param>
+        /// <returns>Formatted list of members</returns>
         public static string[] GetReflectedObjectMembers(string typename)
         {
             Type t = GetReflectedType(typename);
             if (t == null) return null;
             return GetReflectedObjectMembers(t);
         }
+
+        /// <summary>
+        /// Get formatted list of members of a specified type; Great for debugging.
+        /// </summary>
+        /// <param name="obj">Object whose members are enumerated. The values of this instance are also added to the formatted list.</param>
+        /// <returns>Formatted list of members</returns>
         public static string[] GetReflectedObjectMembers(this Object obj)
         {
             return GetReflectedObjectMembers(obj.GetType(), obj);
         }
+
+        /// <summary>
+        /// Get formatted list of members of a specified type; Great for debugging.
+        /// </summary>
+        /// <param name="t">Type to enumerate.</param>
+        /// <param name="obj">Object whose members are enumerated. The values of this instance are added to the formatted list.</param>
+        /// <returns>Formatted list of members</returns>
         public static string[] GetReflectedObjectMembers(this Type t, Object obj = null)
         {
             MemberInfo[] mis = t.GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
@@ -1906,82 +2001,5 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="time_t">Seconds from 1/1/1970</param>
         /// <returns>Datetime equivalant.</returns>
         public static DateTime FromUnixTime(this int time_t) => UnixEpoch.AddSeconds(time_t);
-    }
-
-    public static class EnumerableExtensions
-    {
-        /// <summary>
-        /// Perform action upon each item in enumerable loop, ascending.
-        /// </summary>
-        /// <typeparam name="T">Type of item in enumeration</typeparam>
-        /// <param name="source">Enumerable array</param>
-        /// <param name="action">Action to perform on each item in enumeration. Return true to continue to next item or false to break enumeration</param>
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
-        {
-            if (source == null) return;
-
-            if (source is IList<T> list)
-            {
-                var k = list.Count;
-                for (int i = 0; i < k; i++)
-                {
-                    action(list[i]);
-                    k = list.Count;
-                }
-            }
-            else
-            {
-                foreach (var v in source) action(v);
-            }
-        }
-
-        /// <summary>
-        /// Perform action upon each item in enumerable loop, descending (reverse order).
-        /// Useful when the count of items may change.
-        /// </summary>
-        /// <typeparam name="T">Type of item in enumeration</typeparam>
-        /// <param name="source">Enumerable array</param>
-        /// <param name="action">Action to perform on each item in enumeration. Return true to continue to next item or false to break enumeration</param>
-        public static void ForEachDesc<T>(this IEnumerable<T> source, Func<T, bool> action)
-        {
-            //Action on sequence items is performed in descending order just in case elements are removed by the action.
-            //Equivalant to: foreach (var v in source.Reverse()) action(v); but more efficient.
-
-            if (source is IList<T> list)
-            {
-                for (int i = list.Count - 1; i >= 0; i--)
-                    if (!action(list[i])) break;
-            }
-            else if (source is ICollection<T> collection)
-            {
-                var length = collection.Count;
-                if (length == 0) return;
-                T[] array = new T[length];
-                collection.CopyTo(array, 0);
-
-                for (int i = length - 1; i >= 0; i--)
-                    if (!action(array[i])) break;
-            }
-            else
-            {
-                T[] array = null;
-                int length = 0;
-                foreach (T element in source)
-                {
-                    if (array == null) array = new T[4];
-                    else if (array.Length == length)
-                    {
-                        T[] elementArray = new T[checked(length * 2)];
-                        Array.Copy((Array)array, 0, (Array)elementArray, 0, length);
-                        array = elementArray;
-                    }
-                    array[length] = element;
-                    ++length;
-                }
-
-                for (int i = length - 1; i >= 0; i--)
-                    if (!action(array[i])) break;
-            }
-        }
     }
 }

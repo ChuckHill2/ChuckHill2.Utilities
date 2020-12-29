@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 
 namespace ChuckHill2.Utilities.UnitTests
 {
+    [Serializable]
     public class DataModel : IEquatable<DataModel>, IEqualityComparer<DataModel>
     {
         public enum Numbers
@@ -36,9 +37,6 @@ namespace ChuckHill2.Utilities.UnitTests
         public TimeSpan MyTimeSpan { get; set; }
         public Version MyVersion { get; set; }
         public Numbers MyEnum { get; set; }
-        public int FieldIgnored;  // public and private fields are ignored upon export
-        public int PropIgnored { get; private set; } // read-only properties are ignored upon export
-        [XmlIgnore] public int PropIgnored2 { get; set; } // Explicitly ignored properties are ignored upon export
         public bool? MyBool { get; set; }
         #endregion // Test Properties
 
@@ -115,9 +113,6 @@ namespace ChuckHill2.Utilities.UnitTests
                     MyTimeSpan = new TimeSpan(rand.Next(0, 4), dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
                     MyVersion = new Version(dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
                     MyEnum = (Numbers)(int)rand.Next(0, 11),
-                    FieldIgnored = rand.Next(1, 1000),
-                    PropIgnored = rand.Next(1, 1000),
-                    PropIgnored2 = rand.Next(1, 1000),
                     MyBool = rand.Next(0, 3) == 0 ? (bool?)null : rand.Next(0, 2) == 0 ? true : false,
                 };
             }
@@ -149,11 +144,8 @@ namespace ChuckHill2.Utilities.UnitTests
             var v10 = x.MyTimeSpan == y.MyTimeSpan;
             var v11 = x.MyVersion == y.MyVersion;
             var v12 = x.MyEnum == y.MyEnum;
-            var v13 = x.FieldIgnored != y.FieldIgnored;
-            var v14 = x.PropIgnored != y.PropIgnored;
-            var v15 = x.PropIgnored2 != y.PropIgnored2;
 
-            bool vx = v00 && v01 && v02 && v03 && v04 && v05 && v06 && v07 && v08 && v09 && v10 && v11 && v12 && v13 && v14 && v15;
+            bool vx = v00 && v01 && v02 && v03 && v04 && v05 && v06 && v07 && v08 && v09 && v10 && v11 && v12;
             return vx;
         }
     }
