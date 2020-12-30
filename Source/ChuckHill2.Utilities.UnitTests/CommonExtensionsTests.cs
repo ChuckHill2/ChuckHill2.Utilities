@@ -236,36 +236,80 @@ namespace ChuckHill2.Utilities.UnitTests
             Assert.IsTrue(typeof(DataModel).MemberIs(tt), "type.MemberIs(type)");
         }
 
+        private enum TestEnum
+        {
+            //Warning: NUnit has a DescriptionAttribute too!
+            [System.ComponentModel.DescriptionAttribute("Zero (0)")] Zero,
+            [System.ComponentModel.DescriptionAttribute("One (1)")] One,
+            [System.ComponentModel.DescriptionAttribute("Two (2)")] Two,
+            [System.ComponentModel.DescriptionAttribute("Three (3)")] Three,
+            [System.ComponentModel.DescriptionAttribute("Four (4)")] Four,
+            [System.ComponentModel.DescriptionAttribute("Five (5)")] Five,
+            [System.ComponentModel.DescriptionAttribute("Six (6)")] Six,
+            [System.ComponentModel.DescriptionAttribute("Seven (7)")] Seven,
+            [System.ComponentModel.DescriptionAttribute("Eight (8)")] Eight,
+            [System.ComponentModel.DescriptionAttribute("Nine (9)")] Nine,
+            [System.ComponentModel.DescriptionAttribute("Ten (10)")] Ten
+        }
+
         [Test]
         public void TestEnumExtensions()
         {
+            Assert.AreEqual("Eight (8)", TestEnum.Eight.Description(), "enum.Description()");
 
+            var desc = TestEnum.Four.AllDescriptions();
+            Assert.AreEqual(11, desc.Count, "enum.AllDescriptions().Count");
+            Assert.AreEqual("Eight (8)", desc[TestEnum.Eight], "enum.AllDescriptions()[value]");
         }
 
         [Test]
         public void TestAssemblyExtensions()
         {
+            var asm = Assembly.GetExecutingAssembly();
 
+            Assert.AreEqual("ChuckHill2.Utilities.UnitTests", asm.Attribute<AssemblyProductAttribute>(), "Attribute<> Constructor");
+            Assert.AreEqual("True", asm.Attribute<System.Runtime.CompilerServices.RuntimeCompatibilityAttribute>(), "Attribute<> Named");
+            Assert.IsNull(asm.Attribute<System.Runtime.InteropServices.TypeLibVersionAttribute>(), "Attribute<> Missing");
+
+            Assert.IsFalse(asm.AttributeExists<System.Runtime.InteropServices.TypeLibVersionAttribute>(), "AttributeExists<> Missing");
+            Assert.IsTrue(asm.AttributeExists<AssemblyProductAttribute>(), "AttributeExists<> Exists");
+
+            var timestamp = asm.PEtimestamp();
+            Assert.IsTrue(timestamp > new DateTime(2000, 1, 1) && timestamp <= DateTime.Now, "PEtimestamp()");
         }
+
         [Test]
         public void TestMemberInfoExtensions()
         {
+            var mi = typeof(DataModel).GetMember("MyInt")[0];
+            var mi2 = typeof(DataModel).GetMember("PropIgnored2")[0];
 
+            Assert.AreEqual("This is a Unit Test.", mi.Attribute<System.ComponentModel.DescriptionAttribute>(), "Attribute<> Constructor");
+            Assert.AreEqual("2", mi.Attribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>(), "Attribute<> Named");
+            Assert.AreEqual("", mi2.Attribute<System.Xml.Serialization.XmlIgnoreAttribute>(), "Attribute<> Empty");
+            Assert.IsNull(mi.Attribute<System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute>(), "Attribute<> Missing");
+
+            Assert.IsFalse(mi.AttributeExists<System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute>(), "AttributeExists<> Missing");
+            Assert.IsTrue(mi2.AttributeExists<System.Xml.Serialization.XmlIgnoreAttribute>(), "AttributeExists<> Exists");
         }
+
         [Test]
         public void TestAppDomainExtensions()
         {
-
+            var ad = AppDomain.CurrentDomain;
+            var currentName = ad.SetFriendlyName("Unit Test");
+            Assert.AreEqual("Unit Test", ad.FriendlyName, "ad.SetFriendlyName(newname)");
+            ad.SetFriendlyName(currentName);
         }
+
         [Test]
         public void TestDateTimeExtensions()
         {
+            const int time_t = 1582230020;
+            var dt = new DateTime(2020, 2, 20, 20, 20, 20);
 
-        }
-        [Test]
-        public void TestEnumerableExtensions()
-        {
-
+            Assert.AreEqual(time_t, dt.ToUnixTime(), "ToUnixTime()");
+            Assert.AreEqual(dt, time_t.FromUnixTime(), "FromUnixTime()");
         }
     }
 }

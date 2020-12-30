@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Serialization;
 
 namespace ChuckHill2.Utilities.UnitTests
@@ -24,7 +25,11 @@ namespace ChuckHill2.Utilities.UnitTests
         }
 
         #region Test Properties
+
+        [Description("This is a Unit Test.")]
+        [Column(Order = 2)] // For Attribute<> unit tests
         public int MyInt { get; set; }
+
         public double MyDouble { get; set; }
         public decimal MyDecimal { get; set; }
         public char MyChar { get; set; }
@@ -37,6 +42,12 @@ namespace ChuckHill2.Utilities.UnitTests
         public TimeSpan MyTimeSpan { get; set; }
         public Version MyVersion { get; set; }
         public Numbers MyEnum { get; set; }
+
+        public int FieldIgnored;  // public and private fields are ignored upon export
+        public int PropIgnored { get; private set; } // read-only properties are ignored upon export
+        [XmlIgnore]
+        public int PropIgnored2 { get; set; } // Explicitly ignored properties are ignored upon export
+
         public bool? MyBool { get; set; }
         #endregion // Test Properties
 
@@ -113,6 +124,11 @@ namespace ChuckHill2.Utilities.UnitTests
                     MyTimeSpan = new TimeSpan(rand.Next(0, 4), dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
                     MyVersion = new Version(dt.Hour, dt.Minute, dt.Second, dt.Millisecond),
                     MyEnum = (Numbers)(int)rand.Next(0, 11),
+
+                    FieldIgnored = rand.Next(1, 1000),
+                    PropIgnored = rand.Next(1, 1000),
+                    PropIgnored2 = rand.Next(1, 1000),
+
                     MyBool = rand.Next(0, 3) == 0 ? (bool?)null : rand.Next(0, 2) == 0 ? true : false,
                 };
             }

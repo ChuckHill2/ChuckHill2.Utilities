@@ -1776,7 +1776,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <typeparam name="T">Enum type</typeparam>
         /// <returns>Associated list of description strings for the enum type</returns>
-        public static IDictionary<T, string> Descriptions<T>() where T : struct, IComparable, IConvertible, IFormattable
+        public static IDictionary<T, string> AllDescriptions<T>(this T enm) where T : struct, IComparable, IConvertible, IFormattable
         {
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
             T[] enumValues = Enum.GetValues(typeof(T)) as T[];
@@ -1825,7 +1825,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// <remarks>
         /// WARNING: When compiled in a .netcore application/library, the PE timestamp 
         /// is NOT set with the the application link time. It contains some other non-
-        /// timestamp (hash?) value. To force the .netcore linker to embed the true 
+        /// timestamp hash value. To force the .netcore linker to embed the true 
         /// timestamp as previously, add the csproj property 
         /// "<Deterministic>False</Deterministic>".
         /// </remarks>
@@ -1851,8 +1851,8 @@ namespace ChuckHill2.Utilities.Extensions
 
             if (returnValue < new DateTime(2000, 1, 1) || returnValue > DateTime.Now)
             {
-                //PEHeader link timestamp field is random junk because csproj property "Deterministic" == true
-                //so we just return the 2nd best "build" time (iffy, unreliable).
+                // PEHeader link timestamp field is a hash of the content of this file because csproj property
+                // "Deterministic" == true so we just return the 2nd best "build" time (iffy, unreliable).
                 return File.GetCreationTime(filePath);
             }
 
@@ -1875,8 +1875,8 @@ namespace ChuckHill2.Utilities.Extensions
         {
             if (asm.IsDynamic)
             {
-                //The assembly was dynamically built in-memory so the build date is Now. Besides, 
-                //accessing the location of a dynamically built assembly will throw an exception!
+                // The assembly was dynamically built in-memory so the build date is Now. Besides, 
+                // accessing the location of a dynamically built assembly will throw an exception!
                 return DateTime.Now;
             }
 
@@ -1935,43 +1935,20 @@ namespace ChuckHill2.Utilities.Extensions
         /// cannot be changed. This allows it to be changed.
         /// </summary>
         /// <param name="ad">AppDomain to change</param>
-        /// <param name="newname">new "FriendlyName"</param>
-        public static void SetFriendlyName(this AppDomain ad, string newname)
+        /// <param name="newname">New "FriendlyName"</param>
+        /// <returns>Previous friendly name.</returns>
+        public static string SetFriendlyName(this AppDomain ad, string newname)
         {
+            var prevName = ad.FriendlyName;
             MethodInfo mi = typeof(AppDomain).GetMethod("nSetupFriendlyName", BindingFlags.Instance | BindingFlags.NonPublic);
-            if (mi == null) return;
+            if (mi == null) return null;
             mi.Invoke(ad, new object[] { newname });
+            return prevName;
         }
     }
 
     public static class DateTimeExtensions
     {
-        /// <summary>
-        /// Convert local time to UTC DateTimeOffset.
-        /// </summary>
-        /// <param name="local">Local datetime</param>
-        /// <returns>UTC DateTimeOffset</returns>
-        public static DateTimeOffset ToUTC(this DateTime local) => new DateTimeOffset(local.ToUniversalTime(), new TimeSpan());
-
-        /// <summary>
-        /// Convert DateTimeOffset to local datetime.
-        /// </summary>
-        /// <param name="utc">DateTimeOffset to convert.</param>
-        /// <returns>Local datetime</returns>
-        public static DateTime ToLocal(this DateTimeOffset utc) => utc.LocalDateTime;
-
-        /// <summary>
-        /// Convert DateTime to local DateTime as determined by the DateTime.Kind property.
-        /// </summary>
-        /// <param name="utc">DateTime to convert.</param>
-        /// <returns>Local datetime</returns>
-        /// <remarks>
-        /// If dt.Kind is DateTimeKind.Utc, the conversion is performed.<br />
-        /// If dt.Kind is DateTimeKind.Local, the conversion is not performed.<br />
-        /// If dt.Kind is DateTimeKind.Unspecified, the conversion is performed as if dt was universal time.
-        /// </remarks>
-        public static DateTime ToLocal(this DateTime utc) => utc.ToLocalTime();
-
         /// <summary>
         /// Round datetime to the nearest minute. 
         /// </summary>
