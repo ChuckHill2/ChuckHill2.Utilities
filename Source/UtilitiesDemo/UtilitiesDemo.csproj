@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Tools.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -49,6 +52,18 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ToolTipExTestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolTipExTestForm.Designer.cs">
+      <DependentUpon>ToolTipExTestForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ToolTipManagerTestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolTipManagerTestForm.Designer.cs">
+      <DependentUpon>ToolTipManagerTestForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -56,6 +71,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolTipExTestForm.resx">
+      <DependentUpon>ToolTipExTestForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolTipManagerTestForm.resx">
+      <DependentUpon>ToolTipManagerTestForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
@@ -84,6 +105,7 @@
     <Content Include="Resources\Down.png" />
     <Content Include="Resources\Left.png" />
     <Content Include="Resources\Right.png" />
+    <None Include="Resources\Tools.ico" />
     <Content Include="Resources\Up.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -94,15 +94,15 @@ namespace UtilitiesDemo
             this.m_tpColorEditorVert = new System.Windows.Forms.TabPage();
             this.m_cppColorPickerPanelVert = new ChuckHill2.Utilities.ColorPickerPanelVert();
             this.m_tpPopups = new System.Windows.Forms.TabPage();
-            this.m_btnToolTipManager = new System.Windows.Forms.Button();
-            this.m_btnToolTipEx = new System.Windows.Forms.Button();
-            this.m_btnSysColorDialog = new System.Windows.Forms.Button();
-            this.m_btnSysColorDialog2 = new System.Windows.Forms.Button();
-            this.m_btnColorDialogAdv = new System.Windows.Forms.Button();
-            this.m_btnFolderSelecterEx = new System.Windows.Forms.Button();
-            this.m_lblPopupStatus = new System.Windows.Forms.Label();
-            this.m_btnMessageBoxEx = new System.Windows.Forms.Button();
             this.m_btnMiniMessageBox = new System.Windows.Forms.Button();
+            this.m_btnMessageBoxEx = new System.Windows.Forms.Button();
+            this.m_lblPopupStatus = new System.Windows.Forms.Label();
+            this.m_btnFolderSelecterEx = new System.Windows.Forms.Button();
+            this.m_btnColorDialogAdv = new System.Windows.Forms.Button();
+            this.m_btnSysColorPickerDialog = new System.Windows.Forms.Button();
+            this.m_btnSysColorDialog = new System.Windows.Forms.Button();
+            this.m_btnToolTipEx = new System.Windows.Forms.Button();
+            this.m_btnToolTipManager = new System.Windows.Forms.Button();
             this.m_tpGradientControls.SuspendLayout();
             this.m_tcSubGradientControls.SuspendLayout();
             this.m_tpGradientBrushStyles.SuspendLayout();
@@ -394,7 +394,7 @@ namespace UtilitiesDemo
             this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label24);
             this.m_flpGradientFlowLayoutPanel.Location = new System.Drawing.Point(3, 29);
             this.m_flpGradientFlowLayoutPanel.Name = "m_flpGradientFlowLayoutPanel";
-            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(603, 511);
+            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(603, 519);
             this.m_flpGradientFlowLayoutPanel.TabIndex = 6;
             // 
             // label5
@@ -638,7 +638,7 @@ namespace UtilitiesDemo
             this.m_tlpGradientTableLayoutPanel.RowCount = 2;
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(603, 511);
+            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(603, 519);
             this.m_tlpGradientTableLayoutPanel.TabIndex = 5;
             // 
             // label3
@@ -669,7 +669,7 @@ namespace UtilitiesDemo
             this.m_tpBrushProperties.Location = new System.Drawing.Point(4, 24);
             this.m_tpBrushProperties.Name = "m_tpBrushProperties";
             this.m_tpBrushProperties.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpBrushProperties.Size = new System.Drawing.Size(750, 570);
+            this.m_tpBrushProperties.Size = new System.Drawing.Size(623, 570);
             this.m_tpBrushProperties.TabIndex = 0;
             this.m_tpBrushProperties.Text = "UITypeEditors";
             this.m_tpBrushProperties.UseVisualStyleBackColor = true;
@@ -680,7 +680,7 @@ namespace UtilitiesDemo
             this.label1.Dock = System.Windows.Forms.DockStyle.Top;
             this.label1.Location = new System.Drawing.Point(3, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(744, 19);
+            this.label1.Size = new System.Drawing.Size(617, 19);
             this.label1.TabIndex = 3;
             this.label1.Text = "Example UITypeEditors";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -809,7 +809,7 @@ namespace UtilitiesDemo
             this.m_ctvColorTreeView.HideSelection = false;
             this.m_ctvColorTreeView.Location = new System.Drawing.Point(192, 36);
             this.m_ctvColorTreeView.Name = "m_ctvColorTreeView";
-            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 468);
+            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 476);
             this.m_ctvColorTreeView.TabIndex = 1;
             this.m_ctvColorTreeView.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_ctvColorTreeView_SelectionChanged);
             // 
@@ -820,7 +820,7 @@ namespace UtilitiesDemo
             this.m_clbColorListBox.IntegralHeight = false;
             this.m_clbColorListBox.Location = new System.Drawing.Point(6, 36);
             this.m_clbColorListBox.Name = "m_clbColorListBox";
-            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 468);
+            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 476);
             this.m_clbColorListBox.TabIndex = 0;
             this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
             // 
@@ -830,7 +830,7 @@ namespace UtilitiesDemo
             this.m_tpColorEditorHorz.Location = new System.Drawing.Point(4, 24);
             this.m_tpColorEditorHorz.Name = "m_tpColorEditorHorz";
             this.m_tpColorEditorHorz.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpColorEditorHorz.Size = new System.Drawing.Size(736, 536);
+            this.m_tpColorEditorHorz.Size = new System.Drawing.Size(609, 536);
             this.m_tpColorEditorHorz.TabIndex = 1;
             this.m_tpColorEditorHorz.Text = "Color Editor (horizontal)";
             this.m_tpColorEditorHorz.UseVisualStyleBackColor = true;
@@ -847,7 +847,7 @@ namespace UtilitiesDemo
             this.m_cppColorPickerPanelHorz.MaximumSize = new System.Drawing.Size(1000, 999);
             this.m_cppColorPickerPanelHorz.MinimumSize = new System.Drawing.Size(376, 182);
             this.m_cppColorPickerPanelHorz.Name = "m_cppColorPickerPanelHorz";
-            this.m_cppColorPickerPanelHorz.Size = new System.Drawing.Size(730, 530);
+            this.m_cppColorPickerPanelHorz.Size = new System.Drawing.Size(603, 530);
             this.m_cppColorPickerPanelHorz.TabIndex = 0;
             // 
             // m_tpColorEditorVert
@@ -856,7 +856,7 @@ namespace UtilitiesDemo
             this.m_tpColorEditorVert.Location = new System.Drawing.Point(4, 24);
             this.m_tpColorEditorVert.Name = "m_tpColorEditorVert";
             this.m_tpColorEditorVert.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tpColorEditorVert.Size = new System.Drawing.Size(736, 536);
+            this.m_tpColorEditorVert.Size = new System.Drawing.Size(609, 536);
             this.m_tpColorEditorVert.TabIndex = 2;
             this.m_tpColorEditorVert.Text = "Color Editor (vertical)";
             this.m_tpColorEditorVert.UseVisualStyleBackColor = true;
@@ -871,7 +871,7 @@ namespace UtilitiesDemo
             this.m_cppColorPickerPanelVert.Margin = new System.Windows.Forms.Padding(0);
             this.m_cppColorPickerPanelVert.MinimumSize = new System.Drawing.Size(192, 497);
             this.m_cppColorPickerPanelVert.Name = "m_cppColorPickerPanelVert";
-            this.m_cppColorPickerPanelVert.Size = new System.Drawing.Size(730, 530);
+            this.m_cppColorPickerPanelVert.Size = new System.Drawing.Size(603, 530);
             this.m_cppColorPickerPanelVert.TabIndex = 0;
             // 
             // m_tpPopups
@@ -881,7 +881,7 @@ namespace UtilitiesDemo
             this.m_tpPopups.Controls.Add(this.m_lblPopupStatus);
             this.m_tpPopups.Controls.Add(this.m_btnFolderSelecterEx);
             this.m_tpPopups.Controls.Add(this.m_btnColorDialogAdv);
-            this.m_tpPopups.Controls.Add(this.m_btnSysColorDialog2);
+            this.m_tpPopups.Controls.Add(this.m_btnSysColorPickerDialog);
             this.m_tpPopups.Controls.Add(this.m_btnSysColorDialog);
             this.m_tpPopups.Controls.Add(this.m_btnToolTipEx);
             this.m_tpPopups.Controls.Add(this.m_btnToolTipManager);
@@ -893,59 +893,25 @@ namespace UtilitiesDemo
             this.m_tpPopups.Text = "Popups";
             this.m_tpPopups.UseVisualStyleBackColor = true;
             // 
-            // m_btnToolTipManager
+            // m_btnMiniMessageBox
             // 
-            this.m_btnToolTipManager.Location = new System.Drawing.Point(6, 6);
-            this.m_btnToolTipManager.Name = "m_btnToolTipManager";
-            this.m_btnToolTipManager.Size = new System.Drawing.Size(75, 89);
-            this.m_btnToolTipManager.TabIndex = 0;
-            this.m_btnToolTipManager.Text = "Custom Tool Tip Manager";
-            this.m_btnToolTipManager.UseVisualStyleBackColor = true;
+            this.m_btnMiniMessageBox.Location = new System.Drawing.Point(249, 101);
+            this.m_btnMiniMessageBox.Name = "m_btnMiniMessageBox";
+            this.m_btnMiniMessageBox.Size = new System.Drawing.Size(75, 89);
+            this.m_btnMiniMessageBox.TabIndex = 10;
+            this.m_btnMiniMessageBox.Text = "Mini Message Box";
+            this.m_btnMiniMessageBox.UseVisualStyleBackColor = true;
+            this.m_btnMiniMessageBox.Click += new System.EventHandler(this.m_btnMiniMessageBox_Click);
             // 
-            // m_btnToolTipEx
+            // m_btnMessageBoxEx
             // 
-            this.m_btnToolTipEx.Location = new System.Drawing.Point(6, 101);
-            this.m_btnToolTipEx.Name = "m_btnToolTipEx";
-            this.m_btnToolTipEx.Size = new System.Drawing.Size(75, 91);
-            this.m_btnToolTipEx.TabIndex = 1;
-            this.m_btnToolTipEx.Text = "Extended Built-in ToolTip";
-            this.m_btnToolTipEx.UseVisualStyleBackColor = true;
-            // 
-            // m_btnSysColorDialog
-            // 
-            this.m_btnSysColorDialog.Location = new System.Drawing.Point(87, 6);
-            this.m_btnSysColorDialog.Name = "m_btnSysColorDialog";
-            this.m_btnSysColorDialog.Size = new System.Drawing.Size(75, 89);
-            this.m_btnSysColorDialog.TabIndex = 2;
-            this.m_btnSysColorDialog.Text = "System Color Dialog";
-            this.m_btnSysColorDialog.UseVisualStyleBackColor = true;
-            // 
-            // m_btnSysColorDialog2
-            // 
-            this.m_btnSysColorDialog2.Location = new System.Drawing.Point(87, 103);
-            this.m_btnSysColorDialog2.Name = "m_btnSysColorDialog2";
-            this.m_btnSysColorDialog2.Size = new System.Drawing.Size(75, 89);
-            this.m_btnSysColorDialog2.TabIndex = 3;
-            this.m_btnSysColorDialog2.Text = "System Color Dialog (modified)";
-            this.m_btnSysColorDialog2.UseVisualStyleBackColor = true;
-            // 
-            // m_btnColorDialogAdv
-            // 
-            this.m_btnColorDialogAdv.Location = new System.Drawing.Point(168, 6);
-            this.m_btnColorDialogAdv.Name = "m_btnColorDialogAdv";
-            this.m_btnColorDialogAdv.Size = new System.Drawing.Size(75, 89);
-            this.m_btnColorDialogAdv.TabIndex = 4;
-            this.m_btnColorDialogAdv.Text = "Advanced Color Dialog";
-            this.m_btnColorDialogAdv.UseVisualStyleBackColor = true;
-            // 
-            // m_btnFolderSelecterEx
-            // 
-            this.m_btnFolderSelecterEx.Location = new System.Drawing.Point(168, 101);
-            this.m_btnFolderSelecterEx.Name = "m_btnFolderSelecterEx";
-            this.m_btnFolderSelecterEx.Size = new System.Drawing.Size(75, 89);
-            this.m_btnFolderSelecterEx.TabIndex = 5;
-            this.m_btnFolderSelecterEx.Text = "Extended Folder Selector";
-            this.m_btnFolderSelecterEx.UseVisualStyleBackColor = true;
+            this.m_btnMessageBoxEx.Location = new System.Drawing.Point(249, 6);
+            this.m_btnMessageBoxEx.Name = "m_btnMessageBoxEx";
+            this.m_btnMessageBoxEx.Size = new System.Drawing.Size(75, 89);
+            this.m_btnMessageBoxEx.TabIndex = 9;
+            this.m_btnMessageBoxEx.Text = "Extended Message Box";
+            this.m_btnMessageBoxEx.UseVisualStyleBackColor = true;
+            this.m_btnMessageBoxEx.Click += new System.EventHandler(this.m_btnMessageBoxEx_Click);
             // 
             // m_lblPopupStatus
             // 
@@ -958,23 +924,65 @@ namespace UtilitiesDemo
             this.m_lblPopupStatus.Text = "[Selection Status]";
             this.m_lblPopupStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // m_btnMessageBoxEx
+            // m_btnFolderSelecterEx
             // 
-            this.m_btnMessageBoxEx.Location = new System.Drawing.Point(249, 6);
-            this.m_btnMessageBoxEx.Name = "m_btnMessageBoxEx";
-            this.m_btnMessageBoxEx.Size = new System.Drawing.Size(75, 89);
-            this.m_btnMessageBoxEx.TabIndex = 9;
-            this.m_btnMessageBoxEx.Text = "Extended Message Box";
-            this.m_btnMessageBoxEx.UseVisualStyleBackColor = true;
+            this.m_btnFolderSelecterEx.Location = new System.Drawing.Point(168, 101);
+            this.m_btnFolderSelecterEx.Name = "m_btnFolderSelecterEx";
+            this.m_btnFolderSelecterEx.Size = new System.Drawing.Size(75, 89);
+            this.m_btnFolderSelecterEx.TabIndex = 5;
+            this.m_btnFolderSelecterEx.Text = "Extended Folder Selector";
+            this.m_btnFolderSelecterEx.UseVisualStyleBackColor = true;
+            this.m_btnFolderSelecterEx.Click += new System.EventHandler(this.m_btnFolderSelecterEx_Click);
             // 
-            // m_btnMiniMessageBox
+            // m_btnColorDialogAdv
             // 
-            this.m_btnMiniMessageBox.Location = new System.Drawing.Point(249, 101);
-            this.m_btnMiniMessageBox.Name = "m_btnMiniMessageBox";
-            this.m_btnMiniMessageBox.Size = new System.Drawing.Size(75, 89);
-            this.m_btnMiniMessageBox.TabIndex = 10;
-            this.m_btnMiniMessageBox.Text = "Mini Message Box";
-            this.m_btnMiniMessageBox.UseVisualStyleBackColor = true;
+            this.m_btnColorDialogAdv.Location = new System.Drawing.Point(168, 6);
+            this.m_btnColorDialogAdv.Name = "m_btnColorDialogAdv";
+            this.m_btnColorDialogAdv.Size = new System.Drawing.Size(75, 89);
+            this.m_btnColorDialogAdv.TabIndex = 4;
+            this.m_btnColorDialogAdv.Text = "Advanced Color Dialog";
+            this.m_btnColorDialogAdv.UseVisualStyleBackColor = true;
+            this.m_btnColorDialogAdv.Click += new System.EventHandler(this.m_btnColorDialogAdv_Click);
+            // 
+            // m_btnSysColorPickerDialog
+            // 
+            this.m_btnSysColorPickerDialog.Location = new System.Drawing.Point(87, 103);
+            this.m_btnSysColorPickerDialog.Name = "m_btnSysColorPickerDialog";
+            this.m_btnSysColorPickerDialog.Size = new System.Drawing.Size(75, 89);
+            this.m_btnSysColorPickerDialog.TabIndex = 3;
+            this.m_btnSysColorPickerDialog.Text = "System Color Picker Dialog";
+            this.m_btnSysColorPickerDialog.UseVisualStyleBackColor = true;
+            this.m_btnSysColorPickerDialog.Click += new System.EventHandler(this.m_btnSysColorPickerDialog_Click);
+            // 
+            // m_btnSysColorDialog
+            // 
+            this.m_btnSysColorDialog.Location = new System.Drawing.Point(87, 6);
+            this.m_btnSysColorDialog.Name = "m_btnSysColorDialog";
+            this.m_btnSysColorDialog.Size = new System.Drawing.Size(75, 89);
+            this.m_btnSysColorDialog.TabIndex = 2;
+            this.m_btnSysColorDialog.Text = "System Color Dialog";
+            this.m_btnSysColorDialog.UseVisualStyleBackColor = true;
+            this.m_btnSysColorDialog.Click += new System.EventHandler(this.m_btnSysColorDialog_Click);
+            // 
+            // m_btnToolTipEx
+            // 
+            this.m_btnToolTipEx.Location = new System.Drawing.Point(6, 101);
+            this.m_btnToolTipEx.Name = "m_btnToolTipEx";
+            this.m_btnToolTipEx.Size = new System.Drawing.Size(75, 91);
+            this.m_btnToolTipEx.TabIndex = 1;
+            this.m_btnToolTipEx.Text = "Extended Built-in ToolTip";
+            this.m_btnToolTipEx.UseVisualStyleBackColor = true;
+            this.m_btnToolTipEx.Click += new System.EventHandler(this.m_btnToolTipEx_Click);
+            // 
+            // m_btnToolTipManager
+            // 
+            this.m_btnToolTipManager.Location = new System.Drawing.Point(6, 6);
+            this.m_btnToolTipManager.Name = "m_btnToolTipManager";
+            this.m_btnToolTipManager.Size = new System.Drawing.Size(75, 89);
+            this.m_btnToolTipManager.TabIndex = 0;
+            this.m_btnToolTipManager.Text = "Custom Tool Tip Manager";
+            this.m_btnToolTipManager.UseVisualStyleBackColor = true;
+            this.m_btnToolTipManager.Click += new System.EventHandler(this.m_btnToolTipManager_Click);
             // 
             // FormMain
             // 
@@ -983,6 +991,7 @@ namespace UtilitiesDemo
             this.ClientSize = new System.Drawing.Size(653, 620);
             this.Controls.Add(this.m_tcMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Icon = global::UtilitiesDemo.Properties.Resources.Tools;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "FormMain";
             this.Text = "ChuckHill2 Utilities Demo";
@@ -1084,7 +1093,7 @@ namespace UtilitiesDemo
         private System.Windows.Forms.Label m_lblPopupStatus;
         private System.Windows.Forms.Button m_btnFolderSelecterEx;
         private System.Windows.Forms.Button m_btnColorDialogAdv;
-        private System.Windows.Forms.Button m_btnSysColorDialog2;
+        private System.Windows.Forms.Button m_btnSysColorPickerDialog;
         private System.Windows.Forms.Button m_btnSysColorDialog;
     }
 }

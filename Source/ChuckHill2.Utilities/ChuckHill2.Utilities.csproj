@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
   </ItemGroup>
@@ -58,6 +59,11 @@
       <DependentUpon>ColorPickerPanelHorz.cs</DependentUpon>
     </Compile>
     <Compile Include="ColorUIEditor.cs" />
+    <Compile Include="FolderSelectDialog.cs" />
+    <Compile Include="MessageBoxEx.cs" />
+    <Compile Include="SysColorPickerDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Extensions\Cast.cs" />
     <Compile Include="Extensions\CommonExtensions.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobeColorTablePaletteSerializer.cs" />
@@ -189,6 +195,12 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <Compile Include="SplitColorPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ToolTipEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ToolTipManager.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Win32.cs" />

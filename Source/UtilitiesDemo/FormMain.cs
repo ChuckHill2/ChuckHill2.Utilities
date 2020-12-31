@@ -41,6 +41,8 @@ namespace UtilitiesDemo
             base.OnLoad(e);
         }
 
+        #region NamedColor Controls Tab
+
         int clb_i = 0;
         private void m_btnColorListBox_Click(object sender, EventArgs e)
         {
@@ -101,6 +103,89 @@ namespace UtilitiesDemo
             m_lblColorSelectStatus.Text = $"NamedColorComboBox Selected Color is {e.Color.GetName()}.";
         }
 
+        #endregion //NamedColor Controls Tab Click Events
+
+        #region Popup Tab Click Events
+
+        private void m_btnToolTipManager_Click(object sender, EventArgs e)
+        {
+            using(var dlg = new ToolTipManagerTestForm())
+            {
+                dlg.ShowDialog(this);
+            }
+        }
+
+        private void m_btnToolTipEx_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new ToolTipExTestForm())
+            {
+                dlg.ShowDialog(this);
+            }
+        }
+
+        private Color LastColor = Color.Transparent;
+        private void m_btnSysColorDialog_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new ColorDialog())
+            {
+                dlg.Color = LastColor;
+                if (dlg.ShowDialog(this)==DialogResult.OK)
+                {
+                    LastColor = dlg.Color;
+                    m_lblPopupStatus.Text = "Color = " + LastColor.GetName();
+                }
+            }
+        }
+
+        private void m_btnSysColorPickerDialog_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new SysColorPickerDialog())
+            {
+                dlg.Color = LastColor;
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                {
+                    LastColor = dlg.Color;
+                    m_lblPopupStatus.Text = "Color = " + LastColor.GetName();
+                }
+            }
+        }
+
+        private void m_btnColorDialogAdv_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new Cyotek.Windows.Forms.ColorPickerDialog())
+            {
+                dlg.Color = LastColor;
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                {
+                    LastColor = dlg.Color;
+                    m_lblPopupStatus.Text = "Color = " + LastColor.GetName();
+                }
+            }
+        }
+
+        private string LastFolder = null;
+        private void m_btnFolderSelecterEx_Click(object sender, EventArgs e)
+        {
+            var newFolder = FolderSelectDialog.Show(this, null, LastFolder);
+            if (newFolder!=null)
+            {
+                LastFolder = newFolder;
+                m_lblPopupStatus.Text = "Folder = " + LastFolder;
+            }
+        }
+
+        private void m_btnMessageBoxEx_Click(object sender, EventArgs e)
+        {
+            var result = MessageBoxEx.Show(this, "This a test message.", "Test Title", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            m_lblPopupStatus.Text = "MessageBoxEx Reult = " + result;
+        }
+
+        private void m_btnMiniMessageBox_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        #endregion //Popup Tab Click Events
     }
 
     /// <summary>

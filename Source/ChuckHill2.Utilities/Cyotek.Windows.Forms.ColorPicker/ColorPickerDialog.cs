@@ -237,10 +237,7 @@ namespace Cyotek.Windows.Forms
       {
         if (_textureBrush == null)
         {
-          using (Bitmap background = new Bitmap(this.GetType().Assembly.GetManifestResourceStream(string.Concat(this.GetType().Namespace, ".Resources.cellbackground.png"))))
-          {
-            _textureBrush = new TextureBrush(background, WrapMode.Tile);
-          }
+          _textureBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.Gainsboro, Color.White);
         }
 
         e.Graphics.FillRectangle(_textureBrush, region);
