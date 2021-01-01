@@ -786,7 +786,7 @@ namespace ChuckHill2.Utilities
             Host = (Form)designerHost.RootComponent;
         }
 
-#region IExtenderProvider
+        #region IExtenderProvider
         //https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel?view=net-5.0
         //https://www.codeproject.com/Articles/4683/Getting-to-know-IExtenderProvider
 
@@ -916,8 +916,8 @@ namespace ChuckHill2.Utilities
             }
         }
 
-#region Prototype: Using single Get/SetTooltip with properties struct. Can't get setter to work...
-#if PROTOTYPE
+        #region Prototype: Using single Get/SetTooltip with properties struct. Can't get setter to work...
+        #if PROTOTYPE
         //https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel?view=net-5.0
         //https://www.codeproject.com/Articles/4683/Getting-to-know-IExtenderProvider
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -957,9 +957,9 @@ namespace ChuckHill2.Utilities
                 return s.Substring(0, maxLen - 1) + 0x2026; //ellipsis
             }
         }
-#endif
-#endregion Prototype: Using single Get/SetTooltip with properties struct
-#endregion IExtenderProvider
+        #endif
+        #endregion Prototype: Using single Get/SetTooltip with properties struct
+        #endregion IExtenderProvider
 
         // Properties and actions for a single tooltip
         private class TipProp: IDisposable

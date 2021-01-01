@@ -394,7 +394,7 @@ namespace UtilitiesDemo
             this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label24);
             this.m_flpGradientFlowLayoutPanel.Location = new System.Drawing.Point(3, 29);
             this.m_flpGradientFlowLayoutPanel.Name = "m_flpGradientFlowLayoutPanel";
-            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(603, 519);
+            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(603, 525);
             this.m_flpGradientFlowLayoutPanel.TabIndex = 6;
             // 
             // label5
@@ -638,7 +638,7 @@ namespace UtilitiesDemo
             this.m_tlpGradientTableLayoutPanel.RowCount = 2;
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(603, 519);
+            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(603, 525);
             this.m_tlpGradientTableLayoutPanel.TabIndex = 5;
             // 
             // label3
@@ -809,7 +809,7 @@ namespace UtilitiesDemo
             this.m_ctvColorTreeView.HideSelection = false;
             this.m_ctvColorTreeView.Location = new System.Drawing.Point(192, 36);
             this.m_ctvColorTreeView.Name = "m_ctvColorTreeView";
-            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 476);
+            this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 482);
             this.m_ctvColorTreeView.TabIndex = 1;
             this.m_ctvColorTreeView.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_ctvColorTreeView_SelectionChanged);
             // 
@@ -820,7 +820,7 @@ namespace UtilitiesDemo
             this.m_clbColorListBox.IntegralHeight = false;
             this.m_clbColorListBox.Location = new System.Drawing.Point(6, 36);
             this.m_clbColorListBox.Name = "m_clbColorListBox";
-            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 476);
+            this.m_clbColorListBox.Size = new System.Drawing.Size(180, 482);
             this.m_clbColorListBox.TabIndex = 0;
             this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
             // 
@@ -1014,6 +1014,7 @@ namespace UtilitiesDemo
             this.m_tpColorEditorHorz.ResumeLayout(false);
             this.m_tpColorEditorVert.ResumeLayout(false);
             this.m_tpPopups.ResumeLayout(false);
+            this.m_tpPopups.PerformLayout();
             this.ResumeLayout(false);
 
         }

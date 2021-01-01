@@ -177,12 +177,13 @@ namespace UtilitiesDemo
         private void m_btnMessageBoxEx_Click(object sender, EventArgs e)
         {
             var result = MessageBoxEx.Show(this, "This a test message.", "Test Title", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-            m_lblPopupStatus.Text = "MessageBoxEx Reult = " + result;
+            m_lblPopupStatus.Text = "MessageBoxEx Result = " + result;
         }
 
         private void m_btnMiniMessageBox_Click(object sender, EventArgs e)
         {
-
+            var result = MiniMessageBox.ShowDialog(this, "This a test message.", "Test Title", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            m_lblPopupStatus.Text = "MiniMessageBox Result = " + result;
         }
 
         #endregion //Popup Tab Click Events

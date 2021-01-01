@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace ChuckHill2.Utilities
 {
     /// <summary>
-    /// Displays a message box in front of the specified object and with the specified text, caption, buttons, icon, and default button.
+    /// Displays a message box in front of the specified object and with the specified text, caption, buttons, and icon.
     /// </summary>
     /// <remarks>
     /// The problem with the standard system MessageBox is that it is always centered over the desktop, has no icon in the title bar, and does not handle multi-threading.

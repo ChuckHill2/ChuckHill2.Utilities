@@ -36,6 +36,7 @@
   <PropertyGroup />
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Windows.Forms" />
@@ -61,6 +62,9 @@
     <Compile Include="ColorUIEditor.cs" />
     <Compile Include="FolderSelectDialog.cs" />
     <Compile Include="MessageBoxEx.cs" />
+    <Compile Include="MiniMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="SysColorPickerDialog.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -228,13 +232,24 @@
     <None Include="PostBuildEvent.bat" />
     <None Include="ProjectLogo.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\error24.png" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\cellbackground.png" />
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\eyedropper.cur" />
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\eyedropper.png" />
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\palette-load.png" />
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\Resources\palette-save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\info24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\question24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\warning24.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
