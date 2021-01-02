@@ -17,7 +17,7 @@ namespace ChuckHill2.Utilities
     /// Displays a small message box in front of the specified object and with the specified text, caption, buttons, and icon.
     /// </summary>
     /// <remarks>
-    /// Functionally equivalant to MessageBoxEx except it is much smaller and not so in your face.
+    /// Functionally equivalant to MessageBoxEx except it is much smaller and more discreet.
     /// Plus it may be used modalless (i.e. returns immediately).
     /// </remarks>
     public class MiniMessageBox : Form
@@ -40,35 +40,37 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Displays a tiny modal (i.e. waits) message box in front of the specified object and with the specified text, caption, buttons, and icon.
         /// </summary>
-        /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box.</param>
+        /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
         /// <param name="text">The text to display in the message box.</param>
         /// <param name="caption">The text to display in the title bar of the message box.</param>
         /// <param name="buttons">One of the System.Windows.Forms.MessageBoxButtons values that specifies which buttons to display in the message box.</param>
         /// <param name="icon">One of the System.Windows.Forms.MessageBoxIcon values that specifies which icon to display in the message box.</param>
         /// <returns>One of the System.Windows.Forms.DialogResult values.</returns>
+        /// <remarks>This functions just like it's big brothers: MessageBox and MessageBoxEx. This does not need to be a child of a form owner. This may also run within Program.Main or Console.Main</remarks>
         public static DialogResult ShowDialog(IWin32Window owner, string text, string caption = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
             using(var dlg = new MiniMessageBox(true, text, caption, buttons, icon))
             {
-                return dlg.ShowDialog(owner);
+                return dlg.ShowDialog(GetOwner(owner));
             }
         }
 
         /// <summary>
         /// Displays a tiny modalless (i.e. returns immediately) message box in front of the specified object and with the specified text, caption, buttons, and icon.
         /// </summary>
-        /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box.</param>
+        /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
         /// <param name="text">The text to display in the message box.</param>
         /// <param name="caption">The text to display in the title bar of the message box.</param>
         /// <param name="buttons">One of the System.Windows.Forms.MessageBoxButtons values that specifies which buttons to display in the message box OR ((MessageBoxButtons) -1) for no buttons. In which case, the calling code is responsible for closing the dialog via Hide().</param>
         /// <param name="icon">One of the System.Windows.Forms.MessageBoxIcon values that specifies which icon to display in the message box.</param>
         /// <remarks>
         /// This is thread static. Meaning it must be closed within the context of the same thread. See Hide().
+        /// This functions just like it's big brothers: MessageBox and MessageBoxEx. This does not need to be a child of a form owner. This may also run within Program.Main or Console.Main
         /// </remarks>
         public static void Show(IWin32Window owner, string text, string caption = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
             MMDialog = new MiniMessageBox(false, text, caption, buttons, icon);
-            MMDialog.Show(owner);
+            MMDialog.Show(GetOwner(owner));
         }
 
         /// <summary>
@@ -132,6 +134,7 @@ namespace ChuckHill2.Utilities
             this.Close();
         }
 
+        //private constructor
         private MiniMessageBox(bool isModal, string msg, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
         {
             this.SuspendLayout();
@@ -152,7 +155,7 @@ namespace ChuckHill2.Utilities
             }
 
             IsModal = isModal;
-            CaptionFont = new Font(this.Font, FontStyle.Bold);
+            CaptionFont = new Font(this.Font, FontStyle.Regular);
             MessageIcon = GetMessageIcon(icon, out MessageIconString);
             Message = string.IsNullOrWhiteSpace(msg) ? null : msg.Trim();
             Caption = string.IsNullOrWhiteSpace(caption) ? null : caption.Trim();
@@ -217,9 +220,11 @@ namespace ChuckHill2.Utilities
                 this.Controls.Add(btn);
             }
 
+            Rectangle ownerBounds = this.Owner == null ? Screen.FromControl(this).WorkingArea : this.Owner.DesktopBounds;
+            Rectangle ownerClientRetangle = this.Owner == null ? Screen.FromControl(this).WorkingArea : this.Owner.ClientRectangle;
             this.Location = new Point(
-                (this.Owner.DesktopBounds.Width - this.DesktopBounds.Width) / 2 + this.Owner.DesktopBounds.X,
-                (this.Owner.DesktopBounds.Height - this.DesktopBounds.Height) / 2 + this.Owner.DesktopBounds.Y - Owner.ClientRectangle.Height/6);
+                (ownerBounds.Width - this.DesktopBounds.Width) / 2 + ownerBounds.X,
+                (ownerBounds.Height - this.DesktopBounds.Height) / 2 + ownerBounds.Y - ownerClientRetangle.Height / 6);
 
             this.ResumeLayout(false);
             base.OnShown(e);
@@ -288,7 +293,7 @@ namespace ChuckHill2.Utilities
             base.OnKeyUp(e);
         }
 
-        #region Dialog Click n'Drag Support
+        #region Click n'Drag this Form
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HT_CAPTION = 0x2;
         [DllImport("user32.dll")] private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
@@ -302,7 +307,7 @@ namespace ChuckHill2.Utilities
             }
             base.OnMouseDown(e);
         }
-        #endregion // Dialog Click n'Drag Support
+        #endregion //  Click n'Drag this Form
 
         private static string[] GetButtonNames(MessageBoxButtons b)
         {
@@ -320,7 +325,8 @@ namespace ChuckHill2.Utilities
 
         private static Image GetMessageIcon(MessageBoxIcon icon, out string iconString)
         {
-            switch(icon)
+            // 'iconString' is for pasting into the clipboard.
+            switch (icon)
             {
                 case MessageBoxIcon.Error: iconString = "[Error]"; return global::ChuckHill2.Utilities.Properties.Resources.error24;
                 case MessageBoxIcon.Question: iconString = "[Question]"; return global::ChuckHill2.Utilities.Properties.Resources.question24;
@@ -332,11 +338,11 @@ namespace ChuckHill2.Utilities
 
         private static Icon GetAppIcon()
         {
+            //These icons must be disposed after use.
             Icon ico = null;
             FormCollection fc = System.Windows.Forms.Application.OpenForms;
-            if (fc != null && fc.Count > 0) ico = fc[0].Icon;   //private field fc[0].smallIcon  may be better because we don't have to resize
-            if (ico == null) ico = Icon.ExtractAssociatedIcon(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            if (ico != null) ico = new Icon(ico, SystemInformation.SmallIconSize.Width, SystemInformation.SmallIconSize.Height);
+            if (fc != null && fc.Count > 0) ico = fc[0].Icon == null ? null : new Icon(fc[0].Icon, SystemInformation.SmallIconSize.Width, SystemInformation.SmallIconSize.Height);
+            if (ico == null) ico = GDI.ExtractAssociatedIcon(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, 16);
             return ico;
         }
 
@@ -389,6 +395,18 @@ namespace ChuckHill2.Utilities
             }
 
             return new Size(width + 1, ceil(sizef.Height));
+        }
+
+        private static IWin32Window GetOwner(IWin32Window owner)
+        {
+            //Bullit-proof that we have an owner. Default null == desktop.
+            if (owner == null) owner = System.Windows.Forms.Form.ActiveForm;
+            if (owner == null)
+            {
+                FormCollection fc = System.Windows.Forms.Application.OpenForms;
+                if (fc != null && fc.Count > 0) owner = fc[0];
+            }
+            return owner;
         }
     }
 }

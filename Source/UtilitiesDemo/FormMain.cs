@@ -13,9 +13,12 @@ namespace UtilitiesDemo
 {
     public partial class FormMain : Form
     {
+        private static Form ThisForm; //for MiniMessageBox Test, below.
+
         public FormMain()
         {
             InitializeComponent();
+            ThisForm = this;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -180,11 +183,54 @@ namespace UtilitiesDemo
             m_lblPopupStatus.Text = "MessageBoxEx Result = " + result;
         }
 
+        #region MiniMessageBox Test all permutations (also see Program.Main())
+        private class LayoutTest
+        {
+            public bool IsModal;
+            public Form Owner;
+            public string Caption;
+            public string Message;
+            public MessageBoxIcon Icon;
+            public MessageBoxButtons Buttons;
+            public LayoutTest(bool ism, Form f, string c, string m, MessageBoxIcon i, MessageBoxButtons b) { IsModal = ism; Owner = f;  Caption = c; Message = m; Icon = i; Buttons = b; }
+        }
+        
+        private LayoutTest[] _tests = new[]
+        {
+            new LayoutTest(true, ThisForm, "This is a long caption","(message)", MessageBoxIcon.Error, MessageBoxButtons.OK),
+            new LayoutTest(true, null, "(caption)","The return value is a handle to the capture window associated with the current thread. If no window in the thread has captured the mouse, the return value is NULL", MessageBoxIcon.Warning, MessageBoxButtons.OKCancel),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.Warning, MessageBoxButtons.RetryCancel),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.Question, MessageBoxButtons.YesNo),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.Information, MessageBoxButtons.YesNoCancel),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.None, MessageBoxButtons.AbortRetryIgnore),
+            new LayoutTest(false, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.None, (MessageBoxButtons)(-1)),
+            new LayoutTest(false, ThisForm, null,null, 0, 0),
+            new LayoutTest(true, ThisForm, null,"This is the message body.", MessageBoxIcon.Error, MessageBoxButtons.OK),
+            new LayoutTest(true, ThisForm, "This is the caption",null, MessageBoxIcon.Error, MessageBoxButtons.OK),
+        };
+
+        private int _index = 0;
         private void m_btnMiniMessageBox_Click(object sender, EventArgs e)
         {
-            var result = MiniMessageBox.ShowDialog(this, "This a test message.", "Test Title", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            DialogResult result = DialogResult.None;
+            var lt = _tests[(_index++) % _tests.Length];
+
+            if (lt.IsModal == false && lt.Caption == null && lt.Message == null && lt.Icon == 0 && lt.Buttons == 0)
+            {
+                result = MiniMessageBox.Hide();
+            }
+            else if (lt.IsModal==false)
+            {
+                MiniMessageBox.Show(lt.Owner, lt.Message, lt.Caption, lt.Buttons, lt.Icon);
+            }
+            else
+            {
+                result = MiniMessageBox.ShowDialog(lt.Owner, lt.Message, lt.Caption, lt.Buttons, lt.Icon);
+            }
+
             m_lblPopupStatus.Text = "MiniMessageBox Result = " + result;
         }
+        #endregion
 
         #endregion //Popup Tab Click Events
     }

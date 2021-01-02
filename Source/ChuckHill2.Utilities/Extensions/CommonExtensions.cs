@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
@@ -2012,5 +2014,35 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="time_t">Seconds from 1/1/1970</param>
         /// <returns>Datetime equivalant.</returns>
         public static DateTime FromUnixTime(this int time_t) => UnixEpoch.AddSeconds(time_t);
+    }
+
+    public static class GDI
+    {
+        //https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw
+        //https://devblogs.microsoft.com/oldnewthing/20140501-00/?p=1103
+        [DllImport("Shell32.dll")]
+        private static extern int SHDefExtractIconW([MarshalAs(UnmanagedType.LPWStr)] string pszIconFile, int iIndex, int uFlags, out IntPtr phiconLarge, /*out*/ IntPtr phiconSmall, int nIconSize);
+
+        /// <summary>Returns an icon of the specified size that is contained in the specified file.</summary>
+        /// <param name="filePath">The path to the file that contains the icon.</param>
+        /// <param name="size">Size of icon to retrieve.</param>
+        /// <returns>The Icon representation of the image that is contained in the specified file. Must be disposed after use.</returns>
+        /// <exception cref="System.ArgumentException">The parameter filePath does not indicate a valid file.-or- indicates a Universal Naming Convention (UNC) path.</exception>
+        /// <remarks>
+        /// Icons files contain multiple sizes and bit-depths of an image ranging from 16x16 to 256x256 in multiples of 8. Example: 16x16, 24x24, 32x32, 48x48, 64x64, 96x96, 128*128, 256*256.
+        /// Icon.ExtractAssociatedIcon(filePath), retrieves only the 32x32 icon, period. This will use the icon image that most closely matches the specified size and then resizes it to fit the specified size.
+        /// </remarks>
+        public static Icon ExtractAssociatedIcon(string filePath, int size)
+        {
+            const int SUCCESS = 0;
+            IntPtr hIcon;
+
+            if (SHDefExtractIconW(filePath, 0, 0, out hIcon, IntPtr.Zero, size) == SUCCESS)
+            {
+                return Icon.FromHandle(hIcon);
+            }
+
+            return null;
+        }
     }
 }
