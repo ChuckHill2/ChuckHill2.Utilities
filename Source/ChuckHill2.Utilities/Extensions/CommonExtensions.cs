@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities.Extensions
 {
@@ -39,7 +41,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="i">positive or negative numeric value to convert. Any digits after the decimal are rounded off.</param>
         /// <param name="precision">Number of digits after the decimal place. Default==0</param>
         /// <returns>formatted string</returns>
-        public static string ToCapacityString<T>(this T i, int precision = 0) where T: struct, IComparable, IFormattable, IConvertible
+        public static string ToCapacityString<T>(this T i, int precision = 0) where T : struct, IComparable, IFormattable, IConvertible
         {
             var d = Math.Round(Convert.ToDecimal(i)); //may be negative
             var v = Math.Abs(d);
@@ -253,7 +255,7 @@ namespace ChuckHill2.Utilities.Extensions
                 }
             }
 
-            return s.Substring(startIdx, endIdx-startIdx + 1);
+            return s.Substring(startIdx, endIdx - startIdx + 1);
         }
 
         /// <summary>
@@ -458,7 +460,7 @@ namespace ChuckHill2.Utilities.Extensions
                 encoding = new UTF32Encoding(true, true);
                 skipBOM = 4;
             }
-            else if (byteBuffer.All(b=>b < 0x80))
+            else if (byteBuffer.All(b => b < 0x80))
             {
                 encoding = Encoding.ASCII;
                 skipBOM = 0;
@@ -556,7 +558,7 @@ namespace ChuckHill2.Utilities.Extensions
             int eqCount = 0;
             int eqIndex = 0;
 
-            for(int i=0; i<s.Length; i++)
+            for (int i = 0; i < s.Length; i++)
             {
                 var c = s[i];
                 if (c <= ' ') continue;
@@ -572,8 +574,8 @@ namespace ChuckHill2.Utilities.Extensions
 
             if (eqIndex > 0)
             {
-                if (eqIndex != s.Length - 1 && s[eqIndex+1] != ' ') return false;
-                if (eqCount > 1 && s[eqIndex-1] != '=') return false;
+                if (eqIndex != s.Length - 1 && s[eqIndex + 1] != ' ') return false;
+                if (eqCount > 1 && s[eqIndex - 1] != '=') return false;
             }
 
             if (((inputLength * 3) % 4) != 0) return false;
@@ -590,7 +592,7 @@ namespace ChuckHill2.Utilities.Extensions
         {
             if (s == null || s.Length < 2) return false; //length must be an even multiple of 2 but not zero.
             int inputLength = 0;
-            foreach(var c in s)
+            foreach (var c in s)
             {
                 if (c <= ' ') continue;
                 if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) return false;
@@ -646,7 +648,7 @@ namespace ChuckHill2.Utilities.Extensions
                 string line;
                 int fieldCount = -1;
 
-                while((line = sr.ReadLine()) != null)
+                while ((line = sr.ReadLine()) != null)
                 {
                     if (line.IsNullOrEmpty()) continue; //skip empty lines
                     int fc = line.Split(',').Length;
@@ -753,7 +755,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="bytes">Byte array to convert</param>
         /// <param name="maxLine">Insert newline after this many characters. Default is no line breaks.</param>
         /// <returns>converted string</returns>
-        public static string ToHex(this byte[] bytes, int maxLine=0)
+        public static string ToHex(this byte[] bytes, int maxLine = 0)
         {
             if (bytes == null || bytes.Length == 0) return string.Empty;
             maxLine = maxLine / 2;
@@ -765,7 +767,7 @@ namespace ChuckHill2.Utilities.Extensions
             {
                 result.Append(hexAlphabet[(int)(b >> 4)]);
                 result.Append(hexAlphabet[(int)(b & 0xF)]);
-                if (maxLine > 0 && ((++lineCount) % maxLine)==0) result.AppendLine();
+                if (maxLine > 0 && ((++lineCount) % maxLine) == 0) result.AppendLine();
             }
 
             return result.ToString();
@@ -790,7 +792,7 @@ namespace ChuckHill2.Utilities.Extensions
 
             byte b = 0;
             int index = 0;
-            foreach(char c in hex)
+            foreach (char c in hex)
             {
                 if (c <= ' ') continue;
                 if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) throw new InvalidDataException($"'{c}' is not a valid hexidecimal character.");
@@ -894,7 +896,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="valueConverter">Delegate used to deserialize value string into the TValue type</param>
         /// <param name="comparer">Key equality comparer</param>
         /// <returns>Dictionary containing the parsed results.</returns>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this string s, char elementDelimiter, char kvDelimiter, Func<string, TKey> keyConverter, Func<string, TValue> valueConverter, IEqualityComparer<TKey> comparer=null)
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this string s, char elementDelimiter, char kvDelimiter, Func<string, TKey> keyConverter, Func<string, TValue> valueConverter, IEqualityComparer<TKey> comparer = null)
         {
             if (s == null || s.Length < 1) return new Dictionary<TKey, TValue>(0, comparer);
             string[] array = s.Split(new Char[] { elementDelimiter }, StringSplitOptions.RemoveEmptyEntries);
@@ -908,7 +910,7 @@ namespace ChuckHill2.Utilities.Extensions
                 string szValue;
 
                 int i = item.IndexOf(kvDelimiter);
-                if (i==-1)
+                if (i == -1)
                 {
                     szKey = item.Trim();
                     szValue = null;
@@ -919,7 +921,7 @@ namespace ChuckHill2.Utilities.Extensions
                     szValue = item.Substring(i + 1).Trim();
                 }
 
-                d[keyConverter(szKey)] = szValue==null ? defalt : valueConverter(szValue);
+                d[keyConverter(szKey)] = szValue == null ? defalt : valueConverter(szValue);
             }
             return d;
         }
@@ -985,9 +987,9 @@ namespace ChuckHill2.Utilities.Extensions
         {
             var sb = new StringBuilder();
             int spCount = 0;
-            foreach(var c in s)
+            foreach (var c in s)
             {
-                if (c== elementDelimiter)
+                if (c == elementDelimiter)
                 {
                     sb.Length -= spCount;
                     yield return valueConverter(sb.ToString());
@@ -1234,13 +1236,13 @@ namespace ChuckHill2.Utilities.Extensions
         ///    \endcode
         ///    If 'relatedType' is undefined, this method will search the currently loaded assemblies for a match.
         /// </remarks>
-        public static Type GetReflectedType(string typename, Type relatedType=null)
+        public static Type GetReflectedType(string typename, Type relatedType = null)
         {
             if (typename.IsNullOrEmpty()) return null;
 
             Type t = Type.GetType(typename, false, false);
 
-            if (t==null && relatedType !=null)
+            if (t == null && relatedType != null)
             {
                 t = Type.GetType($"{typename}, {relatedType.Assembly.FullName}", false, false);
             }
@@ -2018,11 +2020,7 @@ namespace ChuckHill2.Utilities.Extensions
 
     public static class GDI
     {
-        //https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw
-        //https://devblogs.microsoft.com/oldnewthing/20140501-00/?p=1103
-        [DllImport("Shell32.dll")]
-        private static extern int SHDefExtractIconW([MarshalAs(UnmanagedType.LPWStr)] string pszIconFile, int iIndex, int uFlags, out IntPtr phiconLarge, /*out*/ IntPtr phiconSmall, int nIconSize);
-
+        [DllImport("Shell32.dll")] private static extern int SHDefExtractIconW([MarshalAs(UnmanagedType.LPWStr)] string pszIconFile, int iIndex, int uFlags, out IntPtr phiconLarge, /*out*/ IntPtr phiconSmall, int nIconSize);
         /// <summary>Returns an icon of the specified size that is contained in the specified file.</summary>
         /// <param name="filePath">The path to the file that contains the icon.</param>
         /// <param name="size">Size of icon to retrieve.</param>
@@ -2032,6 +2030,8 @@ namespace ChuckHill2.Utilities.Extensions
         /// Icons files contain multiple sizes and bit-depths of an image ranging from 16x16 to 256x256 in multiples of 8. Example: 16x16, 24x24, 32x32, 48x48, 64x64, 96x96, 128*128, 256*256.
         /// Icon.ExtractAssociatedIcon(filePath), retrieves only the 32x32 icon, period. This will use the icon image that most closely matches the specified size and then resizes it to fit the specified size.
         /// </remarks>
+        /// <see cref="https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw"/>
+        /// <see cref="https://devblogs.microsoft.com/oldnewthing/20140501-00/?p=1103"/>
         public static Icon ExtractAssociatedIcon(string filePath, int size)
         {
             const int SUCCESS = 0;
@@ -2043,6 +2043,45 @@ namespace ChuckHill2.Utilities.Extensions
             }
 
             return null;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MARGINS
+        {
+            public int leftWidth;
+            public int rightWidth;
+            public int topHeight;
+            public int bottomHeight;
+        }
+        [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
+        [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        /// <summary>
+        /// Enable dropshadow to a borderless form. Unlike forms with borders, forms with FormBorderStyle.None have no dropshadow. 
+        /// </summary>
+        /// <param name="form">Borderless form to add dropshadow to. Must be called AFTER form handle has been created. see Form.Created or Form.Shown events.</param>
+        /// <exception cref="InvalidOperationException">Must be called AFTER the form handle has been created.</exception>
+        /// <see cref="https://stackoverflow.com/questions/60913399/border-less-winform-form-shadow/60916421#60916421"/>
+        /// <remarks>
+        /// This method does nothing if the form does not have FormBorderStyle.None.
+        /// </remarks>
+        public static void ApplyShadows(Form form)
+        {
+            if (form.FormBorderStyle != FormBorderStyle.None) return;
+            if (Environment.OSVersion.Version.Major < 6) return;
+            if (!form.IsHandleCreated) throw new InvalidOperationException("Must be called AFTER the form handle has been created.");
+
+            var v = 2;
+            DwmSetWindowAttribute(form.Handle, 2, ref v, 4);
+
+            MARGINS margins = new MARGINS()
+            {
+                bottomHeight = 1,
+                leftWidth = 0,
+                rightWidth = 1,
+                topHeight = 0
+            };
+
+            DwmExtendFrameIntoClientArea(form.Handle, ref margins);
         }
     }
 }

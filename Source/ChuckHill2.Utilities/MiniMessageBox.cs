@@ -162,6 +162,12 @@ namespace ChuckHill2.Utilities
             ButtonNames = GetButtonNames(buttons);
         }
 
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            GDI.ApplyShadows(this);
+            base.OnHandleCreated(e);
+        }
+
         protected override void OnShown(EventArgs e)
         {
             this.SuspendLayout();

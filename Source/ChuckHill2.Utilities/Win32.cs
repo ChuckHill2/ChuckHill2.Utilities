@@ -1965,11 +1965,67 @@ namespace ChuckHill2.Utilities
         #endregion
         #endregion
 
+        #region WM_PRINT, WM_PRINTCLIENT PRF enum flags
+        [Flags] public enum PRF
+        {
+            CHECKVISIBLE = 0x0001, //Draws the window only if it is visible.
+            NONCLIENT    = 0x0002, //Draws the nonclient area of the window.
+            CLIENT       = 0x0004, //Draws the client area of the window.
+            ERASEBKGND   = 0x0008, //Erases the background before drawing the window.
+            CHILDREN     = 0x0010, //Draws all visible children windows.
+            OWNED        = 0x0020  //Draws all owned windows.
+        }
+        #endregion
+
+        [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, StringBuilder lParam);
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
+
+        /// <summary>
+        ///    Performs a bit-block transfer of the color data corresponding to a
+        ///    rectangle of pixels from the specified source device context into
+        ///    a destination device context.
+        /// </summary>
+        /// <param name="hdc">Handle to the destination device context.</param>
+        /// <param name="nXDest">The leftmost x-coordinate of the destination rectangle (in pixels).</param>
+        /// <param name="nYDest">The topmost y-coordinate of the destination rectangle (in pixels).</param>
+        /// <param name="nWidth">The width of the source and destination rectangles (in pixels).</param>
+        /// <param name="nHeight">The height of the source and the destination rectangles (in pixels).</param>
+        /// <param name="hdcSrc">Handle to the source device context.</param>
+        /// <param name="nXSrc">The leftmost x-coordinate of the source rectangle (in pixels).</param>
+        /// <param name="nYSrc">The topmost y-coordinate of the source rectangle (in pixels).</param>
+        /// <param name="dwRop">A raster-operation code.</param>
+        /// <returns>
+        ///    <c>true</c> if the operation succeedes, <c>false</c> otherwise. To get extended error information, call <see cref="System.Runtime.InteropServices.Marshal.GetLastWin32Error"/>.
+        /// </returns>
+        [DllImport("gdi32.dll", EntryPoint = "BitBlt", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool BitBlt([In] IntPtr hdc, int nXDest, int nYDest, int nWidth, int nHeight, [In] IntPtr hdcSrc, int nXSrc, int nYSrc, TernaryRasterOperations dwRop);
+
+        #region enum TernaryRasterOperations
+        public enum TernaryRasterOperations : uint
+        {
+            SRCCOPY = 0x00CC0020,
+            SRCPAINT = 0x00EE0086,
+            SRCAND = 0x008800C6,
+            SRCINVERT = 0x00660046,
+            SRCERASE = 0x00440328,
+            NOTSRCCOPY = 0x00330008,
+            NOTSRCERASE = 0x001100A6,
+            MERGECOPY = 0x00C000CA,
+            MERGEPAINT = 0x00BB0226,
+            PATCOPY = 0x00F00021,
+            PATPAINT = 0x00FB0A09,
+            PATINVERT = 0x005A0049,
+            DSTINVERT = 0x00550009,
+            BLACKNESS = 0x00000042,
+            WHITENESS = 0x00FF0062,
+            CAPTUREBLT = 0x40000000 //only if WinVer >= 5.0.0 (see wingdi.h)
+        }
+        #endregion
 
         #region public static bool SetDpiAware()
         enum DPI_AWARENESS_CONTEXT

@@ -60,6 +60,7 @@
       <DependentUpon>ColorPickerPanelHorz.cs</DependentUpon>
     </Compile>
     <Compile Include="ColorUIEditor.cs" />
+    <Compile Include="Extensions\DrawRtfText.cs" />
     <Compile Include="FolderSelectDialog.cs" />
     <Compile Include="MessageBoxEx.cs" />
     <Compile Include="MiniMessageBox.cs">
