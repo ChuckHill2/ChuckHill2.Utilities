@@ -42,6 +42,7 @@ namespace ChuckHill2.Utilities.Extensions
 
         private const double inch = 14.4;
 
+        //https://www.codeproject.com/Articles/13197/Alpha-Blended-Transparent-Capable-TextBox-and-Rich
         //https://social.msdn.microsoft.com/Forums/en-US/1454d078-c312-4741-88df-aa7eb306fe51/how-to-save-the-content-of-richtextbox-as-jpg-file?forum=winforms
         private static Bitmap DrawRtfTextToImage(RichTextBox rtb, Rectangle rectangle)
         {
@@ -83,20 +84,29 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="layoutArea">The bounding rectangle the RTF will be drawn into. It will autowrap as necessary.</param>
         /// <exception cref="System.ArgumentException">This does not support transparent background colors.</exception>
         /// <remarks>
-        /// Control.DrawToBitmap() does not work with the RichTextBox() control so we support it here.
+        /// Control.DrawToBitmap() does not work with the RichTextBox() control so we support it here.<br />
+        /// This method removes all the background color from the image, however edge effects occur around the characters where antialiasing 
+        /// makes the edges not strictly the background color. This background removal is useful when the layout area partially overlaps other 
+        /// features in the image selected into the Graphics object. Also, images embedded in the RTF always have a transparent color of White.<br />
+        /// The default background color is White, so this works best.
         /// </remarks>
         public static void DrawRtf(this Graphics graphics, string rtf, Color backColor, Rectangle layoutArea)
         {
+            // There are better ways to do this but the code grows exponentially!!
             var c = new RichTextBox();
             c.BorderStyle = BorderStyle.None;
             c.ScrollBars = RichTextBoxScrollBars.None;
             c.Size = new Size((int)layoutArea.Width, (int)layoutArea.Height);
             c.Rtf = rtf;
 
-            //Re Transparency: We cannot fake it out by using CreateParams:WS_EX_TRANSPARENT because the resulting drawn text looks really terrible...on a transparent background...
+            //Re: Transparency: We cannot simply fake it out by using CreateParams:WS_EX_TRANSPARENT because the resulting drawn text looks really terrible.
             if (!backColor.IsEmpty) c.BackColor = backColor;
 
             var bmp = DrawRtfTextToImage(c, layoutArea);
+
+            bmp.MakeTransparent(c.BackColor);
+            //bmp.MakeTransparent(Color.White);  //for transparent embedded images
+
             //Now, place the generated image at the correct offset in the parent graphics image.
             graphics.DrawImage(bmp, layoutArea); 
             bmp.Dispose();
