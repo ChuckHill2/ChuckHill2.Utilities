@@ -274,7 +274,7 @@ namespace ChuckHill2.Utilities.UnitTests
             Assert.IsFalse(asm.AttributeExists<System.Runtime.InteropServices.TypeLibVersionAttribute>(), "AttributeExists<> Missing");
             Assert.IsTrue(asm.AttributeExists<AssemblyProductAttribute>(), "AttributeExists<> Exists");
 
-            var timestamp = asm.PEtimestamp();
+            var timestamp = asm.PeTimeStamp();
             Assert.IsTrue(timestamp > new DateTime(2000, 1, 1) && timestamp <= DateTime.Now, "PEtimestamp()");
         }
 

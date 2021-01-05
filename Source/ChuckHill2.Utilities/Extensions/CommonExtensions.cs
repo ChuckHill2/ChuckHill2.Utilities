@@ -1867,7 +1867,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// timestamp as previously, add the csproj property 
         /// "<Deterministic>False</Deterministic>".
         /// </remarks>
-        private static DateTime PEtimestamp(string filePath)
+        private static DateTime PeTimeStamp(string filePath)
         {
             uint TimeDateStamp = 0;
             using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -1909,7 +1909,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// timestamp as previously, add the csproj property 
         /// "<Deterministic>False</Deterministic>".
         /// </remarks>
-        public static DateTime PEtimestamp(this Assembly asm)
+        public static DateTime PeTimeStamp(this Assembly asm)
         {
             if (asm.IsDynamic)
             {
@@ -1918,7 +1918,7 @@ namespace ChuckHill2.Utilities.Extensions
                 return DateTime.Now;
             }
 
-            return PEtimestamp(asm.Location);
+            return PeTimeStamp(asm.Location);
         }
 
         /// <summary>
