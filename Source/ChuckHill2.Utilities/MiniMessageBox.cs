@@ -1,16 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Utilities.Extensions;  //needed for GDI.ExtractAssociatedIcon() and GDI.ApplyShadows()
 
 namespace ChuckHill2.Utilities
 {
@@ -36,6 +31,7 @@ namespace ChuckHill2.Utilities
         private bool IsModal;
         private Rectangle rcCaptionIcon; //painted positions on form
         private Rectangle rcCaption;
+        private Rectangle rcDivider;
         private Rectangle rcMessageIcon;
         private Rectangle rcMessage;
 
@@ -157,7 +153,7 @@ namespace ChuckHill2.Utilities
             }
 
             IsModal = isModal;
-            CaptionFont = new Font(this.Font, FontStyle.Regular);
+            CaptionFont = new Font(this.Font, FontStyle.Bold);
             MessageIcon = GetMessageIcon(icon, out MessageIconString);
             Message = string.IsNullOrWhiteSpace(msg) ? null : msg.Trim();
             Caption = string.IsNullOrWhiteSpace(caption) ? null : caption.Trim();
@@ -172,7 +168,10 @@ namespace ChuckHill2.Utilities
 
         protected override void OnShown(EventArgs e)
         {
+            //Compute size and position of all the elements on the popup
+
             this.SuspendLayout();
+            const int Border = 2;
             const int Spacing = 3;
             Size szButton = Size.Empty;
             Size szButtonGroup = Size.Empty;
@@ -182,6 +181,7 @@ namespace ChuckHill2.Utilities
                 szButtonGroup = new Size(ButtonNames.Length * (szButton.Width + Spacing) - Spacing, szButton.Height);
             }
 
+            //Compute size of the elements in pixels
             Size szCaptionIcon = Size.Empty;
             Size szCaption = Size.Empty;
             if (Caption != null)
@@ -196,24 +196,32 @@ namespace ChuckHill2.Utilities
             if (Message != null)
             {
                 szMessage = ComputeTextDimensions(null, Message, this.Font);
-                int max = Math.Max(Math.Max(szButtonGroup.Width, szCaptionIcon.Width + Spacing + szCaption.Width), szMessageIcon.Width + Spacing + szMessage.Width);
-                szMessage = ComputeTextDimensions(null, Message, this.Font, max - szMessageIcon.Width - Spacing);
+                int max = Math.Max(Math.Max(szButtonGroup.Width, szCaptionIcon.Width + 1 + szCaption.Width), szMessageIcon.Width + Spacing + szMessage.Width);
+                szMessage = ComputeTextDimensions(null, Message, this.Font, max - szMessageIcon.Width - 1);
                 if (szMessageIcon.Height > szMessage.Height) szMessage.Height = szMessageIcon.Height;
             }
 
-            Width = Math.Max(Math.Max(szButtonGroup.Width, szCaptionIcon.Width + Spacing + szCaption.Width), szMessageIcon.Width + Spacing + szMessage.Width);
-            Height = szMessage.Height;
-            if (Caption != null) Height += szCaption.Height + Spacing;
-            if (ButtonNames.Length > 0) Height += szButtonGroup.Height + Spacing;
+            //Compute position of elements
+            if (Caption != null)
+            {
+                rcCaptionIcon = new Rectangle(Border + 1, Border + 1, szCaptionIcon.Width, szCaptionIcon.Height);
+                rcCaption = new Rectangle(rcCaptionIcon.Right + 1, rcCaptionIcon.Top, szCaption.Width, szCaption.Height);
+                rcDivider = Rectangle.FromLTRB(0, rcCaption.Bottom + 1, rcCaption.Right + 1000, rcCaption.Bottom + 1 + 1);
+            }
 
-            Width += (Spacing + 1) * 2;  //Add border spacing
-            Height += (Spacing + 1) * 2;
+            rcMessageIcon = new Rectangle(Border+Spacing, rcDivider.Bottom + Spacing, szMessageIcon.Width, szMessageIcon.Height);
+            rcMessage = new Rectangle((MessageIcon == null ? Border + Spacing : rcMessageIcon.Right + Spacing), rcMessageIcon.Top, szMessage.Width, szMessage.Height);
 
-            rcCaptionIcon = new Rectangle(Spacing + 1, 1, szCaptionIcon.Width, szCaptionIcon.Height);
-            rcCaption = new Rectangle(rcCaptionIcon.Right + Spacing, rcCaptionIcon.Top, szCaption.Width, szCaption.Height);
-            rcMessageIcon = new Rectangle(rcCaptionIcon.Left, rcCaption.Bottom + Spacing + 1, szMessageIcon.Width, szMessageIcon.Height);
-            rcMessage = new Rectangle((MessageIcon == null ? rcCaptionIcon.Left : rcMessageIcon.Right + Spacing), rcMessageIcon.Top, szMessage.Width, szMessage.Height);
+            //Compute size of popup
+            var rc1 = Rectangle.Union(rcCaptionIcon, rcCaption);
+            var rc2 = Rectangle.Union(rcMessageIcon, rcMessage);
+            var rc3 = Rectangle.Union(rc1, rc2);
+            var rc4 = Rectangle.Union(rc3, new Rectangle(Border + Spacing, rcMessage.Bottom + Spacing, szButtonGroup.Width, szButtonGroup.Height));
 
+            Width = rc4.Right + Border + Spacing;  //Add border spacing
+            Height = rc4.Bottom + Border + Spacing;
+
+            //Add buttons
             int xOffset = (Width - szButtonGroup.Width) / 2;
             foreach (var buttonName in ButtonNames)
             {
@@ -228,6 +236,7 @@ namespace ChuckHill2.Utilities
                 this.Controls.Add(btn);
             }
 
+            //Center popup over parent
             Rectangle ownerBounds = this.Owner == null ? Screen.FromControl(this).WorkingArea : this.Owner.DesktopBounds;
             Rectangle ownerClientRetangle = this.Owner == null ? Screen.FromControl(this).WorkingArea : this.Owner.ClientRectangle;
             this.Location = new Point(
@@ -252,10 +261,11 @@ namespace ChuckHill2.Utilities
             const TextFormatFlags flags = TextFormatFlags.HidePrefix | TextFormatFlags.TextBoxControl | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak;
 
             base.OnPaint(e);
+
             if (Caption != null)
             {
-                var rc = new RectangleF(0, 0, this.Size.Width, rcCaption.Bottom);
-                using (var br = new LinearGradientBrush(rc, SystemColors.ActiveCaption, SystemColors.GradientActiveCaption, LinearGradientMode.Horizontal))
+                var rc = new RectangleF(0, 0, this.Size.Width, rcDivider.Bottom);
+                using (var br = new LinearGradientBrush(rc, Color.FromArgb(15, 42, 111), Color.FromArgb(165, 201, 239), LinearGradientMode.Horizontal))
                     e.Graphics.FillRectangle(br, rc);
                 if (CaptionIcon != null)
                 {
@@ -263,10 +273,10 @@ namespace ChuckHill2.Utilities
                     //e.Graphics.DrawRectangle(Pens.Red, rcCaptionIcon.X, rcCaptionIcon.Y, rcCaptionIcon.Width - 1, rcCaptionIcon.Height - 1);
                 }
 
-                TextRenderer.DrawText(e.Graphics, Caption, CaptionFont, rcCaption, SystemColors.ActiveCaptionText, Color.Transparent, flags);
+                TextRenderer.DrawText(e.Graphics, Caption, CaptionFont, rcCaption, SystemColors.HighlightText, Color.Transparent, flags);
                 //e.Graphics.DrawRectangle(Pens.Red, rcCaption.X, rcCaption.Y, rcCaption.Width - 1, rcCaption.Height - 1);
 
-                e.Graphics.DrawLine(SystemPens.ActiveBorder, 0, rc.Bottom, rc.Right, rc.Bottom);
+                e.Graphics.DrawLine(SystemPens.ActiveBorder, rcDivider.Left, rcDivider.Top, rcDivider.Right, rcDivider.Top);
             }
 
             if (MessageIcon !=null)
@@ -281,7 +291,25 @@ namespace ChuckHill2.Utilities
                 //e.Graphics.DrawRectangle(Pens.Red, rcMessage.X, rcMessage.Y, rcMessage.Width - 1, rcMessage.Height - 1);
             }
 
-            e.Graphics.DrawRectangle(SystemPens.ActiveBorder, 0, 0, this.Width - 1, this.Height - 1);
+            //Simple Border (not used)
+            //e.Graphics.DrawRectangle(SystemPens.ActiveBorder, 0, 0, this.Width - 1, this.Height - 1);
+
+            //Draw 2-pixel 3-D border. 
+            //Would use ControlPaint.DrawBorder3D(e.Graphics,  this.ClientRectangle, Border3DStyle.Raised), however for some reason,
+            //the bottom & right lines come out as cyan!! So we just draw the border by hand. Perhaps because it's drawing on the edge
+            //of the form and Pens draw to the right/bottom of the pixel?
+
+            e.Graphics.DrawLine(SystemPens.ControlLight, this.ClientRectangle.Left, this.ClientRectangle.Top, this.ClientRectangle.Right - 1, this.ClientRectangle.Top);
+            e.Graphics.DrawLine(SystemPens.ControlLightLight, this.ClientRectangle.Left + 1, this.ClientRectangle.Top+1, this.ClientRectangle.Right - 2, this.ClientRectangle.Top+1);
+
+            e.Graphics.DrawLine(SystemPens.ControlLight, this.ClientRectangle.Left, this.ClientRectangle.Top, this.ClientRectangle.Left, this.ClientRectangle.Bottom - 1);
+            e.Graphics.DrawLine(SystemPens.ControlLightLight, this.ClientRectangle.Left+1, this.ClientRectangle.Top+1, this.ClientRectangle.Left+1, this.ClientRectangle.Bottom - 2);
+
+            e.Graphics.DrawLine(SystemPens.ControlDarkDark, this.ClientRectangle.Right - 1, this.ClientRectangle.Top, this.ClientRectangle.Right - 1, this.ClientRectangle.Bottom);
+            e.Graphics.DrawLine(SystemPens.ControlDark, this.ClientRectangle.Right - 2, this.ClientRectangle.Top+1, this.ClientRectangle.Right - 2, this.ClientRectangle.Bottom);
+
+            e.Graphics.DrawLine(SystemPens.ControlDark, this.ClientRectangle.Left + 1, this.ClientRectangle.Bottom -2, this.ClientRectangle.Right - 2, this.ClientRectangle.Bottom-2);
+            e.Graphics.DrawLine(SystemPens.ControlDarkDark, this.ClientRectangle.Left, this.ClientRectangle.Bottom-1, this.ClientRectangle.Right, this.ClientRectangle.Bottom-1);
         }
 
         //Copy n' Paste content to the clipboard

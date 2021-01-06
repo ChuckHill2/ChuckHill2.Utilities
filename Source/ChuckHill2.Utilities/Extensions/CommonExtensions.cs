@@ -2028,7 +2028,7 @@ namespace ChuckHill2.Utilities.Extensions
         /// <exception cref="System.ArgumentException">The parameter filePath does not indicate a valid file.-or- indicates a Universal Naming Convention (UNC) path.</exception>
         /// <remarks>
         /// Icons files contain multiple sizes and bit-depths of an image ranging from 16x16 to 256x256 in multiples of 8. Example: 16x16, 24x24, 32x32, 48x48, 64x64, 96x96, 128*128, 256*256.
-        /// Icon.ExtractAssociatedIcon(filePath), retrieves only the 32x32 icon, period. This will use the icon image that most closely matches the specified size and then resizes it to fit the specified size.
+        /// Icon.ExtractAssociatedIcon(filePath), retrieves only the 32x32 icon, period. This method will use the icon image that most closely matches the specified size and then resizes it to fit the specified size.
         /// </remarks>
         /// <see cref="https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw"/>
         /// <see cref="https://devblogs.microsoft.com/oldnewthing/20140501-00/?p=1103"/>

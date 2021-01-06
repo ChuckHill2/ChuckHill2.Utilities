@@ -197,16 +197,18 @@ namespace UtilitiesDemo
         
         private LayoutTest[] _tests = new[]
         {
-            new LayoutTest(true, ThisForm, "This is a long caption","(message)", MessageBoxIcon.Error, MessageBoxButtons.OK),
-            new LayoutTest(true, null, "(caption)","The return value is a handle to the capture window associated with the current thread. If no window in the thread has captured the mouse, the return value is NULL", MessageBoxIcon.Warning, MessageBoxButtons.OKCancel),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.Warning, MessageBoxButtons.RetryCancel),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.Question, MessageBoxButtons.YesNo),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.Information, MessageBoxButtons.YesNoCancel),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.None, MessageBoxButtons.AbortRetryIgnore),
-            new LayoutTest(false, ThisForm, "This is the caption","This is the message body.", MessageBoxIcon.None, (MessageBoxButtons)(-1)),
+            new LayoutTest(true, ThisForm, "This is a caption longer then the message body.","(message)", MessageBoxIcon.Error, MessageBoxButtons.OK),
+            new LayoutTest(true, null, "No Owner Test","No owner form has been passed to this messagebox. It will attempt to find the owning form to stay in front of it. If it can't, it will be owned by the desktop.", MessageBoxIcon.Warning, MessageBoxButtons.OKCancel),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with a warning status icon.", MessageBoxIcon.Warning, MessageBoxButtons.RetryCancel),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with a question status icon.", MessageBoxIcon.Question, MessageBoxButtons.YesNo),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with a information status icon.", MessageBoxIcon.Information, MessageBoxButtons.YesNoCancel),
+            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with no status icon.", MessageBoxIcon.None, MessageBoxButtons.AbortRetryIgnore),
+            new LayoutTest(false, ThisForm, "Modalless Messagebox","The user is not allowed to close this (Waiting for some action to be completed and abort not allowed?). The application must close this messagebox. However for demo purposes, you may close this by clicking the test button again.", MessageBoxIcon.None, (MessageBoxButtons)(-1)),
             new LayoutTest(false, ThisForm, null,null, 0, 0),
-            new LayoutTest(true, ThisForm, null,"This is the message body.", MessageBoxIcon.Error, MessageBoxButtons.OK),
-            new LayoutTest(true, ThisForm, "This is the caption",null, MessageBoxIcon.Error, MessageBoxButtons.OK),
+            new LayoutTest(true, ThisForm, null,"This is just the message body and no caption.", MessageBoxIcon.Error, MessageBoxButtons.OK),
+            new LayoutTest(true, ThisForm, "This is the caption without a message with a status icon.",null, MessageBoxIcon.Error, MessageBoxButtons.OK),
+            new LayoutTest(true, ThisForm, "This is the caption without a message and no status icon.",null, MessageBoxIcon.None, MessageBoxButtons.OK),
+            new LayoutTest(true, ThisForm, null ,null, MessageBoxIcon.None, MessageBoxButtons.OK),
         };
 
         private int _index = 0;
