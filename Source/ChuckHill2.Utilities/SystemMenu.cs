@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace MediaScraper
+namespace ChuckHill2.Utilities
 {
     /// <summary>
     /// Handy static methods for adding menu items to a Form's system menu.
@@ -125,7 +125,10 @@ namespace MediaScraper
         /// A negative number inserts starting from the bottom of the list.
         /// </param>
         /// <param name="name">Display name of the menuitem. If name is null or empty, a separator will be inserted.</param>
-        /// <param name="id">ID of the menu item. This value is what the SystemMenuHandler delegate will handle.</param>
+        /// <param name="id">
+        /// ID of the menu item. This value is what the SystemMenuHandler delegate will handle.
+        /// The built-in System menu Id's start at 0xF000 (61440), so a custom id between &gt; 1 and &lt; 0xF000 are available to use. To override system menu items see enum SystemMenu.SC.
+        /// </param>
         public static void Insert(Form form, int pos, string name=null, int id=0)
         {
             IntPtr hWnd = form.Handle;

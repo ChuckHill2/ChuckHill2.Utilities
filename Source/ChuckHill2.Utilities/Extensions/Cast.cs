@@ -95,6 +95,65 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
+        /// Robust data conversion. Never throws an exception. Returns the
+        /// specified default value instead.
+        /// </summary>
+        /// <typeparam name="T">Type of object to convert to</typeparam>
+        /// <param name="value">Object to convert</param>
+        /// <param name="defalt">The default value to use if the conversion fails.</param>
+        /// <returns>Converted result</returns>
+        /// <remarks>
+        /// Handles everything System.Convert.ChangeType() does plus:<br />
+        ///  • Anything ==&gt; trimmed string<br />
+        ///  • string/number (True/False, t/f, 1/0, 1.0/0.0, Yes/No (in many languages)) ==&gt; Boolean<br />
+        ///  • Office Automation Double/float/decimal &lt;==&gt; DateTime/DateTimeOffset<br />
+        ///  • int(seconds since 1/1/1970) &lt;==&gt; DateTime/DateTimeOffset/Timespan<br />
+        ///  • long(ticks) &lt;==&gt; DateTime/DateTimeOffset/Timespan<br />
+        ///  • Numeric string (yyyyMMddhhmmssfff) ==&gt; DateTime/DateTimeOffset<br />
+        ///  • System.Type &lt;==&gt; string<br />
+        ///  • System.Guid &lt;==&gt; string<br />
+        ///  • System.Version &lt;==&gt; string<br />
+        ///  • [Flags] System.Enum &lt;==&gt; string/integer
+        /// </remarks>
+        public static T CastTo<T>(this object value, T defalt)
+        {
+            return (T)Cast.To(typeof(T), value, defalt);
+        }
+
+        /// <summary>
+        /// Robust data conversion. Never throws an exception. Returns the 
+        /// specified default value instead.
+        /// </summary>
+        /// <param name="dstType">Type of object to convert to</param>
+        /// <param name="value">Object to convert</param>
+        /// <param name="defalt">The default value to use if the conversion fails.</param>
+        /// <returns>Converted result</returns>
+        /// <remarks>
+        /// Handles everything System.Convert.ChangeType() does plus:<br />
+        ///  • Anything ==&gt; trimmed string<br />
+        ///  • string/number (True/False, t/f, 1/0, 1.0/0.0, Yes/No (in many languages)) ==&gt; Boolean<br />
+        ///  • Office Automation Double/float/decimal &lt;==&gt; DateTime/DateTimeOffset<br />
+        ///  • int(seconds since 1/1/1970) &lt;==&gt; DateTime/DateTimeOffset/Timespan<br />
+        ///  • long(ticks) &lt;==&gt; DateTime/DateTimeOffset/Timespan<br />
+        ///  • Numeric string (yyyyMMddhhmmssfff) ==&gt; DateTime/DateTimeOffset<br />
+        ///  • System.Type &lt;==&gt; string<br />
+        ///  • System.Guid &lt;==&gt; string<br />
+        ///  • System.Version &lt;==&gt; string<br />
+        ///  • [Flags] System.Enum &lt;==&gt; string/integer
+        /// </remarks>
+        public static object To(Type dstType, object value, object defalt)
+        {
+            var v = To(dstType, value);
+            var d = Activator.CreateInstance(dstType);
+            if (d==v && dstType == defalt?.GetType())
+            {
+                return defalt;
+            }
+
+            return v;
+        }
+
+        /// <summary>
         /// Robust data conversion. Never throws an exception. Returns the 
         /// type's default value instead. Null if they are nullable types. 
         /// </summary>

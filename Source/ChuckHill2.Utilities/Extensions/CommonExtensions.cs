@@ -2,17 +2,21 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
-using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities.Extensions
@@ -350,6 +354,32 @@ namespace ChuckHill2.Utilities.Extensions
         {
             if (s == null && value == null) return true;
             return (s != null && value != null && s.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        /// Returns a new string in which all occurances of a specified case-insensitive 
+        /// string in the current instance are replaced with another specified string.
+        /// </summary>
+        /// <param name="s">String to search.</param>
+        /// <param name="oldValue">Value to be replaced</param>
+        /// <param name="newValue">Value to replace with</param>
+        /// <returns>Resulting string with old values replaced with the new values.</returns>
+        public static string ReplaceI(this string s, string oldValue, string newValue)
+        {
+            if (s == null || s.Length == 0) return s;
+
+            StringBuilder sb = null;
+            while (true)
+            {
+                var i = s.IndexOf(oldValue, StringComparison.CurrentCultureIgnoreCase);
+                if (i == -1) return s;
+                if (sb == null) sb = new StringBuilder();
+                else sb.Length = 0;
+                sb.Append(s.Substring(0, i));
+                sb.Append(newValue);
+                sb.Append(s.Substring(i+oldValue.Length));
+                s = sb.ToString();
+            }
         }
 
         /// <summary>
@@ -1083,6 +1113,58 @@ namespace ChuckHill2.Utilities.Extensions
         }
     }
 
+    public static class EnumerableExtensions
+    {
+        //public static T FirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate); already exists in System.Linq.
+        public static T FirstOrDefault<T>(this IEnumerable source, Func<T, bool> predicate)
+        {
+            return System.Linq.Enumerable.FirstOrDefault(source.OfType<T>(), predicate);
+        }
+
+        public static List<T> FindAll<T>(this IEnumerable source, Func<T, bool> predicate)
+        {
+            return FindAll<T>(source.OfType<T>(), predicate);
+        }
+
+        public static List<T> FindAll<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            List<T> list = new List<T>();
+            foreach (T element in source)
+            {
+                if (predicate(element)) list.Add(element);
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Perform action upon each item in enumerable loop, ascending.
+        /// </summary>
+        /// <typeparam name="T">Type of item in enumeration</typeparam>
+        /// <param name="source">Enumerable array</param>
+        /// <param name="action">Action to perform on each item in enumeration. Return true to continue to next item or false to break enumeration</param>
+        /// <remarks>
+        /// This functionally equivalant to 'source.While(predicate);'
+        /// </remarks>
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            if (source == null) return;
+
+            if (source is IList<T> list)
+            {
+                var k = list.Count;
+                for (int i = 0; i < k; i++)
+                {
+                    action(list[i]);
+                    k = list.Count;
+                }
+            }
+            else
+            {
+                foreach (var v in source) action(v);
+            }
+        }
+    }
+
     public static class ExceptionExtensions
     {
         //HACK! Exception.Message is read only! We create extension methods to correct this.
@@ -1184,6 +1266,40 @@ namespace ChuckHill2.Utilities.Extensions
         }
     }
 
+    /// <summary>
+    /// Create object with default constructor even if it doesn't have a default parameterless constructor. 
+    /// The performance of (T)FormatterServices.GetUninitializedObject(typeof(T)) is slower than a compiled 
+    /// parameterless constructor. At the same time compiled expressions would give you great speed 
+    /// improvements though they work only for types with default constructor. The hybrid approach was 
+    /// taken. This means the create expression is effectively cached and incurs penalty only the first time 
+    /// the type is loaded. Will handle value types too in an efficient manner.
+    /// See: http://stackoverflow.com/questions/390578/creating-instance-of-type-without-default-constructor-in-c-sharp-using-reflectio
+    /// Usage: var myObj = New&lt;System.Globalization.RegionInfo&gt;.Create()
+    /// Warning: If the type does not have a parameterless constructor, any initalization that occurs within
+    /// the constructors will NOT occur here. The entire object is zero'd out. All fields will be either 
+    /// null or for value types, the default value (aka: 0, false, etc).
+    /// </summary>
+    /// <typeparam name="T">Type of default object to create</typeparam>
+    public static class New<T>
+    {
+        public static readonly Func<T> Create = Creator();
+
+        static Func<T> Creator()
+        {
+            Type t = typeof(T);
+
+            //Special Case: GetUninitializedObject() fails with type 'string' so it is handled here.
+            if (t == typeof(string))
+                return Expression.Lambda<Func<T>>(Expression.Constant(string.Empty)).Compile();
+
+            //If the type has a parameterless constructor, use it. It's more efficient than GetUninitializedObject()
+            if (t.IsValueType || t.GetConstructor(Type.EmptyTypes) != null)
+                return Expression.Lambda<Func<T>>(Expression.New(t)).Compile();
+
+            return () => (T)FormatterServices.GetUninitializedObject(t);
+        }
+    }
+
     public static class ObjectExtensions
     {
         /// <summary>
@@ -1221,59 +1337,46 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Get specified public or private type.
+        /// Test if value or type is an implementation of the specified type.
         /// </summary>
-        /// <param name="typename">
-        ///    Case-sensitive full name of the type to get.<br />
-        ///    example: "System.Windows.Forms.Layout.TableLayout+ContainerInfo"
-        /// </param>
-        /// <param name="relatedType">Optional known public type that is in the same assembly as 'typename'.</param>
-        /// <returns>Found type or null if not found</returns>
-        /// <remarks>
-        ///    When 'relatedType' is defined, this method is effectively the same as:
-        ///    \code{.cs}
-        ///    Type t = Type.GetType("System.Windows.Forms.Layout.TableLayout+ContainerInfo, " + typeof(TableLayoutPanel).Assembly.FullName, false, false);
-        ///    \endcode
-        ///    If 'relatedType' is undefined, this method will search the currently loaded assemblies for a match.
-        /// </remarks>
-        public static Type GetReflectedType(string typename, Type relatedType = null)
+        /// <param name="value">Value or type to check</param>
+        /// <param name="t">Type may be a class, interface, or generic interface with or without parameters.</param>
+        /// <returns>True if type is implemented</returns>
+        public static bool IsImplementationOf(this object value, Type t)
         {
-            if (typename.IsNullOrEmpty()) return null;
-
-            Type t = Type.GetType(typename, false, false);
-
-            if (t == null && relatedType != null)
+            if (!(value is Type))
             {
-                t = Type.GetType($"{typename}, {relatedType.Assembly.FullName}", false, false);
+                return IsImplementationOf(value.GetType(), t);
             }
 
-            if (t == null) //Ok. Hunt for it the hard way, assuming the assembly is already loaded.
+            var v = (Type)value;
+
+            if (t.IsGenericType)
             {
-                var elements = typename.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (elements.Length > 1) return null;
-                typename = elements[0];
-                t = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => !a.IsDynamic)
-                    .SelectMany(a => a.GetTypes())
-                    .FirstOrDefault(m => m.FullName.EqualsI(typename));
-                if (t == null) return null;
+                if (t.IsInterface)
+                {
+                    if (t.GenericTypeArguments.Length > 0)
+                    {
+                        return v.GetInterfaces().Where(i => i.IsGenericType).Any(i => i == t);
+                    }
+
+                    return v.GetInterfaces().Where(i => i.IsGenericType).Any(i => i.GetGenericTypeDefinition() == t);
+                }
+
+                if (t.GenericTypeArguments.Length > 0)
+                {
+                    return v == t;
+                }
+
+                return v.GetGenericTypeDefinition() == t;
             }
 
-            return t;
-        }
+            if (t.IsInterface)
+            {
+                return v.GetInterfaces().Where(i => !i.IsGenericType).Any(i => i == t);
+            }
 
-        /// <summary>
-        /// Handy utility for getting array of arg types for invoking methods
-        /// </summary>
-        /// <param name="args">array of args</param>
-        /// <returns>Always returns a Type array</returns>
-        private static Type[] GetReflectedArgTypes(params object[] args)
-        {
-            Type[] types;
-            if (args == null || args.Length == 0) return new Type[0];
-            types = new Type[args.Length];
-            for (int i = 0; i < types.Length; i++) { types[i] = (args[i] == null ? null : args[i].GetType()); }
-            return types;
+            return v.IsSubclassOf(t) || v == t;
         }
 
         /// <summary>
@@ -1284,13 +1387,13 @@ namespace ChuckHill2.Utilities.Extensions
         /// </summary>
         /// <param name="obj">Object to retrieve value from. Must not be null.</param>
         /// <param name="membername">Case-sensitive field or property name.</param>
-        /// <param name="index">Optional index for indexed properties.</param>
+        /// <param name="indices">Optional index for indexed properties.</param>
         /// <returns>Retrieved value or null if field or property not found and readable.</returns>
         public static object GetReflectedValue(this Object obj, string membername, params object[] indices)
         {
             try
             {
-                MemberInfo[] mis = obj.GetType().GetMember(membername, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
+                MemberInfo[] mis = GetAllMembers(obj.GetType(), membername, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 if (mis.Length == 0) return null;
                 foreach (var mi in mis)
                 {
@@ -1307,14 +1410,24 @@ namespace ChuckHill2.Utilities.Extensions
                         if (iparams.Length != indices.Length) continue;
                         if (iparams.Length == 0) return pi.GetValue(obj);
                         bool match = true;
-                        for (int i = 0; i < iparams.Length; i++) { if (iparams[i].ParameterType != indices[i].GetType()) { match = false; break; } }
+                        for (int i = 0; i < iparams.Length; i++)
+                        {
+                            if (iparams[i].ParameterType != indices[i].GetType())
+                            {
+                                match = false;
+                                break;
+                            }
+                        }
                         if (!match) continue;
                         return pi.GetValue(obj, indices);
                     }
                 }
                 return null;
             }
-            catch { return null; }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -1325,13 +1438,13 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="obj">Object to retrieve value from. Must not be null.</param>
         /// <param name="membername">Case-sensitive field or property name.</param>
         /// <param name="value">value to set</param>
-        /// <param name="index">Optional index for indexed properties.</param>
+        /// <param name="indices">Optional index for indexed properties.</param>
         /// <returns>True if value successfully set or false if field or property not found or writeable.</returns>
         public static bool SetReflectedValue(this Object obj, string membername, object value, params object[] indices)
         {
             try
             {
-                MemberInfo[] mis = obj.GetType().GetMember(membername, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
+                MemberInfo[] mis = GetAllMembers(obj.GetType(), membername, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                 if (mis.Length == 0) return false;
                 foreach (var mi in mis)
                 {
@@ -1347,9 +1460,20 @@ namespace ChuckHill2.Utilities.Extensions
                         if (!pi.CanWrite) continue;
                         var iparams = pi.GetIndexParameters();
                         if (iparams.Length != indices.Length) continue;
-                        if (iparams.Length == 0) { pi.SetValue(obj, value); return true; }
+                        if (iparams.Length == 0)
+                        {
+                            pi.SetValue(obj, value);
+                            return true;
+                        }
                         bool match = true;
-                        for (int i = 0; i < iparams.Length; i++) { if (iparams[i].ParameterType != indices[i].GetType()) { match = false; break; } }
+                        for (int i = 0; i < iparams.Length; i++)
+                        {
+                            if (iparams[i].ParameterType != indices[i].GetType())
+                            {
+                                match = false;
+                                break;
+                            }
+                        }
                         if (!match) continue;
                         pi.SetValue(obj, value, indices);
                         return true;
@@ -1357,16 +1481,22 @@ namespace ChuckHill2.Utilities.Extensions
                 }
                 return false;
             }
-            catch { return false; }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
         /// Invoke a static method or invoke a constructor to return a constructed object or invoke a static method.
         /// It may be a static method or non-static constructor, public or private.
-        /// Does not handle 'ref' or 'out' arguments.
+        /// To handle 'ref' or 'out' arguments, one must explicitly pass a single initialized 
+        /// object[] array for the args argument instead of multiple single args. The object[]
+        /// array will contain the results upon return.
         /// This function should not be used in tight loops because reflection is expensive.
         /// </summary>
         /// <param name="typename">Case-sensitive full type name of the object to invoke OR fully qualified assembly name just in case the assembly has not already been loaded into the domain.</param>
+        /// <param name="membername">Name of object member to invoke</param>
         /// <param name="args">arguments to pass to method or constructor.</param>
         /// <returns>the constructed object or method return value.</returns>
         public static object InvokeReflectedMethod(string typename, string membername, params object[] args)
@@ -1377,16 +1507,21 @@ namespace ChuckHill2.Utilities.Extensions
                 if (t == null) return null;
                 return InvokeReflectedMethod(t, membername, args);
             }
-            catch { return null; }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
         /// Invoke a public or private static method or constructor.
-        /// Does not handle 'ref' or 'out' arguments.
+        /// To handle 'ref' or 'out' arguments, one must explicitly pass a single initialized 
+        /// object[] array for the args argument instead of multiple single args. The object[]
+        /// array will contain the results upon return.
         /// This function should not be used in tight loops because reflection is expensive.
         /// </summary>
         /// <param name="t">Type execute static method on. Must not be null.</param>
-        /// <param name="membername">Case-sensitive static method name. If null, "", or class name, then it must be a constructor.</param>
+        /// <param name="membername">Case-sensitive static method name. If null, must be a constructor.</param>
         /// <param name="args">arguments to pass to method</param>
         /// <returns>value returned from method or created object if a constructor</returns>
         public static object InvokeReflectedMethod(this Type t, string membername, params object[] args)
@@ -1394,23 +1529,70 @@ namespace ChuckHill2.Utilities.Extensions
             if (t == null) return null;
             try
             {
-                if (membername.IsNullOrEmpty() || t.Name == membername)
+                var types = GetReflectedArgTypes(args);
+                var containsNull = types.Any(m => m == null);
+                if (string.IsNullOrEmpty(membername))
                 {
-                    ConstructorInfo ci = t.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, GetReflectedArgTypes(args), null);
+                    ConstructorInfo ci = null;
+                    if (containsNull)
+                    {
+                        ci = t.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(m =>
+                        {
+                            var p = m.GetParameters();
+                            if (p.Length != types.Length) return false;
+                            for (int i = 0; i < types.Length; i++)
+                            {
+                                if (types[i] == null) continue;
+                                if (types[i] == p[i].ParameterType) continue;
+                                return false;
+                            }
+                            return true;
+                        });
+                    }
+                    else
+                    {
+                        ci = t.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, types, null);
+                    }
                     if (ci != null) return ci.Invoke(args);
                     return null;
                 }
 
-                MethodInfo mi = t.GetMethod(membername, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, null, GetReflectedArgTypes(args), null);
+                MethodInfo mi = null;
+                if (containsNull)
+                {
+                    mi = (MethodInfo)GetAllMembers(t, null, MemberTypes.Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(m =>
+                    {
+                        if (!m.Name.Equals(membername)) return false;
+                        var p = ((MethodInfo)m).GetParameters();
+                        if (p.Length != types.Length) return false;
+                        for (int i = 0; i < types.Length; i++)
+                        {
+                            if (types[i] == null) continue;
+                            if (types[i] == p[i].ParameterType) continue;
+                            return false;
+                        }
+                        return true;
+                    });
+                }
+                else
+                {
+                    mi = (MethodInfo)GetAllMembers(t, membername, MemberTypes.Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault();
+                }
                 if (mi != null) return mi.Invoke(null, args);
                 return null;
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException ?? ex;
             }
             catch { return null; }
         }
 
         /// <summary>
         /// Invoke a public or private instance method.
-        /// Does not handle 'ref' or 'out' arguments.
+        /// To handle 'ref' or 'out' arguments, one must explicitly pass a single initialized 
+        /// object[] array for the args argument instead of multiple single args. The object[]
+        /// array will contain the results upon return.
         /// This function should not be used in tight loops because reflection is expensive.
         /// </summary>
         /// <param name="obj">Object to execute method on. Must not be null.</param>
@@ -1422,9 +1604,37 @@ namespace ChuckHill2.Utilities.Extensions
             try
             {
                 Type t = obj.GetType();
-                MethodInfo mi = t.GetMethod(membername, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, GetReflectedArgTypes(args), null);
+                var types = GetReflectedArgTypes(args);
+                var containsNull = types.Any(m => m == null);
+
+                MethodInfo mi = null;
+                if (containsNull)
+                {
+                    mi = (MethodInfo)(GetAllMembers(t, null, MemberTypes.Method, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)).FirstOrDefault(m =>
+                    {
+                        if (!m.Name.Equals(membername)) return false;
+                        var p = ((MethodInfo)m).GetParameters();
+                        if (p.Length != types.Length) return false;
+                        for (int i = 0; i < types.Length; i++)
+                        {
+                            if (types[i] == null) continue;
+                            if (types[i] == p[i].ParameterType) continue;
+                            return false;
+                        }
+                        return true;
+                    });
+                }
+                else
+                {
+                    mi = (MethodInfo)GetAllMembers(t, membername, MemberTypes.Method, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault();
+                }
+
                 if (mi != null) return mi.Invoke(obj, args);
                 return null;
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException ?? ex;
             }
             catch { return null; }
         }
@@ -1493,6 +1703,89 @@ namespace ChuckHill2.Utilities.Extensions
             return (isType.IsAssignableFrom(obj.GetType()));
         }
 
+        /// <summary>
+        /// Get specified public or private type.
+        /// </summary>
+        /// <param name="typename">
+        ///    Case-sensitive full name of the type to get.<br />
+        ///    example: "System.Windows.Forms.Layout.TableLayout+ContainerInfo"
+        /// </param>
+        /// <param name="relatedType">Optional known public type that is in the same assembly as 'typename'.</param>
+        /// <returns>Found type or null if not found</returns>
+        /// <remarks>
+        ///    When 'relatedType' is defined, this method is effectively the same as:
+        ///    \code{.cs}
+        ///    Type t = Type.GetType("System.Windows.Forms.Layout.TableLayout+ContainerInfo, " + typeof(TableLayoutPanel).Assembly.FullName, false, false);
+        ///    \endcode
+        ///    If 'relatedType' is undefined, this method will search the currently loaded assemblies for a match.
+        /// </remarks>
+        public static Type GetReflectedType(string typename, Type relatedType = null)
+        {
+            if (typename.IsNullOrEmpty()) return null;
+
+            Type t = Type.GetType(typename, false, false);
+
+            if (t == null && relatedType != null)
+            {
+                t = Type.GetType($"{typename}, {relatedType.Assembly.FullName}", false, false);
+            }
+
+            if (t == null) //Ok. Hunt for it the hard way, assuming the assembly is already loaded.
+            {
+                var elements = typename.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (elements.Length > 1) return null;
+                typename = elements[0];
+                t = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => !a.IsDynamic)
+                    .SelectMany(a => a.GetTypes())
+                    .FirstOrDefault(m => t.FullName.Equals(typename, StringComparison.InvariantCultureIgnoreCase));
+                if (t == null) return null;
+            }
+
+            return t;
+        }
+
+        /// <summary>
+        /// Handy utility for getting array of arg types for invoking methods
+        /// </summary>
+        /// <param name="args">array of args</param>
+        /// <returns>Always returns a Type array</returns>
+        private static Type[] GetReflectedArgTypes(params object[] args)
+        {
+            Type[] types;
+            if (args == null || args.Length == 0) return new Type[0];
+            types = new Type[args.Length];
+            for (int i = 0; i < types.Length; i++) { types[i] = (args[i] == null ? null : args[i].GetType()); }
+            return types;
+        }
+
+        /// <summary>
+        /// Retrieve ALL members public/private from the entire heirarchy. Type.GetMembers() 
+        /// does not traverse the type heirarchy for private or static members. Go figure....
+        /// </summary>
+        /// <param name="t">The type to retrieve the members from</param>
+        /// <param name="membername">Name of member to retrieve. There may be more than one in the heirarchy. OR null to get all members.</param>
+        /// <param name="membertypes">The specified types of members to retrieve</param>
+        /// <param name="bf">The binding flags used to retrieve the members</param>
+        /// <returns></returns>
+        private static MemberInfo[] GetAllMembers(Type t, string membername, MemberTypes membertypes, BindingFlags bf)
+        {
+            var members = new List<MemberInfo>();
+
+            if (membername == string.Empty) membername = null;
+            bool declaredOnly = ((bf & BindingFlags.DeclaredOnly) != 0);
+            bf = ~(~bf | BindingFlags.FlattenHierarchy) | BindingFlags.DeclaredOnly;
+            while (t != null)
+            {
+                var m1 = t.GetMembers(bf);
+                var m2 = m1.Where(m => membername != null ? m.Name == membername && (m.MemberType & membertypes) != 0 : (m.MemberType & membertypes) != 0);
+                members.AddRange(m2);
+                t = declaredOnly ? null : t.BaseType;
+            }
+
+            return members.ToArray();
+        }
+
         #region Debugging tool: public static string[] GetReflectedObjectMembers(this Object obj)
         /// <summary>
         /// Get formatted list of members of a specified type; Great for debugging.
@@ -1507,24 +1800,25 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
-        /// Get formatted list of members of a specified type; Great for debugging.
+        /// Get list of All members in the object heirarchy displayed in C# format.
         /// </summary>
-        /// <param name="obj">Object whose members are enumerated. The values of this instance are also added to the formatted list.</param>
-        /// <returns>Formatted list of members</returns>
+        /// <param name="obj">Object to enumerate</param>
+        /// <returns>Array of members with their current values</returns>
         public static string[] GetReflectedObjectMembers(this Object obj)
         {
             return GetReflectedObjectMembers(obj.GetType(), obj);
         }
 
         /// <summary>
-        /// Get formatted list of members of a specified type; Great for debugging.
+        /// Get list of All members in the type heirarchy with object values displayed in C# format.
         /// </summary>
-        /// <param name="t">Type to enumerate.</param>
-        /// <param name="obj">Object whose members are enumerated. The values of this instance are added to the formatted list.</param>
-        /// <returns>Formatted list of members</returns>
+        /// <param name="t">Type of object to enumerate</param>
+        /// <param name="obj">Object containing values to display</param>
+        /// <returns>Array of members with their current values</returns>
         public static string[] GetReflectedObjectMembers(this Type t, Object obj = null)
         {
-            MemberInfo[] mis = t.GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
+
+            MemberInfo[] mis = GetAllMembers(t, null, MemberTypes.All, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             List<string> members = new List<string>(mis.Length);
             foreach (var mi in mis)
             {
@@ -1584,14 +1878,18 @@ namespace ChuckHill2.Utilities.Extensions
             if (m == null) return GetUnknownDeclaration(mi);
             var sb = new StringBuilder();
 
-            MethodInfo am = m.AddMethod;
-            if (am.IsPublic) sb.Append("public ");
-            else if (am.IsAssembly) sb.Append("internal ");
-            else if (am.IsFamily) sb.Append("protected ");
-            else if (am.IsPrivate) sb.Append("private ");
-            if (am.IsStatic) sb.Append("static ");
-            if (am.IsVirtual && !am.IsFinal) sb.Append("virtual ");
-            if (am.IsVirtual && am.IsFinal) sb.Append("override ");
+            MethodInfo ac1 = m.GetAddMethod(true);
+            MethodInfo ac2 = m.GetRemoveMethod(true);
+            if (ac1 == null) ac1 = ac2;
+            if (ac2 == null) ac2 = ac1;
+            if (ac1.IsPublic && ac2.IsPublic) sb.Append("public ");
+            else if (ac1.IsAssembly && ac2.IsAssembly) sb.Append("internal ");
+            else if (ac1.IsFamily && ac2.IsFamily) sb.Append("protected ");
+            else if (ac1.IsPrivate && ac2.IsPrivate) sb.Append("private ");
+            if (ac1.IsStatic && ac2.IsStatic) sb.Append("static ");
+            if ((ac1.IsVirtual && !ac1.IsFinal) || (ac2.IsVirtual && !ac2.IsFinal)) sb.Append("virtual ");
+            if ((ac1.IsVirtual && ac1.IsFinal) || (ac2.IsVirtual && ac2.IsFinal)) sb.Append("override ");
+
             sb.Append("event ");
             sb.Append(MakeName(m.EventHandlerType));
             sb.Append(' ');
@@ -1628,7 +1926,8 @@ namespace ChuckHill2.Utilities.Extensions
                 {
                     string quote = (m.FieldType == typeof(string) ? "\"" : "");
                     sb.Append(quote);
-                    try { sb.Append(m.GetValue(obj).ToString()); } catch { }
+                    try { sb.Append(m.GetValue(obj).ToString()); }
+                    catch { }
                     sb.Append(quote);
                 }
             }
@@ -1677,8 +1976,8 @@ namespace ChuckHill2.Utilities.Extensions
             if (m == null) return GetUnknownDeclaration(mi);
             var sb = new StringBuilder();
 
-            MethodInfo ac1 = m.GetMethod;
-            MethodInfo ac2 = m.SetMethod;
+            MethodInfo ac1 = m.GetGetMethod(true);
+            MethodInfo ac2 = m.GetSetMethod(true);
             if (ac1 == null) ac1 = ac2;
             if (ac2 == null) ac2 = ac1;
             if (ac1.IsPublic && ac2.IsPublic) sb.Append("public ");
@@ -1726,13 +2025,15 @@ namespace ChuckHill2.Utilities.Extensions
                 sb.Append(" = ");
 
                 object value = null;
-                try { value = m.GetValue(obj); } catch { }
+                try { value = m.GetValue(obj); }
+                catch { }
                 if (value == null) sb.Append("null");
                 else
                 {
                     string quote = (m.PropertyType == typeof(string) ? "\"" : "");
                     sb.Append(quote);
-                    try { sb.Append(m.GetValue(obj).ToString()); } catch { }
+                    try { sb.Append(m.GetValue(obj).ToString()); }
+                    catch { }
                     sb.Append(quote);
                 }
             }
@@ -1770,6 +2071,114 @@ namespace ChuckHill2.Utilities.Extensions
         }
         #endregion
         #endregion
+    }
+
+    public static class DataSetExtensions
+    {
+        /// <summary>
+        /// Converts the specified column.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="column">The column.</param>
+        /// <param name="conversion">The conversion.</param>
+        public static void ConvertTo<T>(this DataColumn column, Func<object, T> conversion)
+        {
+            foreach (DataRow row in column.Table.Rows) { row[column] = conversion(row[column]); }
+        }
+
+        /// <summary>
+        /// Create a delimited string all the values in a DataTable column.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="elementDelimiter">character to be used as a delimiter between each row element</param>
+        /// <param name="removeEmpties">True to remove null or empty values. default=False</param>
+        /// <returns></returns>
+        public static string ToString(this DataColumn column, char elementDelimiter, bool removeEmpties = false)
+        {
+            if (column == null || column.Table == null) return string.Empty;
+            var sb = new StringBuilder();
+            bool needsComma = false;
+            foreach (DataRow r in column.Table.Rows)
+            {
+                var value = r[column].ToString().Trim();
+                if (removeEmpties && value.Length == 0) continue;
+                if (needsComma) sb.Append(elementDelimiter);
+                sb.Append(value);
+                needsComma = true;
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Create a typed list all the values in a DataTable column.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="removeEmpties">True to remove null or empty values. default=False</param>
+        /// <returns></returns>
+        public static IList ToList(this DataColumn column, bool removeEmpties = false)
+        {
+            if (column == null) return new List<Object>(0);
+            Type listType = typeof(List<>).MakeGenericType(new[] { column.DataType });
+            int maxCount = column.Table == null ? 0 : column.Table.Rows.Count;
+            IList list = (IList)Activator.CreateInstance(listType, new Object[] { maxCount });
+            if (column.Table == null) return list;
+            foreach (DataRow r in column.Table.Rows)
+            {
+                var value = r[column];
+                if (removeEmpties && value.ToString().Trim().Length == 0) continue;
+                list.Add(value);
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Convert a DataTable to a CSV string.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns>formatted CSV string</returns>
+        public static string ToCSV(this DataTable dt)
+        {
+            MemoryStream sw = new MemoryStream();
+            try
+            {
+                dt.CreateDataReader().ToCSV(sw);
+                return sw.ToStringEx();
+            }
+            finally { sw.Dispose(); }
+        }
+
+        /// <summary>
+        /// Generic converter from DataReader to CSV stream. 
+        /// </summary>
+        /// <param name="dataReader"></param>
+        /// <param name="writer">Text stream to write CSV output to.</param>
+        public static void ToCSV(this IDataReader dataReader, Stream stream)
+        {
+            CsvWriter writer = null;
+            try
+            {
+                writer = new CsvWriter(stream);
+                for (int i = 0; i < dataReader.FieldCount; i++)
+                {
+                    writer.WriteField(dataReader.GetName(i));
+                }
+                writer.WriteEOL();
+
+                //Rows
+                while (dataReader.Read())
+                {
+                    for (int i = 0; i < dataReader.FieldCount; i++)
+                    {
+                        writer.WriteField(dataReader[i]);
+                    }
+                    writer.WriteEOL();
+                }
+            }
+            finally
+            {
+                if (writer!=null) writer.Dispose();
+            }
+        }
     }
 
     public static class EnumExtensions
@@ -1988,6 +2397,28 @@ namespace ChuckHill2.Utilities.Extensions
     public static class DateTimeExtensions
     {
         /// <summary>
+        /// Round datetime to the nearest whole day.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static System.DateTime ToDay(this System.DateTime dt)
+        {
+            dt = dt.ToHour();
+            return new System.DateTime(dt.Year, dt.Month, 1, 0, 0, 0, 0, dt.Kind).AddDays((dt.Day-1) + (dt.Hour > 12 ? 1 : 0));
+        }
+
+        /// <summary>
+        /// Round datetime to the nearest whole hour.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static System.DateTime ToHour(this System.DateTime dt)
+        {
+            dt = dt.ToMinute();
+            return new System.DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0, 0, dt.Kind).AddHours(dt.Hour + (dt.Minute > 30 ? 1 : 0));
+        }
+
+        /// <summary>
         /// Round datetime to the nearest minute. 
         /// </summary>
         /// <param name="dt">Datetime to round</param>
@@ -2016,10 +2447,170 @@ namespace ChuckHill2.Utilities.Extensions
         /// <param name="time_t">Seconds from 1/1/1970</param>
         /// <returns>Datetime equivalant.</returns>
         public static DateTime FromUnixTime(this int time_t) => UnixEpoch.AddSeconds(time_t);
-    }
+        /// <summary>
+        /// TimeSpan is NOT culture-aware, so we have to fake it out using DateTime culture.
+        /// </summary>
+        /// <param name="ts"></param>
+        /// <returns></returns>
+        public static string ToLocalizedString(this TimeSpan ts, string format="T")
+        {
+            if (format == "g" || format == "f" ) format = "t";
+            if (format == "G" || format == "F" || format == "c") format = "T";
+            if (format == "s") format = "HH:mm:ss";
+            var dt = new System.DateTime(Math.Abs(ts.Ticks));
+            return dt.ToString(format);
+        }
+
+        public static System.DateTime ToDateTime(this System.TimeSpan ts)
+        {
+            //Must be 1900-01-01 because that is the beginning of time for SQL Server DB's
+            return UnixEpoch.AddTicks(Math.Abs(ts.Ticks));
+        }
+
+        private static List<string> CurrentNames;   //for InvariantToLocalizedDateTime()
+        private static List<string> InvariantNames; //for InvariantToLocalizedDateTime()
+        private static string InvariantNamePattern; //for InvariantToLocalizedDateTime()
+        /// <summary>
+        /// Replace all occurances of Invariant date, time, or datetime 
+        /// (format "g", "G", "d", "D", "f", "F", "t", or "T") in string
+        /// with localized date, time or datetime.
+        /// Supports 1 or 2 digits for month, day, hour, min, sec and 
+        /// 2 or 4 digits for year. AM/PM is optional.
+        /// Extra spaces are handled.
+        /// Invalid datetime formats (e.g. month 13) are not replaced.
+        /// Note: Invariant DateTime format is the same as en-US format.
+        /// Warning: Calling this method on a string that is already 
+        /// localized may return unexpected results.
+        /// </summary>
+        /// <param name="description">
+        ///   String containing datetimes. If there are no datetimes in
+        ///   string or string is null, this string is returned unmodifed.
+        /// </param>
+        /// <param name="format">
+        ///   Explicit datetime format specifier to use for all datetime formats 
+        ///   in string. If undefined, will autodetect which format to use 
+        ///   (e.g. "g", "G", "d", "D", "f", "F", "t", or "T").
+        ///   </param>
+        /// <returns>updated string</returns>
+        public static string InvariantToLocalizedDateTime(this string description, string format = null)
+        {
+            if (description.IsNullOrEmpty() || description.Length < 6) return description;
+
+            //Logic to generate regex pattern.....
+            //var MonthNames = new List<string>(40);
+            //MonthNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.MonthNames);
+            //MonthNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames);
+            //MonthNames.RemoveAt(25); //some cultures have 13 months! We support Gregorian ONLY!
+            //MonthNames.RemoveAt(12);
+            //string longDatePattern = string.Concat(@"(?:", MonthNames.ToString('|'), @")\s+\d{1,2},\s*\d{2,4}");
+            //string shortDatePattern = @"\d{1,2}/\d{1,2}/\d{2,4}";
+            //string timePattern = @"\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s+AM|\s+PM)?";
+            //string pattern = @"((?:longDatePattern|shortDatePattern)(?:\s+timePattern)?|timePattern)";
+            //string pattern = string.Concat("((?:",longDatePattern,"|",shortDatePattern,@")(?:\s+",timePattern,")?|",timePattern,")");
+            string pattern = @"((?:(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s*\d{2,4}|\d{1,2}/\d{1,2}/\d{2,4})(?:\s+\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s+AM|\s+PM)?)?|\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s+AM|\s+PM)?)";
+
+            string result = Regex.Replace(description, pattern, delegate(Match m)
+            {
+                DateTime dt;
+                if (DateTime.TryParse(m.Value, System.Globalization.CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+                {
+                    if (m.Value[0] > '9') //must be a long date e.g. January 1, 1970
+                    {
+                        if (format != null)
+                        {
+                            string f = format;
+                            if (format[0] == 'T' || format[0] == 't') f = (format[0] == 'T' ? "F" : "f");
+                            return dt.ToString(f);
+                        }
+                        if (dt.Hour == 0 && dt.Minute == 0 && dt.Second == 0) return dt.ToString("D");
+                        if (dt.Second == 0 && dt.Millisecond == 0) return dt.ToString("f");
+                        return dt.ToString("F");
+                    }
+                    if (m.Value.Any(x=>x=='/' || x=='-')) //must be a short date e.g. 1/1/1970 or 1970-01-01
+                    {
+                        if (format != null)
+                        {
+                            string f = format;
+                            if (format[0] == 'T' || format[0] == 't') f = (format[0] == 'T' ? "G" : "g");
+                            return dt.ToString(f);
+                        }
+                        if (dt.Hour == 0 && dt.Minute == 0 && dt.Second == 0) return dt.ToString("d");
+                        if (dt.Second == 0 && dt.Millisecond == 0) return dt.ToString("g");
+                        return dt.ToString("G");
+                    }
+                    //Must be just time e.g. 11:33:25 AM
+                    if (format != null)
+                    {
+                        string f = (format[0] == 'D' || format[0] == 'F' || format[0] == 'G' || format[0] == 'r' || format[0] == 's' || format[0] == 'u' || format[0] == 'U' ? "T" : "t");
+                        return dt.ToString(f);
+                    }
+                    if (dt.Second == 0 && dt.Millisecond == 0) return dt.ToString("t");
+                    return dt.ToString("T");
+                }
+                return m.Value;
+            }, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            //Translate Month and DayOfWeek names as well.
+            if (Thread.CurrentThread.CurrentUICulture.ToString().StartsWith("en-")) return result; //no change
+
+            if (InvariantNames == null)
+            {
+                InvariantNames = new List<string>(40);
+                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.MonthNames);
+                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.DayNames);
+                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames);
+                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedDayNames);
+                InvariantNames.RemoveAt(32); //some cultures have 13 months! We support Gregorian ONLY!
+                InvariantNames.RemoveAt(12);
+                InvariantNamePattern = string.Format(@"\b({0})\b", string.Join("|",InvariantNames));
+
+                //For efficiency, we assume the current locale will not change for the duration of the application.
+                CurrentNames = new List<string>(40);
+                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.MonthNames);
+                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.DayNames);
+                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.AbbreviatedMonthNames);
+                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.AbbreviatedDayNames);
+                CurrentNames.RemoveAt(32); //some cultures have 13 months! We support Gregorian ONLY!
+                CurrentNames.RemoveAt(12);
+            }
+
+            return Regex.Replace(result, InvariantNamePattern, delegate(Match m)
+            {
+                int i = InvariantNames.IndexOf(x => x.EqualsI(m.Value));
+                if (i < 0) return m.Value;
+                return CurrentNames[i];
+            }, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        }
+     }
 
     public static class GDI
     {
+        public static void DrawRoundedRectangle(this Graphics g, Pen p, Rectangle r, int d)
+        {
+            System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
+
+            gp.AddArc(r.X, r.Y, d, d, 180, 90);
+            gp.AddArc(r.X + r.Width - d, r.Y, d, d, 270, 90);
+            gp.AddArc(r.X + r.Width - d, r.Y + r.Height - d, d, d, 0, 90);
+            gp.AddArc(r.X, r.Y + r.Height - d, d, d, 90, 90);
+            gp.AddLine(r.X, r.Y + r.Height - d, r.X, r.Y + d / 2);
+
+            g.DrawPath(p, gp);
+        }
+
+        public static void FillRoundedRectangle(this Graphics g, Brush b, Rectangle r, int d)
+        {
+            System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
+
+            gp.AddArc(r.X, r.Y, d, d, 180, 90);
+            gp.AddArc(r.X + r.Width - d, r.Y, d, d, 270, 90);
+            gp.AddArc(r.X + r.Width - d, r.Y + r.Height - d, d, d, 0, 90);
+            gp.AddArc(r.X, r.Y + r.Height - d, d, d, 90, 90);
+            gp.AddLine(r.X, r.Y + r.Height - d, r.X, r.Y + d / 2);
+
+            g.FillPath(b, gp);
+        }
+
         [DllImport("Shell32.dll")] private static extern int SHDefExtractIconW([MarshalAs(UnmanagedType.LPWStr)] string pszIconFile, int iIndex, int uFlags, out IntPtr phiconLarge, /*out*/ IntPtr phiconSmall, int nIconSize);
         /// <summary>Returns an icon of the specified size that is contained in the specified file.</summary>
         /// <param name="filePath">The path to the file that contains the icon.</param>

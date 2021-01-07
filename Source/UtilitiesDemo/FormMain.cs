@@ -23,6 +23,18 @@ namespace UtilitiesDemo
 
         protected override void OnLoad(EventArgs e)
         {
+            SystemMenu.Insert(this, -2); //insert divider 2 items from the bottom
+            SystemMenu.Insert(this, -2, "SystemMenu Test...", 999); //Insert menu item 2 items from the bottom (after above divider)
+            SystemMenu.SetHandler(this, id =>
+            {
+                if (id == 999)
+                {
+                    MessageBoxEx.Show(this,"This is a test of the SystemMenu API.","SystemMenu Test",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    return true; // This id is handled
+                }
+                return false; // Everything else is not handled by this api.
+            });
+
             propertyGrid1.SelectedObject = new TestUITypeEditors(this);
 
             m_clbColorListBox.AddColor(Color.FromArgb(178, 0, 255)); //nearest color==Color.DarkViolet

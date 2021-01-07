@@ -34,10 +34,15 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
+    <Reference Include="sysglobl" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
   </ItemGroup>
@@ -45,7 +50,9 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="AppConfig.cs" />
     <Compile Include="AssemblyBuildTimeStampAttribute.cs" />
+    <Compile Include="Async.cs" />
     <Compile Include="ColorEx.cs" />
     <Compile Include="ColorPickerPanelVert.cs">
       <SubType>UserControl</SubType>
@@ -60,11 +67,43 @@
       <DependentUpon>ColorPickerPanelHorz.cs</DependentUpon>
     </Compile>
     <Compile Include="ColorUIEditor.cs" />
+    <Compile Include="ComObject.cs" />
+    <Compile Include="Compiler.cs" />
+    <Compile Include="ConfigurationManagerEx.cs" />
+    <Compile Include="ConnectionStringDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConnectionStringDlg.Designer.cs" />
+    <Compile Include="ConsoleEx.cs" />
+    <Compile Include="CsvReader.cs" />
+    <Compile Include="CsvWriter.cs" />
+    <Compile Include="DataReader.cs" />
+    <Compile Include="Diagnostics.cs" />
+    <Compile Include="DirectoryEx.cs" />
+    <Compile Include="Encryption.cs" />
     <Compile Include="Extensions\DrawRtfText.cs" />
     <Compile Include="FolderSelectDialog.cs" />
+    <Compile Include="Internationalization.cs" />
+    <Compile Include="JunctionPoint.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="MessageBoxEx.cs" />
     <Compile Include="MiniMessageBox.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PEHeader.cs" />
+    <Compile Include="PerfTimer.cs" />
+    <Compile Include="PleaseWait.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProcessEx.cs" />
+    <Compile Include="Resolver.cs" />
+    <Compile Include="ServiceInstaller.cs" />
+    <Compile Include="SortableBindingList.cs" />
+    <Compile Include="SqlClient.cs" />
+    <Compile Include="SqlColumnAttributes.cs" />
+    <Compile Include="SqlConnectionStringBuilderEx.cs" />
+    <Compile Include="StatusWindow.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="SysColorPickerDialog.cs">
       <SubType>Component</SubType>
@@ -116,6 +155,10 @@
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\EditColorEventArgs.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\GimpPaletteSerializer.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\HslColor.cs" />
+    <Compile Include="UserAccount.cs" />
+    <Compile Include="Win32Exception.cs" />
+    <Compile Include="XmlDiffMerge.cs" />
+    <Compile Include="XmlIO.cs" />
     <None Include="Cyotek.Windows.Forms.ColorPicker\HsvColor.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\HueColorSlider.cs">
       <SubType>Component</SubType>
@@ -185,6 +228,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="ConnectionStringDlg.resx" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -195,6 +239,7 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Logging.docx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -210,6 +255,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Win32.cs" />
+    <None Include="WhitePaper.doc" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ColorPickerPanelVert.resx">
