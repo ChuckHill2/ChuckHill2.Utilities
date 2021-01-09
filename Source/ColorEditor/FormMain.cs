@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Diagnostics;
 using ChuckHill2.Utilities;
+using ChuckHill2.Utilities.Extensions;
 
 namespace ColorEditor
 {
@@ -36,6 +37,20 @@ namespace ColorEditor
             //m_cbbColorComboBox.Selected = Color.MediumSeaGreen;
 
             //base.OnLoad(e);
+
+            m_roundedRect.Paint += M_roundedRect_Paint;
+        }
+
+        private void M_roundedRect_Paint(object sender, PaintEventArgs e)
+        {
+            Control ctrl = (Control)sender;
+            var rc = new Rectangle(ctrl.ClientRectangle.X, ctrl.ClientRectangle.Y, ctrl.ClientRectangle.Width - 1, ctrl.ClientRectangle.Height - 1);
+
+            e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            e.Graphics.DrawRoundedRectangle(Pens.Black, rc, 10);
         }
 
         private void m_btnSystemColorDlg_Click(object sender, EventArgs e)
@@ -178,5 +193,7 @@ namespace ColorEditor
             using (var g = Graphics.FromHwnd(this.Handle))
                 TextRenderer.DrawText(g, "HhjyH", this.Font, new Point(0, (int)Math.Floor(-fm.InternalLeadingPixels)), Color.White, Color.Black);
         }
+
+
     }
 }

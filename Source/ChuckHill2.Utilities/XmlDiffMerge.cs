@@ -109,7 +109,7 @@ namespace ChuckHill2.Utilities
             {
                 if (n.NodeType != XmlNodeType.Element) continue;
                 if (n.Attributes.Count > 0)
-                    foreach (var a in n.Attributes.FindAll<XmlAttribute>(a => a.IsNamespace()))
+                    foreach (var a in n.Attributes.Cast<XmlAttribute>().Where(a => IsNamespace(a)))
                         nsmgr.AddNamespace(a.LocalName, a.Value);  //We need to declare the namespaces BEFORE we unwind the call stack.
                 CompareNodes(n, nsmgr);
             }
@@ -122,12 +122,12 @@ namespace ChuckHill2.Utilities
                 foreach (XmlAttribute a in node.Attributes)
                 {
                     XmlAttribute xa;
-                    if (a.IsNamespace())//SelectSingleNode does not work on namespace attributes!
+                    if (IsNamespace(a))//SelectSingleNode does not work on namespace attributes!
                     {
                         xp = GetXPath(a.OwnerElement);
                         XmlNode n = xOriRoot.SelectSingleNode(xp, nsmgr);
                         if (n == null) continue;
-                        xa = n.Attributes.FirstOrDefault<XmlAttribute>(m => m.Name == a.Name);
+                        xa = n.Attributes.Cast<XmlAttribute>().FirstOrDefault(m => m.Name == a.Name);
                         xp = GetXPath(a);
                     }
                     else
@@ -137,12 +137,12 @@ namespace ChuckHill2.Utilities
                     }
                     if (xa == null)
                     {
-                        if (a.Value.IsNullOrEmpty()) continue;
+                        if (string.IsNullOrWhiteSpace(a.Value)) continue;
                         if (!Identifiers.Contains(a.Name)) Adds.Add(new Diff(xp, a.Value));
                         //else Adds.Add(new Diff(GetXPath(a.OwnerElement), null)); //don't need to create an empty element.
                         continue;
                     }
-                    if (!xa.Value.EqualsI(a.Value) && !Identifiers.Contains(a.Name)) Changes.Add(new Diff(xp, a.Value, xa.Value));
+                    if (!xa.Value.Equals(a.Value, StringComparison.InvariantCultureIgnoreCase) && !Identifiers.Contains(a.Name)) Changes.Add(new Diff(xp, a.Value, xa.Value));
                     MatchedNodes.Add(xa);
                 }
             }
@@ -151,9 +151,9 @@ namespace ChuckHill2.Utilities
             XmlElement xn = (XmlElement)xOriRoot.SelectSingleNode(xp, nsmgr);
             string nodeValue = node.GetValue();
 
-            if (xn == null) { if (!nodeValue.IsNullOrEmpty()) Adds.Add(new Diff(xp, nodeValue)); return; }
+            if (xn == null) { if (!string.IsNullOrWhiteSpace(nodeValue)) Adds.Add(new Diff(xp, nodeValue)); return; }
             string xnValue = xn.GetValue();
-            if (!xnValue.EqualsI(nodeValue)) Changes.Add(new Diff(xp, nodeValue, xnValue));
+            if (!xnValue.Equals(nodeValue, StringComparison.InvariantCultureIgnoreCase)) Changes.Add(new Diff(xp, nodeValue, xnValue));
             MatchedNodes.Add(xn);
         }
 
@@ -272,13 +272,16 @@ namespace ChuckHill2.Utilities
             return sindex;
         }
 
+        private static readonly PropertyInfo pi = typeof(XmlAttribute).GetProperty("IsNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static bool IsNamespace(XmlAttribute a) => (bool)pi.GetValue(a);
+
         private void NamespaceBuilder(XmlNode node, XmlNamespaceManager nsmgr)
         {
             foreach (XmlNode n in node.ChildNodes)
             {
                 if (n.NodeType != XmlNodeType.Element) continue;
                 if (n.Attributes.Count > 0)
-                    foreach (var a in n.Attributes.FindAll<XmlAttribute>(a => a.IsNamespace()))
+                    foreach (var a in n.Attributes.Cast<XmlAttribute>().Where(a => IsNamespace(a)))
                         nsmgr.AddNamespace(a.LocalName, a.Value);  //We need to declare the namespaces BEFORE we unwind the call stack.
                 NamespaceBuilder(n, nsmgr);
             }
@@ -435,39 +438,16 @@ namespace ChuckHill2.Utilities
         }
     }
 
-    internal static class XmlDiffExtensions
+    internal static class XmlExtensions
     {
-        public static TSource FirstOrDefault<TSource>(this IEnumerable source, Func<TSource, bool> predicate)
-        {
-            if (source == null || predicate == null) return default(TSource);
-            foreach (TSource element in source)
-            {
-                if (predicate(element)) return element;
-            }
-            return default(TSource);
-        }
-
-        public static List<TSource> FindAll<TSource>(this IEnumerable source, Func<TSource, bool> predicate)
-        {
-            List<TSource> list = new List<TSource>();
-            if (source == null || predicate == null) return null;
-            foreach (TSource element in source)
-            {
-                if (predicate(element)) list.Add(element);
-            }
-            return list;
-        }
-
-        public static bool IsNullOrEmpty(this string s) => string.IsNullOrWhiteSpace(s);
-
-        public static bool EqualsI(this string s, string value) => (s == null && value == null) || (s != null && value != null && s.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+        //Also used by AppConfig.cs
 
         /// <summary>
         /// Node values are stored/retrieved differently for different node types. We just make it the same here.
         /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        public static string GetValue(this XmlNode node)
+        /// <param name="node">Node to retrieve value from</param>
+        /// <returns>String value</returns>
+        internal static string GetValue(this XmlNode node)
         {
             switch (node.NodeType)
             {
@@ -480,14 +460,20 @@ namespace ChuckHill2.Utilities
                 case XmlNodeType.Whitespace:
                 case XmlNodeType.XmlDeclaration: return node.Value;
                 case XmlNodeType.Element:
-                    XmlNode text = node.ChildNodes.FirstOrDefault<XmlNode>(n => n.NodeType == XmlNodeType.CDATA || n.NodeType == XmlNodeType.Text);
+                    XmlNode text = node.ChildNodes.Cast<XmlNode>().FirstOrDefault(n => n.NodeType == XmlNodeType.CDATA || n.NodeType == XmlNodeType.Text);
                     if (text == null) return null;
                     return text.Value;
             }
             return null;
         }
 
-        public static XmlNode SetValue(this XmlNode node, string value)
+        /// <summary>
+        /// Node values are stored/retrieved differently for different node types. We just make it the same here.
+        /// </summary>
+        /// <param name="node">Node to set value to</param>
+        /// <param name="value">Value to set</param>
+        /// <returns>The same node. Useful for daisy-chaining.</returns>
+        internal static XmlNode SetValue(this XmlNode node, string value)
         {
             switch (node.NodeType)
             {
@@ -503,8 +489,8 @@ namespace ChuckHill2.Utilities
                     break;
 
                 case XmlNodeType.Element:
-                    XmlNode text = node.ChildNodes.FirstOrDefault<XmlNode>(n => n.NodeType == XmlNodeType.CDATA || n.NodeType == XmlNodeType.Text);
-                    if (value.IsNullOrEmpty()) { if (text != null) node.RemoveChild(text); }
+                    XmlNode text = node.ChildNodes.Cast<XmlNode>().FirstOrDefault<XmlNode>(n => n.NodeType == XmlNodeType.CDATA || n.NodeType == XmlNodeType.Text);
+                    if (string.IsNullOrWhiteSpace(value)) { if (text != null) node.RemoveChild(text); }
                     else
                     {
                         if (text != null) text.Value = value;
@@ -519,56 +505,56 @@ namespace ChuckHill2.Utilities
         /// Return the node refered to by the xPath. If any elements in the node do not exist, they are created.
         /// </summary>
         /// <param name="node">node to start of xPath. if xPath is an absolute path, this node is set to the document root</param>
-        /// <param name="path">relative or absolute xPath to node</param>
+        /// <param name="xpath">relative or absolute xPath to node</param>
         /// <returns>Node referred to by the xPath</returns>
-        public static XmlNode GetNode(this XmlNode node, string path, XmlNamespaceManager nsmgr = null)
+        internal static XmlNode GetNode(this XmlNode node, string xpath, XmlNamespaceManager nsmgr = null)
         {
             char[] delimiters = new char[] { '/', '[', ']', '=', '"', '\'' };
             // xpath == /configuration/node1/node2[subnode1/subnode2[@attr="str"]/@attr2
             //book[/bookstore/@specialty=@style]
             //author[last-name = "Bob"]
 
-            if (path == null) return node;
-            path = path.Trim();
-            if (path[0] == '/') node = node.OwnerDocument ?? node;
-            path = path.Trim('/');
-            if (path.Length == 0) return node;
-            XmlNode n = node.SelectNode(path, nsmgr);
+            if (xpath == null) return node;
+            xpath = xpath.Trim();
+            if (xpath[0] == '/') node = node.OwnerDocument ?? node;
+            xpath = xpath.Trim('/');
+            if (xpath.Length == 0) return node;
+            XmlNode n = SelectNode(node, xpath, nsmgr);
             if (n != null) return n;
             char leadingDelimiter = '\0';
             char trailingDelimiter = '\0';
-            while (path.Length > 0)
+            while (xpath.Length > 0)
             {
-                int delimiterIndex = path.IndexOfAny(delimiters);
+                int delimiterIndex = xpath.IndexOfAny(delimiters);
                 if (delimiterIndex == -1)
                 {
-                    if (path[0] == '@') return node.Attributes.Append(node.OwnerDocument.CreateAttribute(path.TrimStart('@')));
-                    else return node.AppendChild(node.OwnerDocument.CreateElement(path));
+                    if (xpath[0] == '@') return node.Attributes.Append(node.OwnerDocument.CreateAttribute(xpath.TrimStart('@')));
+                    else return node.AppendChild(node.OwnerDocument.CreateElement(xpath));
                 }
 
                 leadingDelimiter = trailingDelimiter;
-                trailingDelimiter = path[delimiterIndex];
-                string item = path.Substring(0, delimiterIndex).Trim();
-                path = path.Substring(delimiterIndex + 1, path.Length - delimiterIndex - 1).Trim();
+                trailingDelimiter = xpath[delimiterIndex];
+                string item = xpath.Substring(0, delimiterIndex).Trim();
+                xpath = xpath.Substring(delimiterIndex + 1, xpath.Length - delimiterIndex - 1).Trim();
 
                 if (trailingDelimiter == '[')
                 {
                     int bracketCount = 1;
-                    for (delimiterIndex = 0; delimiterIndex < path.Length; delimiterIndex++)
+                    for (delimiterIndex = 0; delimiterIndex < xpath.Length; delimiterIndex++)
                     {
-                        if (path[delimiterIndex] == '[') { bracketCount++; continue; }
-                        if (path[delimiterIndex] == ']') { bracketCount--; if (bracketCount > 0) continue; else break; }
+                        if (xpath[delimiterIndex] == '[') { bracketCount++; continue; }
+                        if (xpath[delimiterIndex] == ']') { bracketCount--; if (bracketCount > 0) continue; else break; }
                     }
-                    n = node.SelectSingleNode(item + "[" + path.Substring(0, delimiterIndex + 1), nsmgr);
+                    n = node.SelectSingleNode(item + "[" + xpath.Substring(0, delimiterIndex + 1), nsmgr);
                     if (n == null)
                     {
                         n = node.AppendChild(node.OwnerDocument.CreateElement(item));
-                        n.GetNode(path.Substring(0, delimiterIndex));
+                        n.GetNode(xpath.Substring(0, delimiterIndex));
                     }
                     leadingDelimiter = trailingDelimiter;
-                    trailingDelimiter = path[delimiterIndex];
-                    if ((delimiterIndex + 2) > path.Length) path = string.Empty;
-                    else path = path.Substring(delimiterIndex + 2, path.Length - delimiterIndex - 2);
+                    trailingDelimiter = xpath[delimiterIndex];
+                    if ((delimiterIndex + 2) > xpath.Length) xpath = string.Empty;
+                    else xpath = xpath.Substring(delimiterIndex + 2, xpath.Length - delimiterIndex - 2);
                     node = n;
                     continue;
                 }
@@ -600,12 +586,12 @@ namespace ChuckHill2.Utilities
 
                 if (trailingDelimiter == '"' || trailingDelimiter == '\'')
                 {
-                    delimiterIndex = path.IndexOf(trailingDelimiter);
+                    delimiterIndex = xpath.IndexOf(trailingDelimiter);
                     if (delimiterIndex == -1) throw new FormatException("Invalid XPath format. Missing trailing quote");
                     leadingDelimiter = trailingDelimiter;
-                    trailingDelimiter = path[delimiterIndex];
-                    item = path.Substring(0, delimiterIndex).Trim();
-                    path = path.Substring(delimiterIndex + 1, path.Length - delimiterIndex - 1).Trim();
+                    trailingDelimiter = xpath[delimiterIndex];
+                    item = xpath.Substring(0, delimiterIndex).Trim();
+                    xpath = xpath.Substring(delimiterIndex + 1, xpath.Length - delimiterIndex - 1).Trim();
                     node.SetValue(item);
                     continue;
                 }
@@ -613,7 +599,7 @@ namespace ChuckHill2.Utilities
             return node;
         }
 
-        private static XmlNode SelectNode(this XmlNode node, string path, XmlNamespaceManager nsmgr = null)
+        private static XmlNode SelectNode(XmlNode node, string path, XmlNamespaceManager nsmgr = null)
         {
             //Used exclusively by GetNode(), above.
             XmlNode n = null;
@@ -627,9 +613,5 @@ namespace ChuckHill2.Utilities
             try { n = node.SelectSingleNode(path, nsmgr); } catch { }
             return n;
         }
-
-        private static readonly PropertyInfo pi = typeof(XmlAttribute).GetProperty("IsNamespace", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        public static bool IsNamespace(this XmlAttribute a) => (bool)pi.GetValue(a);
     }
 }

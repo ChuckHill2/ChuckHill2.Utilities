@@ -50,7 +50,7 @@ namespace ChuckHill2.Utilities
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(8, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(255, 13);
             this.label1.TabIndex = 0;
@@ -61,9 +61,9 @@ namespace ChuckHill2.Utilities
             this.m_cmbDataSource.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_cmbDataSource.FormattingEnabled = true;
-            this.m_cmbDataSource.Location = new System.Drawing.Point(28, 46);
+            this.m_cmbDataSource.Location = new System.Drawing.Point(24, 46);
             this.m_cmbDataSource.Name = "m_cmbDataSource";
-            this.m_cmbDataSource.Size = new System.Drawing.Size(269, 21);
+            this.m_cmbDataSource.Size = new System.Drawing.Size(267, 21);
             this.m_cmbDataSource.TabIndex = 1;
             this.m_cmbDataSource.DropDown += new System.EventHandler(this.m_cmbDataSource_DropDown);
             this.m_cmbDataSource.TextUpdate += new System.EventHandler(this.m_cmbDataSource_TextUpdate);
@@ -72,7 +72,7 @@ namespace ChuckHill2.Utilities
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 26);
+            this.label2.Location = new System.Drawing.Point(9, 26);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(161, 13);
             this.label2.TabIndex = 3;
@@ -81,7 +81,7 @@ namespace ChuckHill2.Utilities
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(16, 75);
+            this.label3.Location = new System.Drawing.Point(12, 75);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(207, 13);
             this.label3.TabIndex = 4;
@@ -90,7 +90,7 @@ namespace ChuckHill2.Utilities
             // m_radIntegratedSecurity
             // 
             this.m_radIntegratedSecurity.AutoSize = true;
-            this.m_radIntegratedSecurity.Location = new System.Drawing.Point(31, 92);
+            this.m_radIntegratedSecurity.Location = new System.Drawing.Point(27, 92);
             this.m_radIntegratedSecurity.Name = "m_radIntegratedSecurity";
             this.m_radIntegratedSecurity.Size = new System.Drawing.Size(199, 17);
             this.m_radIntegratedSecurity.TabIndex = 5;
@@ -102,7 +102,7 @@ namespace ChuckHill2.Utilities
             // m_radUserPass
             // 
             this.m_radUserPass.AutoSize = true;
-            this.m_radUserPass.Location = new System.Drawing.Point(31, 114);
+            this.m_radUserPass.Location = new System.Drawing.Point(27, 114);
             this.m_radUserPass.Name = "m_radUserPass";
             this.m_radUserPass.Size = new System.Drawing.Size(216, 17);
             this.m_radUserPass.TabIndex = 6;
@@ -113,7 +113,7 @@ namespace ChuckHill2.Utilities
             // 
             // m_lblUsername
             // 
-            this.m_lblUsername.Location = new System.Drawing.Point(8, 130);
+            this.m_lblUsername.Location = new System.Drawing.Point(4, 130);
             this.m_lblUsername.Name = "m_lblUsername";
             this.m_lblUsername.Size = new System.Drawing.Size(100, 23);
             this.m_lblUsername.TabIndex = 7;
@@ -122,7 +122,7 @@ namespace ChuckHill2.Utilities
             // 
             // m_lblPassword
             // 
-            this.m_lblPassword.Location = new System.Drawing.Point(8, 154);
+            this.m_lblPassword.Location = new System.Drawing.Point(4, 154);
             this.m_lblPassword.Name = "m_lblPassword";
             this.m_lblPassword.Size = new System.Drawing.Size(100, 23);
             this.m_lblPassword.TabIndex = 9;
@@ -133,16 +133,16 @@ namespace ChuckHill2.Utilities
             // 
             this.m_txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_txtPassword.Location = new System.Drawing.Point(107, 156);
+            this.m_txtPassword.Location = new System.Drawing.Point(103, 156);
             this.m_txtPassword.Name = "m_txtPassword";
-            this.m_txtPassword.Size = new System.Drawing.Size(190, 20);
+            this.m_txtPassword.Size = new System.Drawing.Size(188, 20);
             this.m_txtPassword.TabIndex = 10;
             this.m_txtPassword.UseSystemPasswordChar = true;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(16, 198);
+            this.label6.Location = new System.Drawing.Point(12, 198);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(182, 13);
             this.label6.TabIndex = 12;
@@ -153,16 +153,15 @@ namespace ChuckHill2.Utilities
             this.m_cmbDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_cmbDatabase.FormattingEnabled = true;
-            this.m_cmbDatabase.Location = new System.Drawing.Point(31, 214);
+            this.m_cmbDatabase.Location = new System.Drawing.Point(27, 214);
             this.m_cmbDatabase.Name = "m_cmbDatabase";
-            this.m_cmbDatabase.Size = new System.Drawing.Size(266, 21);
+            this.m_cmbDatabase.Size = new System.Drawing.Size(264, 21);
             this.m_cmbDatabase.TabIndex = 13;
             this.m_cmbDatabase.DropDown += new System.EventHandler(this.m_cmbDatabase_DropDown);
             // 
             // m_btnTestConnection
             // 
-            this.m_btnTestConnection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.m_btnTestConnection.Location = new System.Drawing.Point(31, 250);
+            this.m_btnTestConnection.Location = new System.Drawing.Point(27, 247);
             this.m_btnTestConnection.Name = "m_btnTestConnection";
             this.m_btnTestConnection.Size = new System.Drawing.Size(104, 23);
             this.m_btnTestConnection.TabIndex = 14;
@@ -172,9 +171,8 @@ namespace ChuckHill2.Utilities
             // 
             // m_btnCancel
             // 
-            this.m_btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.m_btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.m_btnCancel.Location = new System.Drawing.Point(222, 250);
+            this.m_btnCancel.Location = new System.Drawing.Point(218, 247);
             this.m_btnCancel.Name = "m_btnCancel";
             this.m_btnCancel.Size = new System.Drawing.Size(75, 23);
             this.m_btnCancel.TabIndex = 15;
@@ -184,8 +182,7 @@ namespace ChuckHill2.Utilities
             // 
             // m_btnOK
             // 
-            this.m_btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_btnOK.Location = new System.Drawing.Point(141, 250);
+            this.m_btnOK.Location = new System.Drawing.Point(137, 247);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(75, 23);
             this.m_btnOK.TabIndex = 16;
@@ -198,9 +195,9 @@ namespace ChuckHill2.Utilities
             this.m_cmbUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_cmbUsername.FormattingEnabled = true;
-            this.m_cmbUsername.Location = new System.Drawing.Point(107, 132);
+            this.m_cmbUsername.Location = new System.Drawing.Point(103, 132);
             this.m_cmbUsername.Name = "m_cmbUsername";
-            this.m_cmbUsername.Size = new System.Drawing.Size(190, 21);
+            this.m_cmbUsername.Size = new System.Drawing.Size(188, 21);
             this.m_cmbUsername.TabIndex = 17;
             this.m_cmbUsername.DropDown += new System.EventHandler(this.m_cmbUsername_DropDown);
             this.m_cmbUsername.TextUpdate += new System.EventHandler(this.m_cmbUsername_TextUpdate);
@@ -209,7 +206,7 @@ namespace ChuckHill2.Utilities
             // m_chkShowPassword
             // 
             this.m_chkShowPassword.AutoSize = true;
-            this.m_chkShowPassword.Location = new System.Drawing.Point(107, 178);
+            this.m_chkShowPassword.Location = new System.Drawing.Point(103, 178);
             this.m_chkShowPassword.Name = "m_chkShowPassword";
             this.m_chkShowPassword.Size = new System.Drawing.Size(102, 17);
             this.m_chkShowPassword.TabIndex = 18;
@@ -223,7 +220,7 @@ namespace ChuckHill2.Utilities
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.m_btnCancel;
-            this.ClientSize = new System.Drawing.Size(309, 285);
+            this.ClientSize = new System.Drawing.Size(307, 283);
             this.Controls.Add(this.m_cmbUsername);
             this.Controls.Add(this.m_btnOK);
             this.Controls.Add(this.m_btnCancel);
@@ -242,9 +239,9 @@ namespace ChuckHill2.Utilities
             this.Controls.Add(this.m_chkShowPassword);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(9999, 312);
+            this.MaximumSize = new System.Drawing.Size(9999, 322);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(317, 312);
+            this.MinimumSize = new System.Drawing.Size(323, 322);
             this.Name = "ConnectionStringDlg";
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;

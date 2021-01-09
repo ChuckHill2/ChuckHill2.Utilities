@@ -15,9 +15,10 @@ namespace ChuckHill2.Utilities
 
         static Encryption()
         {
+            var pwd = "my!pa$$w0rd";
             // Pre-computes, on-demand, new key and initialization vector for 256-bit AES string encryption.
             byte[] salt = Encoding.UTF8.GetBytes("What I do is appending a random salt bytes in front of the original bytes before encryption, and remove it after decryption.");
-            Rfc2898DeriveBytes keyGenerator = new Rfc2898DeriveBytes("P@ndoraVIA!", salt);
+            Rfc2898DeriveBytes keyGenerator = new Rfc2898DeriveBytes(pwd, salt);
             byte[] KEY = keyGenerator.GetBytes(32); //AES max key size=256 bits
             byte[] IV = keyGenerator.GetBytes(16);  //AES has only 1 possible block size=128 bits
             AesProvider = new AesCryptoServiceProvider() { Padding = PaddingMode.PKCS7, KeySize = KEY.Length * 8, Key = KEY, IV = IV };

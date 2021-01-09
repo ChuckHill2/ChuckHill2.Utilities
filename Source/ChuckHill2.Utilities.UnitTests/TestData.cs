@@ -18,6 +18,15 @@ namespace ChuckHill2.Utilities.UnitTests
             DataModel.GenerateData(10).Select(m => new DataModel2(m)).ToArray()
         };
 
+        public static readonly string[,] TwoDArrayNoHeader = new string[,]
+        {
+            { "8", "-39.8733546444556", "14.2455555332105", "1", "dolore magna aliqua.", "2/14/1967 6:39:25 PM", "2/14/1967 6:39:25 PM +05:00", "2/14/1967 12:00:00 AM", "1/1/1900 6:39:25 PM", "9062594f-b9af-4e43-ae8a-3ee7babebfbd", "2.18:39:25", "18.39.25.0", "Seven", "False" },
+            { "6", "38.6469540599021", "5.63023158145614", "6", "velit esse cillum dolore eu", "2/11/1956 7:10:47 PM", "2/11/1956 7:10:47 PM +04:00", "2/11/1956 12:00:00 AM", "1/1/1900 7:10:47 PM", "9062594f-b9af-4e43-ae8a-3ee7babebfbd", "3.19:10:47", "19.10.47.0", "Nine", null },
+            { "-6", "-14.6515889394337", "2.62526462442487", "2", "Ut enim ad minim veniam", "9/11/2020 10:40:40 AM", null, "9/11/2020 12:00:00 AM", "1/1/1900 10:40:40 AM", "ce064b69-ca35-4a7d-9299-d339512c90e8", "10:40:40", "10.40.40.0", "Ten", "True" },
+            { "7", "29.6144287938319", "-27.9774100882827", "1", "incididunt ut labore et", "3/3/1958 7:32:18 AM", "3/3/1958 7:32:18 AM +14:00", "3/3/1958 12:00:00 AM", "1/1/1900 7:32:18 AM", "9062594f-b9af-4e43-ae8a-3ee7babebfbd", "1.07:32:18", "7.32.18.0", "Eight", null },
+            { "6", "35.6464813396551", "27.3703996918026", "1", "Lorem ipsum dolor sit amet", "6/11/1954 9:22:00 AM", null, "6/11/1954 12:00:00 AM", "1/1/1900 9:22:00 AM", "11537a9a-6396-4927-8e8f-34289a8a827e", "3.09:22:00", "9.22.0.0", "Five", "True" }
+        };
+
         public static readonly string[][,] ArrayOf2DArrays = new string[][,]
         {
             new string[,] {
@@ -44,6 +53,14 @@ namespace ChuckHill2.Utilities.UnitTests
         };
 
         public static readonly string Csv = @"MyInt,MyDouble,MyDecimal,MyChar,MyString,MyDateTime,MyDateTimeOffset,MyDate,MyTime,MyGuid,MyTimeSpan,MyVersion,MyEnum,MyBool
+8,-39.8733546444556,14.2455555332105,1,dolore magna aliqua.,1967-02-14 18:39:25,1967-02-14 18:39:25,1967-02-14,1900-01-01 18:39:25,9062594f-b9af-4e43-ae8a-3ee7babebfbd,(02.18:39:25),18.39.25.0,Seven,False
+6,38.6469540599021,5.63023158145614,6,velit esse cillum dolore eu,1956-02-11 19:10:47,1956-02-11 19:10:47,1956-02-11,1900-01-01 19:10:47,9062594f-b9af-4e43-ae8a-3ee7babebfbd,(03.19:10:47),19.10.47.0,Nine,""""
+-6,-14.6515889394337,2.62526462442487,2,Ut enim ad minim veniam,2020-09-11 10:40:40,,2020-09-11,1900-01-01 10:40:40,ce064b69-ca35-4a7d-9299-d339512c90e8,(00.10:40:40),10.40.40.0,Ten,True
+7,29.6144287938319,-27.9774100882827,1,incididunt ut labore et,1958-03-03 07:32:18,1958-03-03 07:32:18,1958-03-03,1900-01-01 07:32:18,9062594f-b9af-4e43-ae8a-3ee7babebfbd,(01.07:32:18),7.32.18.0,Eight,""""
+6,35.6464813396551,27.3703996918026,1,Lorem ipsum dolor sit amet,1954-06-11 09:22,,1954-06-11,1900-01-01 09:22,11537a9a-6396-4927-8e8f-34289a8a827e,(03.09:22),9.22.0.0,Five,True
+";
+
+        public static readonly string Csv2Page = @"MyInt,MyDouble,MyDecimal,MyChar,MyString,MyDateTime,MyDateTimeOffset,MyDate,MyTime,MyGuid,MyTimeSpan,MyVersion,MyEnum,MyBool
 8,-39.8733546444556,14.2455555332105,1,dolore magna aliqua.,1967-02-14 18:39:25,1967-02-14 18:39:25,1967-02-14,1900-01-01 18:39:25,9062594f-b9af-4e43-ae8a-3ee7babebfbd,(02.18:39:25),18.39.25.0,Seven,False
 6,38.6469540599021,5.63023158145614,6,velit esse cillum dolore eu,1956-02-11 19:10:47,1956-02-11 19:10:47,1956-02-11,1900-01-01 19:10:47,9062594f-b9af-4e43-ae8a-3ee7babebfbd,(03.19:10:47),19.10.47.0,Nine,""""
 -6,-14.6515889394337,2.62526462442487,2,Ut enim ad minim veniam,2020-09-11 10:40:40,,2020-09-11,1900-01-01 10:40:40,ce064b69-ca35-4a7d-9299-d339512c90e8,(00.10:40:40),10.40.40.0,Ten,True

@@ -141,10 +141,10 @@ namespace ChuckHill2.Utilities
                 if (t != null && ExtractResourceFile(Assembly.GetAssembly(t), filename)) return filename;
 
                 string an = Assembly.GetExecutingAssembly().GetName().Name;
-                List<Assembly> assemblyStack = (from f in new StackTrace().GetFrames() select f.GetMethod().ReflectedType.Assembly)
+                foreach (var a in (from f in new StackTrace().GetFrames() select f.GetMethod().ReflectedType.Assembly)
+                                 .OfType<Assembly>()
                                  .Distinct()
-                                 .FindAll(m => (m.GetName().Name.StartsWith(Resolver.ProductName,StringComparison.InvariantCultureIgnoreCase) && !m.GetName().Name.Equals(an)));
-                foreach (var a in assemblyStack)
+                                 .Where(m => (m.GetName().Name.StartsWith(Resolver.ProductName, StringComparison.InvariantCultureIgnoreCase) && !m.GetName().Name.Equals(an))))
                 {
                     if (ExtractResourceFile(a, filename)) return filename;
                 }
@@ -935,7 +935,7 @@ namespace ChuckHill2.Utilities
 
                 if (productBase == null) productBase = ConfigurationManager.AppSettings["ApplicationBase"];
                 if (productBase != null && !Directory.Exists(productBase)) productBase = null;
-                if (productBase == null) productBase = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Omnicell\MyProduct", "InstallDir", null) as String;
+                if (productBase == null) productBase = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\MyCompany\MyProduct", "InstallDir", null) as String;
                 if (productBase != null && !Directory.Exists(productBase)) productBase = null;
                 if (productBase == null && serviceBase != null) //Retrieve it directly from the App.Config
                 {

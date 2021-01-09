@@ -1,14 +1,3 @@
-//--------------------------------------------------------------------------
-// <copyright file="PeHeader.cs" company="Omnicell Inc.">
-//     Copyright (c) Omnicell Inc. All rights reserved.
-//     Reproduction or transmission in whole or in part, in 
-//     any form or by any means, electronic, mechanical, or otherwise, is 
-//     prohibited without the prior written consent of the copyright owner.
-// </copyright>
-// <author>Chuck Hill</author>
-// <summary>
-// </summary>
-//--------------------------------------------------------------------------
 using System;
 using System.IO;
 using System.Runtime.InteropServices;

@@ -16,7 +16,7 @@ namespace ChuckHill2.Utilities
         {
             try
             {
-                if (dir.IsNullOrEmpty()) return false;
+                if (string.IsNullOrWhiteSpace(dir)) return false;
                 if (dir[dir.Length - 1] == '\\') dir = dir.Substring(0, dir.Length - 1);
                 string tempfn = string.Format("{0}\\{1:N}.tmp", dir, Guid.NewGuid());
                 //Go low-level for efficency
@@ -48,7 +48,7 @@ namespace ChuckHill2.Utilities
         /// <returns>True if successful, if false, 'sb' contains the files that could not be deleted.</returns>
         public static bool DeleteDirectoryTree(string dir, StringBuilder sb = null)
         {
-            if (dir.IsNullOrEmpty())
+            if (string.IsNullOrWhiteSpace(dir))
             {
                 if (sb != null) sb.AppendFormat("Directory \"{0}\" not found.", dir ?? "null");
                 return false;

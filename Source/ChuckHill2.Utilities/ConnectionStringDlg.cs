@@ -131,7 +131,7 @@ namespace ChuckHill2.Utilities
             {
                 if (connectionString.ContainsI("SQLOLEDB"))
                 {
-                    //Provider=SQLOLEDB;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=VIA;Data Source=(local)
+                    //Provider=SQLOLEDB;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=MyDatabase;Data Source=(local)
                     var db = new DbConnectionStringBuilder(false); //OleDbConnectionStringBuilder
                     db.ConnectionString = connectionString;
                     db.Remove("Provider");

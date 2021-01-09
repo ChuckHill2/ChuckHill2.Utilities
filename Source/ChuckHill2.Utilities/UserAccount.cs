@@ -371,7 +371,7 @@ namespace ChuckHill2.Utilities
 
             string fullUsername = username;
             if (username.IsNullOrEmpty()) return username; //nothing to do
-            if (username.Contains('@')) return username; //ignore user-principal style account names aka myname@omnicell.com
+            if (username.Contains('@')) return username; //ignore user-principal style account names aka myname@mycompany.com
             try
             {
                 string domain = string.Empty;

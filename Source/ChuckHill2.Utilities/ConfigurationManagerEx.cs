@@ -6,6 +6,7 @@ using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Xml;
+using ChuckHill2.Utilities.Extensions;
 
 namespace ChuckHill2.Utilities
 {

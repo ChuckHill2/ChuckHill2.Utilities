@@ -3,6 +3,7 @@ using System.Collections;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Text;
+using ChuckHill2.Utilities.Extensions;
 
 namespace ChuckHill2.Utilities
 {

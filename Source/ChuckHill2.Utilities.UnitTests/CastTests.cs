@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace ChuckHill2.Utilities.UnitTests
             // anything ==> string
             Assert.AreEqual(string.Empty, "   ".CastTo<string>(), string.Empty);
             Assert.AreEqual("Hello World", "   Hello World \n   ".CastTo<string>(), string.Empty);
+
             Assert.AreEqual("1234", 1234.CastTo<string>(), string.Empty);
             Assert.AreEqual("1234", 1234.00000m.CastTo<string>(), string.Empty);
             Assert.AreEqual("1234", 1234.00000d.CastTo<string>(), string.Empty);
@@ -38,6 +40,7 @@ namespace ChuckHill2.Utilities.UnitTests
             Assert.AreEqual(null, typeof(DateTime).CastTo<int?>(), string.Empty);
             Assert.AreEqual(typeof(DateTime), "System.DateTime, mscorlib".CastTo<Type>(), string.Empty);
             Assert.AreEqual(null, "System.FooBar, mscorlib".CastTo<Type>(), string.Empty);
+            Assert.AreEqual(typeof(DateTime), "System.FooBar, mscorlib".CastTo<Type>(typeof(DateTime)), string.Empty);
 
             // Simple integer transform
             Assert.AreEqual(null, 4.CastTo<DBNull>(), string.Empty);
@@ -47,6 +50,7 @@ namespace ChuckHill2.Utilities.UnitTests
             Assert.AreEqual("4", 4.CastTo<string>(), string.Empty);
             Assert.AreEqual(0, ((object)null).CastTo<int>(), string.Empty);
             Assert.AreEqual(null, ((object)null).CastTo<int?>(), string.Empty);
+            Assert.AreEqual((byte)8, 32768.CastTo<byte>((byte)8), string.Empty);
 
             // System.Enum <==> string/integer
             Assert.AreEqual(Numbers.Four, 4.CastTo<Numbers>(), string.Empty);
@@ -132,6 +136,9 @@ namespace ChuckHill2.Utilities.UnitTests
 
             Assert.IsTrue(TestData.ArrayOfModels[0].OfType<DataModel>().ToArray().SequenceEqual(page1));
             Assert.IsTrue(TestData.ArrayOfModels[1].OfType<DataModel2>().ToArray().SequenceEqual(page2));
+
+            var page3 = TestData.TwoDArrayNoHeader.ToModels<DataModel>(false);
+            Assert.IsTrue(TestData.ArrayOfModels[0].OfType<DataModel>().ToArray().SequenceEqual(page3));
         }
 
         [Test]
@@ -145,9 +152,19 @@ namespace ChuckHill2.Utilities.UnitTests
         }
 
         [Test]
+        public void TestToCSV()
+        {
+            var model = DataModel.GenerateData(5);
+            string result = model.ToCSV();
+            Assert.AreEqual(TestData.Csv, result);
+            Assert.IsTrue(IsSequenceEqual(model, result.CsvToModels<DataModel>()));
+        }
+
+
+        [Test]
         public void TestSplitBy()
         {
-            var page = TestData.ArrayOfModels[1].OfType<DataModel>().OrderBy(m => m.MyInt).SplitBy(m => m.MyInt);
+            var page = TestData.ArrayOfModels[1].Cast<DataModel2>().OrderBy(m => m.MyInt).SplitBy(m => m.MyInt).SplitBy(m => m.MyInt);
 
             int prevInt = int.MinValue;
             int prevRowNull = 0;
@@ -250,5 +267,19 @@ namespace ChuckHill2.Utilities.UnitTests
 
             return true;
         }
+
+        private static bool IsSequenceEqual<T>(IEnumerable<T> a1, IEnumerable<T> a2)
+        {
+            var e1 = a1.GetEnumerator();
+            var e2 = a2.GetEnumerator();
+            while(e1.MoveNext())
+            {
+                if (!e2.MoveNext()) return false;
+                if (!e1.Current.Equals(e2.Current)) return false;
+            }
+            if (e2.MoveNext()) return false;
+            return true;
+        }
+
     }
 }

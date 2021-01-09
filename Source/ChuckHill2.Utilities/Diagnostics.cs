@@ -46,7 +46,7 @@ namespace ChuckHill2.Utilities
         {
             DBG.Enabled = ConfigEnabled("ChuckHill2.Utilities.DBG.DevLoggingEnabled");
             string enabled = Environment.GetEnvironmentVariable("DevLoggingEnabled");
-            if (!enabled.IsNullOrEmpty())
+            if (!string.IsNullOrWhiteSpace(enabled))
             {
                 char c = enabled[0];
                 if (c == '1' || c == 't' || c == 'T' || c == 'y' || c == 'Y') DBG.Enabled = true;

@@ -21,19 +21,852 @@ using System.Windows.Forms;
 
 namespace ChuckHill2.Utilities.Extensions
 {
-    public static class TypeExtensions
+    public static class AppDomainExtensions
     {
         /// <summary>
-        /// Handy way to get an manifest resource stream from an assembly that 'type' resides in.
-        /// This will not access Project or Form resources (e.g. *.resources).
+        /// Normally, once the AppDomain has been created, the AppDomain.FriendlyName 
+        /// cannot be changed. This allows it to be changed.
         /// </summary>
-        /// <param name="t">Type whose assembly contains the manifest resources to search.</param>
-        /// <param name="name">The unique trailing part of resource name to search. Generally the filename.ext part.</param>
-        /// <returns>Found resource stream or null if not found. It's up to the caller to load it into the appropriate object. Generally Image.FromStream(s)</returns>
+        /// <param name="ad">AppDomain to change</param>
+        /// <param name="newname">New "FriendlyName"</param>
+        /// <returns>Previous friendly name.</returns>
+        public static string SetFriendlyName(this AppDomain ad, string newname)
+        {
+            var prevName = ad.FriendlyName;
+            MethodInfo mi = typeof(AppDomain).GetMethod("nSetupFriendlyName", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (mi == null) return null;
+            mi.Invoke(ad, new object[] { newname });
+            return prevName;
+        }
+    }
+
+    public static class AssemblyExtensions
+    {
+        /// <summary>
+        /// Get the first value (as string) for the first attribute of the given type.
+        /// </summary>
+        /// <typeparam name="T">Attribute to get value for</typeparam>
+        /// <param name="asm">Assembly to check</param>
+        /// <returns>Value as string or "" if no arguments, or null if attribute not found.</returns>
+        public static string Attribute<T>(this Assembly asm) where T : Attribute
+        {
+            foreach (CustomAttributeData data in asm.CustomAttributes)
+            {
+                if (typeof(T) != data.AttributeType) continue;
+                if (data.ConstructorArguments.Count > 0) return data.ConstructorArguments[0].Value.ToString();
+                if (data.NamedArguments.Count > 0) return data.NamedArguments[0].TypedValue.Value.ToString();
+                return string.Empty;
+            }
+            return null;
+        }
+
+        /// <summary>
+        ///  Detect if assembly attribute exists.
+        /// </summary>
+        /// <typeparam name="T">Attribute to search for</typeparam>
+        /// <param name="asm">Assembly to search in</param>
+        /// <returns>True if found</returns>
+        public static bool AttributeExists<T>(this Assembly asm) where T : Attribute
+        {
+            return asm.CustomAttributes.FirstOrDefault(ca => ca.AttributeType == typeof(T)) != null;
+        }
+
+        /// <summary>
+        /// Gets the build/link timestamp from the specified assembly file header.
+        /// </summary>
+        /// <param name="asm">Assembly to retrieve build date from</param>
+        /// <returns>The local DateTime that the specified assembly was built.</returns>
         /// <remarks>
-        /// See ImageAttribute regarding access of any image resource from anywhere.
+        /// WARNING: When compiled in a .netcore application/library, the PE timestamp 
+        /// is NOT set with the the application link time. It contains some other non-
+        /// timestamp (hash?) value. To force the .netcore linker to embed the true 
+        /// timestamp as previously, add the csproj property 
+        /// "<Deterministic>False</Deterministic>".
         /// </remarks>
-        public static Stream GetManifestResourceStream(this Type t, string name) => t.Assembly.GetManifestResourceStream(t.Assembly.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith(name, StringComparison.OrdinalIgnoreCase)) ?? "NULL");
+        public static DateTime PeTimeStamp(this Assembly asm)
+        {
+            if (asm==null || asm.IsDynamic)
+            {
+                // The assembly was dynamically built in-memory so the build date is Now. Besides, 
+                // accessing the location of a dynamically built assembly will throw an exception!
+                return DateTime.Now;
+            }
+
+            return PeTimeStamp(asm.Location);
+        }
+
+        /// <summary>
+        /// Gets the build/link timestamp from the specified executable file header.
+        /// </summary>
+        /// <param name="filePath">PE file to retrieve build date from</param>
+        /// <returns>The local DateTime that the specified assembly was built.</returns>
+        /// <remarks>
+        /// WARNING: When compiled in a .netcore application/library, the PE timestamp 
+        /// is NOT set with the the application link time. It contains some other non-
+        /// timestamp hash value. To force the .netcore linker to embed the true 
+        /// timestamp as previously, add the csproj property 
+        /// "<Deterministic>False</Deterministic>".
+        /// </remarks>
+        private static DateTime PeTimeStamp(string filePath)
+        {
+            uint TimeDateStamp = 0;
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                //Minimum possible executable file size.
+                if (stream.Length < 268) throw new BadImageFormatException("Not a PE file. File too small.", filePath);
+                //The first 2 bytes in file == IMAGE_DOS_SIGNATURE, 0x5A4D, or MZ.
+                if (stream.ReadByte() != 'M' || stream.ReadByte() != 'Z') throw new BadImageFormatException("Not a PE file. DOS Signature not found.", filePath);
+                stream.Position = 60; //offset of IMAGE_DOS_HEADER.e_lfanew
+                stream.Position = ReadUInt32(stream); // e_lfanew = 128
+                uint ntHeadersSignature = ReadUInt32(stream); // ntHeadersSignature == 17744 aka "PE\0\0"
+                if (ntHeadersSignature != 17744) throw new BadImageFormatException("Not a PE file. NT Signature not found.", filePath);
+                stream.Position += 4; //offset of IMAGE_FILE_HEADER.TimeDateStamp
+                TimeDateStamp = ReadUInt32(stream); //unix-style time_t value
+            }
+
+            DateTime returnValue = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(TimeDateStamp);
+            returnValue = returnValue.ToLocalTime();
+
+            if (returnValue < new DateTime(2000, 1, 1) || returnValue > DateTime.Now)
+            {
+                // PEHeader link timestamp field is a hash of the content of this file because csproj property
+                // "Deterministic" == true so we just return the 2nd best "build" time (iffy, unreliable).
+                return File.GetCreationTime(filePath);
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// Support utility exclusively for PEtimestamp()
+        /// </summary>
+        /// <param name="fs">File stream</param>
+        /// <returns>32-bit unsigned int at current offset</returns>
+        private static uint ReadUInt32(FileStream fs)
+        {
+            byte[] bytes = new byte[4];
+            fs.Read(bytes, 0, 4);
+            return BitConverter.ToUInt32(bytes, 0);
+        }
+    }
+
+    public static class DataSetExtensions
+    {
+        /// <summary>
+        /// Converts the specified column.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="column">The column.</param>
+        /// <param name="conversion">The conversion.</param>
+        public static void ConvertTo<T>(this DataColumn column, Func<object, T> conversion)
+        {
+            foreach (DataRow row in column.Table.Rows) { row[column] = conversion(row[column]); }
+        }
+
+        /// <summary>
+        /// Create a delimited string all the values in a DataTable column.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="elementDelimiter">character to be used as a delimiter between each row element</param>
+        /// <param name="removeEmpties">True to remove null or empty values. default=False</param>
+        /// <returns></returns>
+        public static string ToString(this DataColumn column, char elementDelimiter, bool removeEmpties = false)
+        {
+            if (column == null || column.Table == null) return string.Empty;
+            var sb = new StringBuilder();
+            bool needsComma = false;
+            foreach (DataRow r in column.Table.Rows)
+            {
+                var value = r[column].ToString().Trim();
+                if (removeEmpties && value.Length == 0) continue;
+                if (needsComma) sb.Append(elementDelimiter);
+                sb.Append(value);
+                needsComma = true;
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Create a typed list all the values in a DataTable column.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="removeEmpties">True to remove null or empty values. default=False</param>
+        /// <returns></returns>
+        public static IList ToList(this DataColumn column, bool removeEmpties = false)
+        {
+            if (column == null) return new List<Object>(0);
+            Type listType = typeof(List<>).MakeGenericType(new[] { column.DataType });
+            int maxCount = column.Table == null ? 0 : column.Table.Rows.Count;
+            IList list = (IList)Activator.CreateInstance(listType, new Object[] { maxCount });
+            if (column.Table == null) return list;
+            foreach (DataRow r in column.Table.Rows)
+            {
+                var value = r[column];
+                if (removeEmpties && value.ToString().Trim().Length == 0) continue;
+                list.Add(value);
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Convert a DataTable to a CSV string.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns>formatted CSV string</returns>
+        public static string ToCSV(this DataTable dt)
+        {
+            MemoryStream sw = new MemoryStream();
+            try
+            {
+                dt.CreateDataReader().ToCSV(sw);
+                return sw.ToStringEx();
+            }
+            finally { sw.Dispose(); }
+        }
+
+        /// <summary>
+        /// Generic converter from DataReader to CSV stream. 
+        /// </summary>
+        /// <param name="dataReader"></param>
+        /// <param name="writer">Text stream to write CSV output to.</param>
+        public static void ToCSV(this IDataReader dataReader, Stream stream)
+        {
+            CsvWriter writer = null;
+            try
+            {
+                writer = new CsvWriter(stream);
+                for (int i = 0; i < dataReader.FieldCount; i++)
+                {
+                    writer.WriteField(dataReader.GetName(i));
+                }
+                writer.WriteEOL();
+
+                //Rows
+                while (dataReader.Read())
+                {
+                    for (int i = 0; i < dataReader.FieldCount; i++)
+                    {
+                        writer.WriteField(dataReader[i]);
+                    }
+                    writer.WriteEOL();
+                }
+            }
+            finally
+            {
+                if (writer != null) writer.Dispose();
+            }
+        }
+    }
+
+    public static class DateTimeExtensions
+    {
+        /// <summary>
+        /// Round datetime to the nearest whole day.
+        /// </summary>
+        /// <param name="dt">DateTime to round.</param>
+        /// <returns>Date rounded to the nearest whole day. dt.Kind is preserved.</returns>
+        public static System.DateTime ToDay(this System.DateTime dt)
+        {
+            dt = dt.ToHour();
+            return new System.DateTime(dt.Year, dt.Month, 1, 0, 0, 0, 0, dt.Kind).AddDays((dt.Day - 1) + (dt.Hour > 12 ? 1 : 0));
+        }
+
+        /// <summary>
+        /// Round datetime to the nearest whole hour.
+        /// </summary>
+        /// <param name="dt">DateTime to round.</param>
+        /// <returns>Datetime rounded to the nearest whole hour. dt.Kind is preserved.</returns>
+        public static System.DateTime ToHour(this System.DateTime dt)
+        {
+            dt = dt.ToMinute();
+            return new System.DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0, 0, dt.Kind).AddHours(dt.Minute > 30 ? 1 : 0);
+        }
+
+        /// <summary>
+        /// Round datetime to the nearest minute. 
+        /// </summary>
+        /// <param name="dt">Datetime to round</param>
+        /// <returns>Rounded datetime. dt.Kind is preserved.</returns>
+        public static DateTime ToMinute(this DateTime dt)
+        {
+            dt = dt.ToSecond();
+            return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, 0, dt.Kind).AddMinutes(dt.Second > 30 ? 1 : 0);
+        }
+
+        /// <summary>
+        /// Round datetime to the nearest second. 
+        /// </summary>
+        /// <param name="dt">Datetime to round</param>
+        /// <returns>Rounded datetime. dt.Kind is preserved.</returns>
+        public static DateTime ToSecond(this DateTime dt) => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second + (dt.Millisecond > 500 ? 1 : 0), 0, dt.Kind);
+
+        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
+
+        /// <summary>
+        /// Convert datetime to unix time_t integer in seconds.
+        /// </summary>
+        /// <param name="dt">Datetime to convert.</param>
+        /// <returns>time_t integer representing seconds from 1/1/1970.</returns>
+        public static int ToUnixTime(this DateTime dt) => (int)(dt - UnixEpoch).TotalSeconds;
+
+        /// <summary>
+        /// Convert time_t seconds from 1/1/1970 to DateTime
+        /// </summary>
+        /// <param name="time_t">Seconds from 1/1/1970</param>
+        /// <returns>Datetime equivalant.</returns>
+        public static DateTime FromUnixTime(this int time_t) => UnixEpoch.AddSeconds(time_t);
+    }
+
+    public static class DictionaryExtensions
+    {
+        /// <summary>
+        /// Deserialize a formatted string into a string,string dictionary.
+        /// Empty fields are skipped as a null key with a null value are not allowed.
+        /// All leading and trailing whitespace is removed from the elements.
+        /// Duplicate keys are overwritten.
+        /// Note that the string keys are case-insensitive.
+        /// </summary>
+        /// <remarks>
+        /// \code{.cs}
+        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
+        /// The result is:
+        ///    Count = 7
+        ///    [0] {[1, A]}
+        ///    [1] {[2, =B=X]}
+        ///    [2] {[3, C]}
+        ///    [3] {[4, D]}
+        ///    [4] {[5, E]}
+        ///    [5] {[6, ]}
+        ///    [6] {[7, null]}
+        ///   \endcode
+        /// </remarks>
+        /// <param name="s">Source string to parse.</param>
+        /// <returns>Dictionary containing the parsed results.</returns>
+        public static Dictionary<string, string> ToDictionary(this string s) =>
+            ToDictionary<string, string>(s, ',', '=', k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
+
+        /// <summary>
+        /// Deserialize a formatted string into a string,string dictionary.
+        /// Empty fields are skipped as a null key with a null value are not allowed.
+        /// All leading and trailing whitespace is removed from the elements.
+        /// Duplicate keys are overwritten.
+        /// Note that the string keys are case-insensitive.
+        /// </summary>
+        /// <remarks>
+        /// \code{.cs}
+        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
+        /// The result is:
+        ///    Count = 7
+        ///    [0] {[1, A]}
+        ///    [1] {[2, =B=X]}
+        ///    [2] {[3, C]}
+        ///    [3] {[4, D]}
+        ///    [4] {[5, E]}
+        ///    [5] {[6, ]}
+        ///    [6] {[7, null]}
+        ///   \endcode
+        /// </remarks>
+        /// <param name="s">Source string to parse.</param>
+        /// <param name="elementDelimiter">character used between each keyvalue element.</param>
+        /// <param name="kvDelimiter">character used between the key and value pairs.</param>
+        /// <returns>Dictionary containing the parsed results.</returns>
+        public static Dictionary<string, string> ToDictionary(this string s, char elementDelimiter, char kvDelimiter) =>
+            ToDictionary<string, string>(s, elementDelimiter, kvDelimiter, k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
+
+        /// <summary>
+        /// Deserialize a formatted string into a typed dictionary.
+        /// Empty fields are skipped as a null key with a null value are not allowed.
+        /// All leading and trailing whitespace is removed from the elements.
+        /// Duplicate keys are overwritten.
+        /// </summary>
+        /// <remarks>
+        /// \code{.cs}
+        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
+        /// The result is:
+        ///    Count = 7
+        ///    [0] {[1, A]}
+        ///    [1] {[2, =B=X]}
+        ///    [2] {[3, C]}
+        ///    [3] {[4, D]}
+        ///    [4] {[5, E]}
+        ///    [5] {[6, ]}
+        ///    [6] {[7, null]}
+        ///   \endcode
+        /// </remarks>
+        /// <typeparam name="TKey">The type of the Key in the keyvalue pair.</typeparam>
+        /// <typeparam name="TValue">The type of the Value in the keyvalue pair.</typeparam>
+        /// <param name="s">Source string to parse.</param>
+        /// <param name="elementDelimiter">Character used between each keyvalue element.</param>
+        /// <param name="kvDelimiter">Character used between the key and value pairs.</param>
+        /// <param name="keyConverter">Delegate used to deserialize key string into the TKey type</param>
+        /// <param name="valueConverter">Delegate used to deserialize value string into the TValue type</param>
+        /// <param name="comparer">Key equality comparer</param>
+        /// <returns>Dictionary containing the parsed results.</returns>
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this string s, char elementDelimiter, char kvDelimiter, Func<string, TKey> keyConverter, Func<string, TValue> valueConverter, IEqualityComparer<TKey> comparer = null)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return new Dictionary<TKey, TValue>(0, comparer);
+            string[] array = s.Split(new Char[] { elementDelimiter }, StringSplitOptions.RemoveEmptyEntries);
+            Dictionary<TKey, TValue> d = new Dictionary<TKey, TValue>(array.Length, comparer);
+            TValue defalt = default(TValue);
+
+            foreach (string item in array)
+            {
+                if (string.IsNullOrWhiteSpace(item)) continue;
+                string szKey;
+                string szValue;
+
+                int i = item.IndexOf(kvDelimiter);
+                if (i == -1)
+                {
+                    szKey = item.Trim();
+                    szValue = null;
+                }
+                else
+                {
+                    szKey = item.Substring(0, i).Trim();
+                    szValue = item.Substring(i + 1).Trim();
+                }
+
+                d[keyConverter(szKey)] = szValue == null ? defalt : valueConverter(szValue);
+            }
+            return d;
+        }
+
+        /// <summary>
+        /// Safely gets the value associated with the specified key. An alternatitive to dictionary.TryGetValue().
+        /// </summary>
+        /// <typeparam name="TKey">Key type</typeparam>
+        /// <typeparam name="TValue">Value type</typeparam>
+        /// <param name="dict"></param>
+        /// <param name="key">The key whose value to get.</param>
+        /// <returns>The value for the associated key or the default value if it doesn't exist (null for reference types, the default for value types)</returns>
+        public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
+        {
+            if (dict == null || key == null) return default(TValue); //to avoid exception when key==null
+            lock (dict)
+            {
+                if (dict.TryGetValue(key, out TValue value)) return value;
+                return default(TValue);
+            }
+        }
+    }
+
+    public static class EnumExtensions
+    {
+        /// <summary>
+        /// Retrieve the DescriptionAttribute string associated with an Enum value.
+        /// Example: 
+        /// enum MyEnum {
+        ///     [Description("My Value #1")] MyValue1,
+        ///     [Description("My Value #2")] MyValue2
+        ///  }
+        /// Useful for Data Binding an Enum with human-friendly Descriptions to ComboBoxes
+        /// http://www.codeproject.com/KB/cs/enumdatabinding.aspx
+        /// combo.DataSource = typeof(MyEnum).Descriptions();
+        /// combo.DisplayMember = "Value";
+        /// combo.ValueMember = "Key";
+        /// </summary>
+        /// <typeparam name="T">Enum type</typeparam>
+        /// <param name="value">Enum value to retrieve description string from.</param>
+        /// <returns>Associated description string or the enum value string itself</returns>
+        public static string Description<T>(this T value) where T : struct, IComparable, IConvertible, IFormattable
+        {
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
+            FieldInfo fi = typeof(T).GetField(value.ToString());
+            DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (attributes.Length > 0) return attributes[0].Description;
+            else return value.ToString();
+        }
+
+        /// <summary>
+        /// Retrieve a list of all the DescriptionAttribute strings associated with an Enum type.
+        /// Example: 
+        /// enum MyEnum {
+        ///     [Description("My Value #1")] MyValue1,
+        ///     [Description("My Value #2")] MyValue2
+        ///  }
+        /// Useful for Data Binding an Enum with human-friendly Descriptions to ComboBoxes
+        /// http://www.codeproject.com/KB/cs/enumdatabinding.aspx
+        /// combo.DataSource = typeof(MyEnum).Descriptions();
+        /// combo.DisplayMember = "Value";
+        /// combo.ValueMember = "Key";
+        /// </summary>
+        /// <typeparam name="T">Enum type</typeparam>
+        /// <returns>Associated list of description strings for the enum type</returns>
+        public static IDictionary<T, string> AllDescriptions<T>(this T enm) where T : struct, IComparable, IConvertible, IFormattable
+        {
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
+            T[] enumValues = Enum.GetValues(typeof(T)) as T[];
+            Dictionary<T, string> d = new Dictionary<T, string>(enumValues.Length);
+            foreach (T value in enumValues) { d.Add(value, Description(value)); }
+            return d;
+        }
+    }
+
+    public static class ExceptionExtensions
+    {
+        //HACK! Exception.Message is read only! We create extension methods to correct this.
+        private static readonly FieldInfo _message = typeof(Exception).GetField("_message", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>
+        /// Replace the existing exception message string
+        /// </summary>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="msg">New exception message.</param>
+        /// <returns>Updated exception</returns>
+        public static Exception ReplaceMessage(this Exception ex, string msg) { _message.SetValue(ex, msg); return ex; }
+
+        /// <summary>
+        /// Append string to the existing exception message string. A newline is automatically inserted.
+        /// </summary>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="msg">Text to append.</param>
+        /// <returns>Updated exception</returns>
+        public static Exception AppendMessage(this Exception ex, string msg) { _message.SetValue(ex, ex.Message + Environment.NewLine + msg); return ex; }
+
+        /// <summary>
+        /// Prefix string to the existing exception message string. A newline is automatically inserted.
+        /// </summary>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="msg">Text to prefix</param>
+        /// <returns>Updated exception</returns>
+        public static Exception PrefixMessage(this Exception ex, string msg) { _message.SetValue(ex, msg + Environment.NewLine + ex.Message); return ex; }
+
+        /// <summary>
+        /// Insert child exception as inner exception to this exception.
+        /// </summary>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <param name="childEx">Exception to insert as inner exception.</param>
+        /// <returns>Updated exception</returns>
+        public static Exception AppendInnerException(this Exception ex, Exception childEx)
+        {
+            if (ex.InnerException != null) AppendInnerException(ex.InnerException, childEx);
+            else
+            {
+                //parentEx.InnerException = childEx; aka private Exception _innerException
+                FieldInfo _innerException = typeof(Exception).GetField("_innerException", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (_innerException != null) _innerException.SetValue(ex, childEx);
+            }
+            return ex;
+        }
+
+        /// <summary>
+        /// Add a stack trace to this exception if it does not already have one. 
+        /// An uninitalized stack trace occurs when the caller instantiates a new 
+        /// Exception(). Normally, when the exception gets thrown, the stack trace
+        /// is automatically added. This extension method is only needed when the 
+        /// newly created exception is NOT going to be thrown. This extension method
+        /// will NOT overwrite a pre-existing stack trace.
+        /// </summary>
+        /// <param name="ex">Exception to modify in-place.</param>
+        /// <returns>Updated exception</returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static Exception WithStackTrace(this Exception ex)
+        {
+            if (ex.StackTrace != null) return ex;
+
+            string st = Environment.StackTrace;
+            //Need to unwind stack trace to remove our private internal calls:
+            //   at System.Environment.get_StackTrace()
+            //   at Diagnostics.ExceptionUtils.WithStackTrace(Exception ex) in C:\SourceCode\Diagnostics\Diagnostics.cs:line 291
+            //Can't just search for st.IndexOf("WithStackTrace"), because the function name may not exist in obfuscated code!
+
+            string name = System.Reflection.MethodBase.GetCurrentMethod().Name;
+            int i = st.IndexOf(name);
+            if (i > 0) i = st.IndexOf("   at ", i);
+            if (i > 0) st = st.Substring(i);
+            FieldInfo _stackTraceString = typeof(Exception).GetField("_stackTraceString", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (_stackTraceString != null) _stackTraceString.SetValue(ex, st);
+            return ex;
+        }
+
+        /// <summary>
+        /// Retrieve exception message with all inner exception messages, appended.
+        /// </summary>
+        /// <remarks>
+        /// Great for logging when the relevent message is in an inner exception.
+        /// </remarks>
+        /// <param name="ex">Exception to recurse</param>
+        /// <returns>Combined exception message string.</returns>
+        public static string FullMessage(this Exception ex)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(ex.GetType().Name);
+            sb.Append(": ");
+            do
+            {
+                sb.Append(ex.Message.Trim());
+                ex = ex.InnerException;
+                if (ex != null && !string.IsNullOrEmpty(ex.Message)) sb.Append(" / ");
+                else break;
+            } while (ex != null);
+            return sb.ToString();
+        }
+    }
+
+    public static class GDI
+    {
+        /// <summary>
+        /// Draw a rectangle with rounded corners.
+        /// </summary>
+        /// <param name="graphics">The GDI+ Graphics object to draw on to.</param>
+        /// <param name="pen">The GDI pen to use.</param>
+        /// <param name="bounds">The bounding rectangle</param>
+        /// <param name="radius">The radius of the corners in pixels</param>
+        /// <remarks>
+        /// If the radius is a little jagged, try adding antialias:
+        /// @code{.cs}
+        ///    e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+        ///    e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+        ///    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        ///    e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+        /// @endcode
+        /// </remarks>
+        public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
+
+            int dia = radius * 2;
+            gp.AddArc(bounds.X, bounds.Y, dia, dia, 180, 90);
+            gp.AddArc(bounds.X + bounds.Width - dia, bounds.Y, dia, dia, 270, 90);
+            gp.AddArc(bounds.X + bounds.Width - dia, bounds.Y + bounds.Height - dia, dia, dia, 0, 90);
+            gp.AddArc(bounds.X, bounds.Y + bounds.Height - dia, dia, dia, 90, 90);
+            gp.AddLine(bounds.X, bounds.Y + bounds.Height - dia, bounds.X, bounds.Y + dia / 2);
+            gp.Flatten();
+
+            graphics.DrawPath(pen, gp);
+        }
+
+        /// <summary>
+        /// Fill a rectangle with rounded corners.
+        /// </summary>
+        /// <param name="graphics">The GDI+ Graphics object to draw on to.</param>
+        /// <param name="brush">The GDI pen to use.</param>
+        /// <param name="bounds">The bounding rectangle</param>
+        /// <param name="radius">The radius of the corners in pixels</param>
+        /// <remarks>
+        /// If the radius is a little jagged, try adding antialias:
+        /// @code{.cs}
+        ///    e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+        ///    e.Graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+        ///    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        ///    e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+        /// @endcode
+        /// </remarks>
+        public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int radius)
+        {
+            System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
+
+            int dia = radius * 2;
+            gp.AddArc(bounds.X, bounds.Y, dia, dia, 180, 90);
+            gp.AddArc(bounds.X + bounds.Width - dia, bounds.Y, dia, dia, 270, 90);
+            gp.AddArc(bounds.X + bounds.Width - dia, bounds.Y + bounds.Height - dia, dia, dia, 0, 90);
+            gp.AddArc(bounds.X, bounds.Y + bounds.Height - dia, dia, dia, 90, 90);
+            gp.AddLine(bounds.X, bounds.Y + bounds.Height - dia, bounds.X, bounds.Y + dia / 2);
+
+            graphics.FillPath(brush, gp);
+        }
+
+        [DllImport("Shell32.dll")] private static extern int SHDefExtractIconW([MarshalAs(UnmanagedType.LPWStr)] string pszIconFile, int iIndex, int uFlags, out IntPtr phiconLarge, /*out*/ IntPtr phiconSmall, int nIconSize);
+        /// <summary>Returns an icon of the specified size that is contained in the specified file.</summary>
+        /// <param name="filePath">The path to the file that contains the icon.</param>
+        /// <param name="size">Size of icon to retrieve.</param>
+        /// <returns>The Icon representation of the image that is contained in the specified file. Must be disposed after use.</returns>
+        /// <exception cref="System.ArgumentException">The parameter filePath does not indicate a valid file.-or- indicates a Universal Naming Convention (UNC) path.</exception>
+        /// <remarks>
+        /// Icons files contain multiple sizes and bit-depths of an image ranging from 16x16 to 256x256 in multiples of 8. Example: 16x16, 24x24, 32x32, 48x48, 64x64, 96x96, 128*128, 256*256.
+        /// Icon.ExtractAssociatedIcon(filePath), retrieves only the 32x32 icon, period. This method will use the icon image that most closely matches the specified size and then resizes it to fit the specified size.
+        /// </remarks>
+        /// <see cref="https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw"/>
+        /// <see cref="https://devblogs.microsoft.com/oldnewthing/20140501-00/?p=1103"/>
+        public static Icon ExtractAssociatedIcon(string filePath, int size)
+        {
+            const int SUCCESS = 0;
+            IntPtr hIcon;
+
+            if (SHDefExtractIconW(filePath, 0, 0, out hIcon, IntPtr.Zero, size) == SUCCESS)
+            {
+                return Icon.FromHandle(hIcon);
+            }
+
+            return null;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MARGINS
+        {
+            public int leftWidth;
+            public int rightWidth;
+            public int topHeight;
+            public int bottomHeight;
+        }
+        [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
+        [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+        /// <summary>
+        /// Enable dropshadow to a borderless form. Unlike forms with borders, forms with FormBorderStyle.None have no dropshadow. 
+        /// </summary>
+        /// <param name="form">Borderless form to add dropshadow to. Must be called AFTER form handle has been created. see Form.Created or Form.Shown events.</param>
+        /// <exception cref="InvalidOperationException">Must be called AFTER the form handle has been created.</exception>
+        /// <see cref="https://stackoverflow.com/questions/60913399/border-less-winform-form-shadow/60916421#60916421"/>
+        /// <remarks>
+        /// This method does nothing if the form does not have FormBorderStyle.None.
+        /// </remarks>
+        public static void ApplyShadows(Form form)
+        {
+            if (form.FormBorderStyle != FormBorderStyle.None) return;
+            if (Environment.OSVersion.Version.Major < 6) return;
+            if (!form.IsHandleCreated) throw new InvalidOperationException("Must be called AFTER the form handle has been created.");
+
+            var v = 2;
+            DwmSetWindowAttribute(form.Handle, 2, ref v, 4);
+
+            MARGINS margins = new MARGINS()
+            {
+                bottomHeight = 1,
+                leftWidth = 0,
+                rightWidth = 1,
+                topHeight = 0
+            };
+
+            DwmExtendFrameIntoClientArea(form.Handle, ref margins);
+        }
+    }
+
+    public static class ListExtensions
+    {
+        /// <summary>
+        /// Deserializes a formatted comma-delimited string into an eumerable list of strings.
+        /// </summary>
+        /// <remarks>
+        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
+        /// Warning: If an item itself contains a comma, the results are unexpected.
+        /// </remarks>
+        /// <param name="s">Source item-delimited string to parse.</param>
+        /// <returns>Enumerable list of strings.</returns>
+        public static IEnumerable<string> ToEnumerableList(this string s) => ToEnumerableList<string>(s, ',', v => v);
+
+        /// <summary>
+        /// Deserializes a formatted comma-delimited string into an eumerable list of strings.
+        /// </summary>
+        /// <remarks>
+        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
+        /// Warning: If an item itself contains a delimiter, the results are unexpected.
+        /// </remarks>
+        /// <param name="s">Source item-delimited string to parse.</param>
+        /// <param name="elementDelimiter">Character used between each element.</param>
+        /// <returns>Enumerable list of strings.</returns>
+        public static IEnumerable<string> ToEnumerableList(this string s, char elementDelimiter) => ToEnumerableList<string>(s, elementDelimiter, v => v);
+
+        /// <summary>
+        /// Deserializes a formatted delimited string into a typed enumerable list.
+        /// </summary>
+        /// <remarks>
+        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
+        /// Warning: If an item itself contains a delimiter, the results are unexpected.
+        /// </remarks>
+        /// <typeparam name="T">The item Type</typeparam>
+        /// <param name="s">Source item-delimited string to parse.</param>
+        /// <param name="elementDelimiter">Character used between each element.</param>
+        /// <param name="valueConverter">Delegate used to deserialize the value element into the TValue type</param>
+        /// <returns>Enumerable list of values.</returns>
+        public static IEnumerable<T> ToEnumerableList<T>(this string s, char elementDelimiter, Func<string, T> valueConverter)
+        {
+            var sb = new StringBuilder();
+            int spCount = 0;
+            foreach (var c in s)
+            {
+                if (c == elementDelimiter)
+                {
+                    sb.Length -= spCount;
+                    yield return valueConverter(sb.ToString());
+                    sb.Length = 0;
+                    continue;
+                }
+                if (sb.Length == 0 && c <= 32) continue;
+
+                spCount = c <= 32 ? spCount + 1 : 0;
+                sb.Append(c);
+            }
+
+            if (sb.Length > 0)
+            {
+                sb.Length -= spCount;
+                yield return valueConverter(sb.ToString());
+            }
+
+            //The following is a vastly simpler version but it creates twice as many temporary strings and does not stream the intermediate items; it creates them all up front. Not memory efficient...
+            //string[] array = s.Split(new Char[] { elementDelimiter });
+            //foreach (string item in array)
+            //{
+            //    yield return valueConverter(item.Trim());
+            //}
+
+            yield break;
+        }
+
+        /// <summary>
+        /// Compare 2 string lists of delimited items.
+        /// </summary>
+        /// <param name="s1">First list of delimited items.</param>
+        /// <param name="s2">List of delimited items to compare.</param>
+        /// <param name="ignoreOrder">True to ignore sequence order</param>
+        /// <param name="elementDelimiter">list item delimiter</param>
+        /// <param name="ignoreCase">True to be case-insensitive</param>
+        /// <returns>True if matched.</returns>
+        public static bool ListEquals(this string s1, string s2, bool ignoreOrder = true, char elementDelimiter = ',', bool ignoreCase = true)
+        {
+            if (s1.IsNullOrEmpty() && s2.IsNullOrEmpty()) return true;
+            if (s1.IsNullOrEmpty() || s2.IsNullOrEmpty()) return false;
+
+            var L1 = s1.ToEnumerableList(elementDelimiter).ToList();
+            var L2 = s2.ToEnumerableList(elementDelimiter).ToList();
+            if (L1.Count != L2.Count) return false;
+            if (ignoreOrder)
+            {
+                StringComparer comparer = ignoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture;
+                L1.Sort(comparer);
+                L2.Sort(comparer);
+            }
+
+            StringComparison comparison = ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture;
+            for (int i = 0; i < L1.Count; i++)
+            {
+                if (!L1[i].Equals(L2[i], comparison)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Get index of the first array element that matches delegate.
+        /// </summary>
+        /// <typeparam name="T">Type of item in list</typeparam>
+        /// <param name="list">List to search</param>
+        /// <param name="match">Delegate to determine if there is a match</param>
+        /// <returns>Index of matched element or -1 if not found</returns>
+        public static int IndexOf<T>(this IList<T> list, Func<T, bool> match) where T : class
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (match(list[i])) return i;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Get index of the last array element that matches delegate.
+        /// </summary>
+        /// <typeparam name="T">Type of item in list</typeparam>
+        /// <param name="list">List to search</param>
+        /// <param name="match">Delegate to determine if there is a match</param>
+        /// <returns>Index of matched element or -1 if not found</returns>
+        public static int LastIndexOf<T>(this IList<T> list, Func<T, bool> match) where T : class
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                if (match(list[i])) return i;
+            }
+            return -1;
+        }
     }
 
     public static class MathEx
@@ -95,64 +928,40 @@ namespace ChuckHill2.Utilities.Extensions
         }
     }
 
-    public static class StringExtensions
+    public static class MemberInfoExtensions
     {
         /// <summary>
-        /// Reformat SQL, C#,and C++ code fragments. Generally for logging purposes.
+        /// Get the first value (as string) for the first attribute of the given type
         /// </summary>
-        /// <remarks>
-        /// • Replaces all tabs with 2 spaces.<br />
-        /// • Removes trailing whitespace on each line.<br />
-        /// • Squeezes out multiple newlines.
-        /// </remarks>
-        /// <returns>Formatted code fragment</returns>
-        public static string Beautify(this string s) => Beautify(s, false, null);
-
-        /// <summary>
-        /// Reformat SQL, C#,and C++ code fragments. Generally for logging purposes.
-        /// </summary>
-        /// <remarks>
-        /// • Replaces all tabs with 2 spaces.<br />
-        /// • Removes trailing whitespace on each line.<br />
-        /// • Squeezes out multiple newlines.<br />
-        /// • Indent all lines with this string (usually whitespace chars)
-        /// </remarks>
-        /// <param name="s">String to operate upon</param>
-        /// <param name="indent">string to indent each line with</param>
-        /// <returns>Formatted code fragment</returns>
-        public static string Beautify(this string s, string indent) => Beautify(s, false, indent);
-
-        /// <summary>
-        /// Reformat SQL, C#, and C++ code fragments. Generally for logging purposes.
-        /// </summary>
-        /// <remarks>
-        /// • Replaces all tabs with 2 spaces.<br />
-        /// • Removes trailing whitespace on each line.<br />
-        /// • Squeezes out multiple newlines.<br />
-        /// • Strip SQL and C/C# comments.<br />
-        /// • Indent all lines with this string (usually whitespace chars)
-        /// </remarks>
-        /// <param name="s">String to operate upon</param>
-        /// <param name="stripComments">True to strip comments</param>
-        /// <param name="indent">string to indent each line with</param>
-        /// <returns>Formatted code fragment</returns>
-        public static string Beautify(this string s, bool stripComments, string indent)
+        /// <typeparam name="T">Attribute to get value for</typeparam>
+        /// <param name="mi">Object member info</param>
+        /// <returns>Value as string or "" if no arguments, or null if attribute not found.</returns>
+        public static string Attribute<T>(this MemberInfo mi) where T : Attribute
         {
-            if (stripComments)
+            foreach (CustomAttributeData data in mi.CustomAttributes)
             {
-                s = Regex.Replace(s, @"^[ \t]*(--|//).*?\r\n", "", RegexOptions.Multiline); //remove whole line sql or c++ comments
-                s = Regex.Replace(s, @"[ \t]*(--|//).*?$", "", RegexOptions.Multiline); //remove trailing sql or c++ comments
-                s = Regex.Replace(s, @"\r\n([ \t]*/\*.*?\*/[ \t]*\r\n)+", "\r\n", RegexOptions.Singleline); //remove whole line c-like comments
-                s = Regex.Replace(s, @"[ \t]*/\*.*?\*/[ \t]*", "", RegexOptions.Singleline); //remove trailing c-like comments
+                if (typeof(T) != data.AttributeType) continue;
+                if (data.ConstructorArguments.Count > 0) return data.ConstructorArguments[0].Value.ToString();
+                if (data.NamedArguments.Count > 0) return data.NamedArguments[0].TypedValue.Value.ToString();
+                return string.Empty;
             }
-
-            s = s.Trim().Replace("\t", "  "); //replace tabs with 2 spaces
-            s = Regex.Replace(s, @" +$", "", RegexOptions.Multiline); //remove trailing whitespace
-            s = Regex.Replace(s, "(\r\n){2,}", "\r\n"); //squeeze out multiple newlines
-            if (!string.IsNullOrEmpty(indent)) s = Regex.Replace(s, @"^(.*)$", indent + "$1", RegexOptions.Multiline);  //indent
-            return s;
+            return null;
         }
 
+        /// <summary>
+        ///  Detect if assembly attribute exists.
+        /// </summary>
+        /// <typeparam name="T">Attribute to search for</typeparam>
+        /// <param name="mi">Object member info</param>
+        /// <returns>True if found</returns>
+        public static bool AttributeExists<T>(this MemberInfo mi) where T : Attribute
+        {
+            return mi.CustomAttributes.FirstOrDefault(ca => ca.AttributeType == typeof(T)) != null;
+        }
+    }
+
+    public static class StringExtensions
+    {
         /// <summary>
         /// Squeeze one or more whitspace chars (including newlines) and replace with a single space char.
         /// </summary>
@@ -238,6 +1047,7 @@ namespace ChuckHill2.Utilities.Extensions
                 var c = s[endIdx];
                 if (c == '\0') { endIdx--; break; }
             }
+            if (endIdx == s.Length) endIdx = s.Length - 1;
 
             if ((ends & BeginningOnly) == BeginningOnly)
             {
@@ -331,8 +1141,13 @@ namespace ChuckHill2.Utilities.Extensions
         public static bool Contains(this string s, string value, bool ignoreCase)
         {
             if (s == null && value == null) return true;
-            if (!ignoreCase) return (s != null && value != null && s.Contains(value));
-            return (s != null && value != null && s.IndexOf(value, 0, StringComparison.OrdinalIgnoreCase) != -1);
+            if (s == null && value != null) return false;
+            if (s != null && value == null) return false;
+            if (s.Length == 0 && value.Length == 0) return true;
+            if (s.Length > 0 && value.Length == 0) return false;
+
+            if (!ignoreCase) return s.Contains(value);
+            return (s.IndexOf(value, 0, StringComparison.OrdinalIgnoreCase) != -1);
         }
 
         /// <summary>
@@ -367,6 +1182,8 @@ namespace ChuckHill2.Utilities.Extensions
         public static string ReplaceI(this string s, string oldValue, string newValue)
         {
             if (s == null || s.Length == 0) return s;
+            if (oldValue == null || oldValue.Length == 0) return s;
+            if (newValue == null) return s;
 
             StringBuilder sb = null;
             while (true)
@@ -458,7 +1275,7 @@ namespace ChuckHill2.Utilities.Extensions
             if (byteBuffer == null) return null;
             int byteLen = byteBuffer.Length;
             if (byteLen == 0) return string.Empty;
-            if (byteLen == 1) return Convert.ToString(byteBuffer[0]);
+            if (byteLen == 1) return ((char)byteBuffer[0]).ToString();
             Encoding encoding;
             int skipBOM = 0;
 
@@ -841,1838 +1658,18 @@ namespace ChuckHill2.Utilities.Extensions
         }
     }
 
-    public static class DictionaryExtensions
+    public static class TypeExtensions
     {
         /// <summary>
-        /// Deserialize a formatted string into a string,string dictionary.
-        /// Empty fields are skipped as a null key with a null value are not allowed.
-        /// All leading and trailing whitespace is removed from the elements.
-        /// Duplicate keys are overwritten.
-        /// Note that the string keys are case-insensitive.
+        /// Handy way to get an manifest resource stream from an assembly that 'type' resides in.
+        /// This will not access Project or Form resources (e.g. *.resources).
         /// </summary>
+        /// <param name="t">Type whose assembly contains the manifest resources to search.</param>
+        /// <param name="name">The unique trailing part of resource name to search. Generally the filename.ext part.</param>
+        /// <returns>Found resource stream or null if not found. It's up to the caller to load it into the appropriate object. Generally Image.FromStream(s)</returns>
         /// <remarks>
-        /// \code{.cs}
-        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
-        /// The result is:
-        ///    Count = 7
-        ///    [0] {[1, A]}
-        ///    [1] {[2, =B=X]}
-        ///    [2] {[3, C]}
-        ///    [3] {[4, D]}
-        ///    [4] {[5, E]}
-        ///    [5] {[6, ]}
-        ///    [6] {[7, null]}
-        ///   \endcode
+        /// See ImageAttribute regarding access of any image resource from anywhere.
         /// </remarks>
-        /// <param name="s">Source string to parse.</param>
-        /// <returns>Dictionary containing the parsed results.</returns>
-        public static Dictionary<string, string> ToDictionary(this string s) =>
-            ToDictionary<string, string>(s, ',', '=', k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
-
-        /// <summary>
-        /// Deserialize a formatted string into a string,string dictionary.
-        /// Empty fields are skipped as a null key with a null value are not allowed.
-        /// All leading and trailing whitespace is removed from the elements.
-        /// Duplicate keys are overwritten.
-        /// Note that the string keys are case-insensitive.
-        /// </summary>
-        /// <remarks>
-        /// \code{.cs}
-        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
-        /// The result is:
-        ///    Count = 7
-        ///    [0] {[1, A]}
-        ///    [1] {[2, =B=X]}
-        ///    [2] {[3, C]}
-        ///    [3] {[4, D]}
-        ///    [4] {[5, E]}
-        ///    [5] {[6, ]}
-        ///    [6] {[7, null]}
-        ///   \endcode
-        /// </remarks>
-        /// <param name="s">Source string to parse.</param>
-        /// <param name="elementDelimiter">character used between each keyvalue element.</param>
-        /// <param name="kvDelimiter">character used between the key and value pairs.</param>
-        /// <returns>Dictionary containing the parsed results.</returns>
-        public static Dictionary<string, string> ToDictionary(this string s, char elementDelimiter, char kvDelimiter) =>
-            ToDictionary<string, string>(s, elementDelimiter, kvDelimiter, k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
-
-        /// <summary>
-        /// Deserialize a formatted string into a typed dictionary.
-        /// Empty fields are skipped as a null key with a null value are not allowed.
-        /// All leading and trailing whitespace is removed from the elements.
-        /// Duplicate keys are overwritten.
-        /// </summary>
-        /// <remarks>
-        /// \code{.cs}
-        /// If the string source = "1=A, 2 ==B=X, 3 = C, , 4=D, 5=E, 6=, 7, ";
-        /// The result is:
-        ///    Count = 7
-        ///    [0] {[1, A]}
-        ///    [1] {[2, =B=X]}
-        ///    [2] {[3, C]}
-        ///    [3] {[4, D]}
-        ///    [4] {[5, E]}
-        ///    [5] {[6, ]}
-        ///    [6] {[7, null]}
-        ///   \endcode
-        /// </remarks>
-        /// <typeparam name="TKey">The type of the Key in the keyvalue pair.</typeparam>
-        /// <typeparam name="TValue">The type of the Value in the keyvalue pair.</typeparam>
-        /// <param name="s">Source string to parse.</param>
-        /// <param name="elementDelimiter">Character used between each keyvalue element.</param>
-        /// <param name="kvDelimiter">Character used between the key and value pairs.</param>
-        /// <param name="keyConverter">Delegate used to deserialize key string into the TKey type</param>
-        /// <param name="valueConverter">Delegate used to deserialize value string into the TValue type</param>
-        /// <param name="comparer">Key equality comparer</param>
-        /// <returns>Dictionary containing the parsed results.</returns>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this string s, char elementDelimiter, char kvDelimiter, Func<string, TKey> keyConverter, Func<string, TValue> valueConverter, IEqualityComparer<TKey> comparer = null)
-        {
-            if (s == null || s.Length < 1) return new Dictionary<TKey, TValue>(0, comparer);
-            string[] array = s.Split(new Char[] { elementDelimiter }, StringSplitOptions.RemoveEmptyEntries);
-            Dictionary<TKey, TValue> d = new Dictionary<TKey, TValue>(array.Length, comparer);
-            TValue defalt = default(TValue);
-
-            foreach (string item in array)
-            {
-                if (string.IsNullOrWhiteSpace(item)) continue;
-                string szKey;
-                string szValue;
-
-                int i = item.IndexOf(kvDelimiter);
-                if (i == -1)
-                {
-                    szKey = item.Trim();
-                    szValue = null;
-                }
-                else
-                {
-                    szKey = item.Substring(0, i).Trim();
-                    szValue = item.Substring(i + 1).Trim();
-                }
-
-                d[keyConverter(szKey)] = szValue == null ? defalt : valueConverter(szValue);
-            }
-            return d;
-        }
-
-        /// <summary>
-        /// Safely gets the value associated with the specified key. An alternatitive to dictionary.TryGetValue().
-        /// </summary>
-        /// <typeparam name="TKey">Key type</typeparam>
-        /// <typeparam name="TValue">Value type</typeparam>
-        /// <param name="dict"></param>
-        /// <param name="key">The key whose value to get.</param>
-        /// <returns>The value for the associated key or the default value if it doesn't exist (null for reference types, the default for value types)</returns>
-        public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
-        {
-            lock (dict)
-            {
-                TValue value;
-                if (dict == null || key == null) return default(TValue); //to avoid exception when key==null
-                if (dict.TryGetValue(key, out value)) return value;
-                return default(TValue);
-            }
-        }
-    }
-
-    public static class ListExtensions
-    {
-        /// <summary>
-        /// Deserializes a formatted comma-delimited string into an eumerable list of strings.
-        /// </summary>
-        /// <remarks>
-        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
-        /// Warning: If an item itself contains a comma, the results are unexpected.
-        /// </remarks>
-        /// <param name="s">Source item-delimited string to parse.</param>
-        /// <returns>Enumerable list of strings.</returns>
-        public static IEnumerable<string> ToEnumerableList(this string s) => ToEnumerableList<string>(s, ',', v => v);
-
-        /// <summary>
-        /// Deserializes a formatted comma-delimited string into an eumerable list of strings.
-        /// </summary>
-        /// <remarks>
-        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
-        /// Warning: If an item itself contains a delimiter, the results are unexpected.
-        /// </remarks>
-        /// <param name="s">Source item-delimited string to parse.</param>
-        /// <param name="elementDelimiter">Character used between each element.</param>
-        /// <returns>Enumerable list of strings.</returns>
-        public static IEnumerable<string> ToEnumerableList(this string s, char elementDelimiter) => ToEnumerableList<string>(s, elementDelimiter, v => v);
-
-        /// <summary>
-        /// Deserializes a formatted delimited string into a typed enumerable list.
-        /// </summary>
-        /// <remarks>
-        /// Unlike ToDictionary(), empty items are allowed in a list.<br />
-        /// Warning: If an item itself contains a delimiter, the results are unexpected.
-        /// </remarks>
-        /// <typeparam name="T">The item Type</typeparam>
-        /// <param name="s">Source item-delimited string to parse.</param>
-        /// <param name="elementDelimiter">Character used between each element.</param>
-        /// <param name="valueConverter">Delegate used to deserialize the value element into the TValue type</param>
-        /// <returns>Enumerable list of values.</returns>
-        public static IEnumerable<T> ToEnumerableList<T>(this string s, char elementDelimiter, Func<string, T> valueConverter)
-        {
-            var sb = new StringBuilder();
-            int spCount = 0;
-            foreach (var c in s)
-            {
-                if (c == elementDelimiter)
-                {
-                    sb.Length -= spCount;
-                    yield return valueConverter(sb.ToString());
-                    sb.Length = 0;
-                    continue;
-                }
-                if (sb.Length == 0 && c <= 32) continue;
-
-                spCount = c <= 32 ? spCount + 1 : 0;
-                sb.Append(c);
-            }
-
-            if (sb.Length > 0)
-            {
-                sb.Length -= spCount;
-                yield return valueConverter(sb.ToString());
-            }
-
-            //The following is a vastly simpler version but it creates twice as many temporary strings and does not stream the intermediate items; it creates them all up front. Not memory efficient...
-            //string[] array = s.Split(new Char[] { elementDelimiter });
-            //foreach (string item in array)
-            //{
-            //    yield return valueConverter(item.Trim());
-            //}
-
-            yield break;
-        }
-
-        /// <summary>
-        /// Compare 2 string lists of delimited items.
-        /// </summary>
-        /// <param name="s1">First list of delimited items.</param>
-        /// <param name="s2">List of delimited items to compare.</param>
-        /// <param name="ignoreOrder">True to ignore sequence order</param>
-        /// <param name="elementDelimiter">list item delimiter</param>
-        /// <param name="ignoreCase">True to be case-insensitive</param>
-        /// <returns>True if matched.</returns>
-        public static bool ListEquals(this string s1, string s2, bool ignoreOrder = true, char elementDelimiter = ',', bool ignoreCase = true)
-        {
-            if (s1.IsNullOrEmpty() && s2.IsNullOrEmpty()) return true;
-            if (s1.IsNullOrEmpty() || s2.IsNullOrEmpty()) return false;
-
-            var L1 = s1.ToEnumerableList(elementDelimiter).ToList();
-            var L2 = s2.ToEnumerableList(elementDelimiter).ToList();
-            if (L1.Count != L2.Count) return false;
-            if (ignoreOrder)
-            {
-                StringComparer comparer = ignoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture;
-                L1.Sort(comparer);
-                L2.Sort(comparer);
-            }
-
-            StringComparison comparison = ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture;
-            for (int i = 0; i < L1.Count; i++)
-            {
-                if (!L1[i].Equals(L2[i], comparison)) return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Get index of the first array element that matches delegate.
-        /// </summary>
-        /// <typeparam name="T">Type of item in list</typeparam>
-        /// <param name="list">List to search</param>
-        /// <param name="match">Delegate to determine if there is a match</param>
-        /// <returns>Index of matched element or -1 if not found</returns>
-        public static int IndexOf<T>(this IList<T> list, Func<T, bool> match) where T : class
-        {
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (match(list[i])) return i;
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Get index of the last array element that matches delegate.
-        /// </summary>
-        /// <typeparam name="T">Type of item in list</typeparam>
-        /// <param name="list">List to search</param>
-        /// <param name="match">Delegate to determine if there is a match</param>
-        /// <returns>Index of matched element or -1 if not found</returns>
-        public static int LastIndexOf<T>(this IList<T> list, Func<T, bool> match) where T : class
-        {
-            for (int i = list.Count - 1; i >= 0; i--)
-            {
-                if (match(list[i])) return i;
-            }
-            return -1;
-        }
-    }
-
-    public static class EnumerableExtensions
-    {
-        //public static T FirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate); already exists in System.Linq.
-        public static T FirstOrDefault<T>(this IEnumerable source, Func<T, bool> predicate)
-        {
-            return System.Linq.Enumerable.FirstOrDefault(source.OfType<T>(), predicate);
-        }
-
-        public static List<T> FindAll<T>(this IEnumerable source, Func<T, bool> predicate)
-        {
-            return FindAll<T>(source.OfType<T>(), predicate);
-        }
-
-        public static List<T> FindAll<T>(this IEnumerable<T> source, Func<T, bool> predicate)
-        {
-            List<T> list = new List<T>();
-            foreach (T element in source)
-            {
-                if (predicate(element)) list.Add(element);
-            }
-            return list;
-        }
-
-        /// <summary>
-        /// Perform action upon each item in enumerable loop, ascending.
-        /// </summary>
-        /// <typeparam name="T">Type of item in enumeration</typeparam>
-        /// <param name="source">Enumerable array</param>
-        /// <param name="action">Action to perform on each item in enumeration. Return true to continue to next item or false to break enumeration</param>
-        /// <remarks>
-        /// This functionally equivalant to 'source.While(predicate);'
-        /// </remarks>
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
-        {
-            if (source == null) return;
-
-            if (source is IList<T> list)
-            {
-                var k = list.Count;
-                for (int i = 0; i < k; i++)
-                {
-                    action(list[i]);
-                    k = list.Count;
-                }
-            }
-            else
-            {
-                foreach (var v in source) action(v);
-            }
-        }
-    }
-
-    public static class ExceptionExtensions
-    {
-        //HACK! Exception.Message is read only! We create extension methods to correct this.
-        private static readonly FieldInfo _message = typeof(Exception).GetField("_message", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        /// <summary>
-        /// Replace the existing exception message string
-        /// </summary>
-        /// <param name="ex">Exception to modify in-place.</param>
-        /// <param name="msg">New exception message.</param>
-        /// <returns>Updated exception</returns>
-        public static Exception ReplaceMessage(this Exception ex, string msg) { _message.SetValue(ex, msg); return ex; }
-
-        /// <summary>
-        /// Append string to the existing exception message string. A newline is automatically inserted.
-        /// </summary>
-        /// <param name="ex">Exception to modify in-place.</param>
-        /// <param name="msg">Text to append.</param>
-        /// <returns>Updated exception</returns>
-        public static Exception AppendMessage(this Exception ex, string msg) { _message.SetValue(ex, ex.Message + Environment.NewLine + msg); return ex; }
-
-        /// <summary>
-        /// Prefix string to the existing exception message string. A newline is automatically inserted.
-        /// </summary>
-        /// <param name="ex">Exception to modify in-place.</param>
-        /// <param name="msg">Text to prefix</param>
-        /// <returns>Updated exception</returns>
-        public static Exception PrefixMessage(this Exception ex, string msg) { _message.SetValue(ex, msg + Environment.NewLine + ex.Message); return ex; }
-
-        /// <summary>
-        /// Insert child exception as inner exception to this exception.
-        /// </summary>
-        /// <param name="ex">Exception to modify in-place.</param>
-        /// <param name="childEx">Exception to insert as inner exception.</param>
-        /// <returns>Updated exception</returns>
-        public static Exception AppendInnerException(this Exception ex, Exception childEx)
-        {
-            if (ex.InnerException != null) AppendInnerException(ex.InnerException, childEx);
-            else
-            {
-                //parentEx.InnerException = childEx; aka private Exception _innerException
-                FieldInfo _innerException = typeof(Exception).GetField("_innerException", BindingFlags.Instance | BindingFlags.NonPublic);
-                if (_innerException != null) _innerException.SetValue(ex, childEx);
-            }
-            return ex;
-        }
-
-        /// <summary>
-        /// Add a stack trace to this exception if it does not already have one. 
-        /// An uninitalized stack trace occurs when the caller instantiates a new 
-        /// Exception(). Normally, when the exception gets thrown, the stack trace
-        /// is automatically added. This extension method is only needed when the 
-        /// newly created exception is NOT going to be thrown. This extension method
-        /// will NOT overwrite a pre-existing stack trace.
-        /// </summary>
-        /// <param name="ex">Exception to modify in-place.</param>
-        /// <returns>Updated exception</returns>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static Exception WithStackTrace(this Exception ex)
-        {
-            if (ex.StackTrace != null) return ex;
-
-            string st = Environment.StackTrace;
-            //Need to unwind stack trace to remove our private internal calls:
-            //   at System.Environment.get_StackTrace()
-            //   at Pandora.Diagnostics.ExceptionUtils.WithStackTrace(Exception ex) in C:\SourceCode\PandoraMain\Pandora.Diagnostics\Diagnostics.cs:line 291
-            //Can't just search for st.IndexOf("WithStackTrace"), because the function name may not exist in obfuscated code!
-
-            string name = System.Reflection.MethodBase.GetCurrentMethod().Name;
-            int i = st.IndexOf(name);
-            if (i > 0) i = st.IndexOf("   at ", i);
-            if (i > 0) st = st.Substring(i);
-            FieldInfo _stackTraceString = typeof(Exception).GetField("_stackTraceString", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (_stackTraceString != null) _stackTraceString.SetValue(ex, st);
-            return ex;
-        }
-
-        /// <summary>
-        /// Retrieve exception message with all inner exception messages, appended.
-        /// </summary>
-        /// <remarks>
-        /// Great for logging when the relevent message is in an inner exception.
-        /// </remarks>
-        /// <param name="ex">Exception to recurse</param>
-        /// <returns>Combined exception message string.</returns>
-        public static string FullMessage(this Exception ex)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(ex.GetType().Name);
-            sb.Append(": ");
-            do
-            {
-                sb.Append(ex.Message.Trim());
-                ex = ex.InnerException;
-                if (ex != null && !string.IsNullOrEmpty(ex.Message)) sb.Append(" / ");
-                else break;
-            } while (ex != null);
-            return sb.ToString();
-        }
-    }
-
-    /// <summary>
-    /// Create object with default constructor even if it doesn't have a default parameterless constructor. 
-    /// The performance of (T)FormatterServices.GetUninitializedObject(typeof(T)) is slower than a compiled 
-    /// parameterless constructor. At the same time compiled expressions would give you great speed 
-    /// improvements though they work only for types with default constructor. The hybrid approach was 
-    /// taken. This means the create expression is effectively cached and incurs penalty only the first time 
-    /// the type is loaded. Will handle value types too in an efficient manner.
-    /// See: http://stackoverflow.com/questions/390578/creating-instance-of-type-without-default-constructor-in-c-sharp-using-reflectio
-    /// Usage: var myObj = New&lt;System.Globalization.RegionInfo&gt;.Create()
-    /// Warning: If the type does not have a parameterless constructor, any initalization that occurs within
-    /// the constructors will NOT occur here. The entire object is zero'd out. All fields will be either 
-    /// null or for value types, the default value (aka: 0, false, etc).
-    /// </summary>
-    /// <typeparam name="T">Type of default object to create</typeparam>
-    public static class New<T>
-    {
-        public static readonly Func<T> Create = Creator();
-
-        static Func<T> Creator()
-        {
-            Type t = typeof(T);
-
-            //Special Case: GetUninitializedObject() fails with type 'string' so it is handled here.
-            if (t == typeof(string))
-                return Expression.Lambda<Func<T>>(Expression.Constant(string.Empty)).Compile();
-
-            //If the type has a parameterless constructor, use it. It's more efficient than GetUninitializedObject()
-            if (t.IsValueType || t.GetConstructor(Type.EmptyTypes) != null)
-                return Expression.Lambda<Func<T>>(Expression.New(t)).Compile();
-
-            return () => (T)FormatterServices.GetUninitializedObject(t);
-        }
-    }
-
-    public static class ObjectExtensions
-    {
-        /// <summary>
-        /// Duplicate the entire graph of any class object. Duplicates nested objects as well. Properly handles recursion. 
-        /// Class and all nested classes <b>must</b> be marked as [Serializable] or an exception will occur.
-        /// </summary>
-        /// <typeparam name="T">Type of this object</typeparam>
-        /// <param name="obj">Object to copy</param>
-        /// <returns>A completely independent copy of object</returns>
-        public static T DeepClone<T>(this T obj) where T : class
-        {
-            if (obj == null) return null;
-            BinaryFormatter bf = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream())
-            {
-                bf.Serialize(ms, obj);
-                ms.Seek(0, SeekOrigin.Begin);
-                return (T)bf.Deserialize(ms);
-            }
-        }
-
-        /// <summary>
-        /// Create a shallow copy of any object. Nested class objects
-        /// are not duplicated. They are just referenced again.
-        /// Unlike DeepClone(), this object does not need to be marked as [Serializable].
-        /// </summary>
-        /// <typeparam name="T">Type of this object</typeparam>
-        /// <param name="obj">Object to copy</param>
-        /// <returns>Shallow copy of object</returns>
-        public static T ShallowClone<T>(this T obj)
-        {
-            if (obj == null) return default(T);
-            MethodInfo mi = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[0], null);
-            return (T)mi.Invoke(obj, new object[0]);
-        }
-
-        /// <summary>
-        /// Test if value or type is an implementation of the specified type.
-        /// </summary>
-        /// <param name="value">Value or type to check</param>
-        /// <param name="t">Type may be a class, interface, or generic interface with or without parameters.</param>
-        /// <returns>True if type is implemented</returns>
-        public static bool IsImplementationOf(this object value, Type t)
-        {
-            if (!(value is Type))
-            {
-                return IsImplementationOf(value.GetType(), t);
-            }
-
-            var v = (Type)value;
-
-            if (t.IsGenericType)
-            {
-                if (t.IsInterface)
-                {
-                    if (t.GenericTypeArguments.Length > 0)
-                    {
-                        return v.GetInterfaces().Where(i => i.IsGenericType).Any(i => i == t);
-                    }
-
-                    return v.GetInterfaces().Where(i => i.IsGenericType).Any(i => i.GetGenericTypeDefinition() == t);
-                }
-
-                if (t.GenericTypeArguments.Length > 0)
-                {
-                    return v == t;
-                }
-
-                return v.GetGenericTypeDefinition() == t;
-            }
-
-            if (t.IsInterface)
-            {
-                return v.GetInterfaces().Where(i => !i.IsGenericType).Any(i => i == t);
-            }
-
-            return v.IsSubclassOf(t) || v == t;
-        }
-
-        /// <summary>
-        /// Get value by reflection from an object.
-        /// It may be a field or property, public or private, instance or static.
-        /// This function may be chained together to get a nested value.
-        /// This function should not be used in tight loops because reflection is expensive.
-        /// </summary>
-        /// <param name="obj">Object to retrieve value from. Must not be null.</param>
-        /// <param name="membername">Case-sensitive field or property name.</param>
-        /// <param name="indices">Optional index for indexed properties.</param>
-        /// <returns>Retrieved value or null if field or property not found and readable.</returns>
-        public static object GetReflectedValue(this Object obj, string membername, params object[] indices)
-        {
-            try
-            {
-                MemberInfo[] mis = GetAllMembers(obj.GetType(), membername, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-                if (mis.Length == 0) return null;
-                foreach (var mi in mis)
-                {
-                    if (mi is FieldInfo)
-                    {
-                        FieldInfo fi = mi as FieldInfo;
-                        return fi.GetValue(obj);
-                    }
-                    else if (mi is PropertyInfo)
-                    {
-                        PropertyInfo pi = mi as PropertyInfo;
-                        if (!pi.CanRead) continue;
-                        var iparams = pi.GetIndexParameters();
-                        if (iparams.Length != indices.Length) continue;
-                        if (iparams.Length == 0) return pi.GetValue(obj);
-                        bool match = true;
-                        for (int i = 0; i < iparams.Length; i++)
-                        {
-                            if (iparams[i].ParameterType != indices[i].GetType())
-                            {
-                                match = false;
-                                break;
-                            }
-                        }
-                        if (!match) continue;
-                        return pi.GetValue(obj, indices);
-                    }
-                }
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Set value by reflection to an object.
-        /// It may be a field or property, public or private, instance or static.
-        /// This function should not be used in tight loops because reflection is expensive.
-        /// </summary>
-        /// <param name="obj">Object to retrieve value from. Must not be null.</param>
-        /// <param name="membername">Case-sensitive field or property name.</param>
-        /// <param name="value">value to set</param>
-        /// <param name="indices">Optional index for indexed properties.</param>
-        /// <returns>True if value successfully set or false if field or property not found or writeable.</returns>
-        public static bool SetReflectedValue(this Object obj, string membername, object value, params object[] indices)
-        {
-            try
-            {
-                MemberInfo[] mis = GetAllMembers(obj.GetType(), membername, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-                if (mis.Length == 0) return false;
-                foreach (var mi in mis)
-                {
-                    if (mi is FieldInfo)
-                    {
-                        FieldInfo fi = mi as FieldInfo;
-                        fi.SetValue(obj, value);
-                        return true;
-                    }
-                    else if (mi is PropertyInfo)
-                    {
-                        PropertyInfo pi = mi as PropertyInfo;
-                        if (!pi.CanWrite) continue;
-                        var iparams = pi.GetIndexParameters();
-                        if (iparams.Length != indices.Length) continue;
-                        if (iparams.Length == 0)
-                        {
-                            pi.SetValue(obj, value);
-                            return true;
-                        }
-                        bool match = true;
-                        for (int i = 0; i < iparams.Length; i++)
-                        {
-                            if (iparams[i].ParameterType != indices[i].GetType())
-                            {
-                                match = false;
-                                break;
-                            }
-                        }
-                        if (!match) continue;
-                        pi.SetValue(obj, value, indices);
-                        return true;
-                    }
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Invoke a static method or invoke a constructor to return a constructed object or invoke a static method.
-        /// It may be a static method or non-static constructor, public or private.
-        /// To handle 'ref' or 'out' arguments, one must explicitly pass a single initialized 
-        /// object[] array for the args argument instead of multiple single args. The object[]
-        /// array will contain the results upon return.
-        /// This function should not be used in tight loops because reflection is expensive.
-        /// </summary>
-        /// <param name="typename">Case-sensitive full type name of the object to invoke OR fully qualified assembly name just in case the assembly has not already been loaded into the domain.</param>
-        /// <param name="membername">Name of object member to invoke</param>
-        /// <param name="args">arguments to pass to method or constructor.</param>
-        /// <returns>the constructed object or method return value.</returns>
-        public static object InvokeReflectedMethod(string typename, string membername, params object[] args)
-        {
-            try
-            {
-                Type t = GetReflectedType(typename);
-                if (t == null) return null;
-                return InvokeReflectedMethod(t, membername, args);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Invoke a public or private static method or constructor.
-        /// To handle 'ref' or 'out' arguments, one must explicitly pass a single initialized 
-        /// object[] array for the args argument instead of multiple single args. The object[]
-        /// array will contain the results upon return.
-        /// This function should not be used in tight loops because reflection is expensive.
-        /// </summary>
-        /// <param name="t">Type execute static method on. Must not be null.</param>
-        /// <param name="membername">Case-sensitive static method name. If null, must be a constructor.</param>
-        /// <param name="args">arguments to pass to method</param>
-        /// <returns>value returned from method or created object if a constructor</returns>
-        public static object InvokeReflectedMethod(this Type t, string membername, params object[] args)
-        {
-            if (t == null) return null;
-            try
-            {
-                var types = GetReflectedArgTypes(args);
-                var containsNull = types.Any(m => m == null);
-                if (string.IsNullOrEmpty(membername))
-                {
-                    ConstructorInfo ci = null;
-                    if (containsNull)
-                    {
-                        ci = t.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(m =>
-                        {
-                            var p = m.GetParameters();
-                            if (p.Length != types.Length) return false;
-                            for (int i = 0; i < types.Length; i++)
-                            {
-                                if (types[i] == null) continue;
-                                if (types[i] == p[i].ParameterType) continue;
-                                return false;
-                            }
-                            return true;
-                        });
-                    }
-                    else
-                    {
-                        ci = t.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, types, null);
-                    }
-                    if (ci != null) return ci.Invoke(args);
-                    return null;
-                }
-
-                MethodInfo mi = null;
-                if (containsNull)
-                {
-                    mi = (MethodInfo)GetAllMembers(t, null, MemberTypes.Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(m =>
-                    {
-                        if (!m.Name.Equals(membername)) return false;
-                        var p = ((MethodInfo)m).GetParameters();
-                        if (p.Length != types.Length) return false;
-                        for (int i = 0; i < types.Length; i++)
-                        {
-                            if (types[i] == null) continue;
-                            if (types[i] == p[i].ParameterType) continue;
-                            return false;
-                        }
-                        return true;
-                    });
-                }
-                else
-                {
-                    mi = (MethodInfo)GetAllMembers(t, membername, MemberTypes.Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault();
-                }
-                if (mi != null) return mi.Invoke(null, args);
-                return null;
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException ?? ex;
-            }
-            catch { return null; }
-        }
-
-        /// <summary>
-        /// Invoke a public or private instance method.
-        /// To handle 'ref' or 'out' arguments, one must explicitly pass a single initialized 
-        /// object[] array for the args argument instead of multiple single args. The object[]
-        /// array will contain the results upon return.
-        /// This function should not be used in tight loops because reflection is expensive.
-        /// </summary>
-        /// <param name="obj">Object to execute method on. Must not be null.</param>
-        /// <param name="membername">Case-sensitive method name.</param>
-        /// <param name="args">arguments to pass to method</param>
-        /// <returns>value returned from method</returns>
-        public static object InvokeReflectedMethod(this Object obj, string membername, params object[] args)
-        {
-            try
-            {
-                Type t = obj.GetType();
-                var types = GetReflectedArgTypes(args);
-                var containsNull = types.Any(m => m == null);
-
-                MethodInfo mi = null;
-                if (containsNull)
-                {
-                    mi = (MethodInfo)(GetAllMembers(t, null, MemberTypes.Method, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)).FirstOrDefault(m =>
-                    {
-                        if (!m.Name.Equals(membername)) return false;
-                        var p = ((MethodInfo)m).GetParameters();
-                        if (p.Length != types.Length) return false;
-                        for (int i = 0; i < types.Length; i++)
-                        {
-                            if (types[i] == null) continue;
-                            if (types[i] == p[i].ParameterType) continue;
-                            return false;
-                        }
-                        return true;
-                    });
-                }
-                else
-                {
-                    mi = (MethodInfo)GetAllMembers(t, membername, MemberTypes.Method, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault();
-                }
-
-                if (mi != null) return mi.Invoke(obj, args);
-                return null;
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException ?? ex;
-            }
-            catch { return null; }
-        }
-
-        /// <summary>
-        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable).
-        /// </summary>
-        /// <param name="tMain">Type that may be parent of 'typename'</param>
-        /// <param name="typename">Assembly-qualified type name.
-        ///    Case-insensitive, full type name of the object to invoke OR fully 
-        ///    qualified assembly name just in case the assembly has not already 
-        ///    been loaded into the domain.
-        /// </param>
-        /// <returns>True if 'typename' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
-        public static bool MemberIs(this Type tMain, string typename)
-        {
-            if (tMain == null) return false;
-            Type t = GetReflectedType(typename);
-            if (t == null) return false;
-            return (t.IsAssignableFrom(tMain));
-        }
-
-        /// <summary>
-        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable).
-        /// </summary>
-        /// <param name="tMain">Type that may be parent of 'typename'</param>
-        /// <param name="isType">Type of object it is.</param>
-        ///    Case-insensitive, full type name of the object to invoke OR fully 
-        ///    qualified assembly name just in case the assembly has not already 
-        ///    been loaded into the domain.
-        /// </param>
-        /// <returns>True if 'isType' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
-        public static bool MemberIs(this Type tMain, Type isType)
-        {
-            if (tMain == null || isType == null) return false;
-            return (isType.IsAssignableFrom(tMain));
-        }
-
-        /// <summary>
-        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable) except type is determined at runtime, not compile type.
-        /// </summary>
-        /// <param name="obj">Object to test.</param>
-        /// <param name="typename">Assembly-qualified type name.
-        ///    Case-insensitive, full type name of the object to invoke OR fully 
-        ///    qualified assembly name just in case the assembly has not already 
-        ///    been loaded into the domain.
-        /// </param>
-        /// <returns>True if 'typename' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
-        public static bool MemberIs(this Object obj, string typename)
-        {
-            if (obj == null) return false;
-            Type t = GetReflectedType(typename);
-            if (t == null) return false;
-            return (t.IsAssignableFrom(obj.GetType()));
-        }
-
-        /// <summary>
-        /// Determine if the object is of the specified type. Functionally equivalant to (myobject is IEnumerable) except type is determined at runtime, not compile type.
-        /// </summary>
-        /// <param name="obj">Object to test.</param>
-        /// <param name="isType">Type of object it is.</param>
-        /// <returns>True if 'isType' is the class or contains the base class or interface of. False if not, or typename cannot be found</returns>
-        public static bool MemberIs(this Object obj, Type isType)
-        {
-            if (obj == null || isType == null) return false;
-            return (isType.IsAssignableFrom(obj.GetType()));
-        }
-
-        /// <summary>
-        /// Get specified public or private type.
-        /// </summary>
-        /// <param name="typename">
-        ///    Case-sensitive full name of the type to get.<br />
-        ///    example: "System.Windows.Forms.Layout.TableLayout+ContainerInfo"
-        /// </param>
-        /// <param name="relatedType">Optional known public type that is in the same assembly as 'typename'.</param>
-        /// <returns>Found type or null if not found</returns>
-        /// <remarks>
-        ///    When 'relatedType' is defined, this method is effectively the same as:
-        ///    \code{.cs}
-        ///    Type t = Type.GetType("System.Windows.Forms.Layout.TableLayout+ContainerInfo, " + typeof(TableLayoutPanel).Assembly.FullName, false, false);
-        ///    \endcode
-        ///    If 'relatedType' is undefined, this method will search the currently loaded assemblies for a match.
-        /// </remarks>
-        public static Type GetReflectedType(string typename, Type relatedType = null)
-        {
-            if (typename.IsNullOrEmpty()) return null;
-
-            Type t = Type.GetType(typename, false, false);
-
-            if (t == null && relatedType != null)
-            {
-                t = Type.GetType($"{typename}, {relatedType.Assembly.FullName}", false, false);
-            }
-
-            if (t == null) //Ok. Hunt for it the hard way, assuming the assembly is already loaded.
-            {
-                var elements = typename.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (elements.Length > 1) return null;
-                typename = elements[0];
-                t = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => !a.IsDynamic)
-                    .SelectMany(a => a.GetTypes())
-                    .FirstOrDefault(m => t.FullName.Equals(typename, StringComparison.InvariantCultureIgnoreCase));
-                if (t == null) return null;
-            }
-
-            return t;
-        }
-
-        /// <summary>
-        /// Handy utility for getting array of arg types for invoking methods
-        /// </summary>
-        /// <param name="args">array of args</param>
-        /// <returns>Always returns a Type array</returns>
-        private static Type[] GetReflectedArgTypes(params object[] args)
-        {
-            Type[] types;
-            if (args == null || args.Length == 0) return new Type[0];
-            types = new Type[args.Length];
-            for (int i = 0; i < types.Length; i++) { types[i] = (args[i] == null ? null : args[i].GetType()); }
-            return types;
-        }
-
-        /// <summary>
-        /// Retrieve ALL members public/private from the entire heirarchy. Type.GetMembers() 
-        /// does not traverse the type heirarchy for private or static members. Go figure....
-        /// </summary>
-        /// <param name="t">The type to retrieve the members from</param>
-        /// <param name="membername">Name of member to retrieve. There may be more than one in the heirarchy. OR null to get all members.</param>
-        /// <param name="membertypes">The specified types of members to retrieve</param>
-        /// <param name="bf">The binding flags used to retrieve the members</param>
-        /// <returns></returns>
-        private static MemberInfo[] GetAllMembers(Type t, string membername, MemberTypes membertypes, BindingFlags bf)
-        {
-            var members = new List<MemberInfo>();
-
-            if (membername == string.Empty) membername = null;
-            bool declaredOnly = ((bf & BindingFlags.DeclaredOnly) != 0);
-            bf = ~(~bf | BindingFlags.FlattenHierarchy) | BindingFlags.DeclaredOnly;
-            while (t != null)
-            {
-                var m1 = t.GetMembers(bf);
-                var m2 = m1.Where(m => membername != null ? m.Name == membername && (m.MemberType & membertypes) != 0 : (m.MemberType & membertypes) != 0);
-                members.AddRange(m2);
-                t = declaredOnly ? null : t.BaseType;
-            }
-
-            return members.ToArray();
-        }
-
-        #region Debugging tool: public static string[] GetReflectedObjectMembers(this Object obj)
-        /// <summary>
-        /// Get formatted list of members of a specified type; Great for debugging.
-        /// </summary>
-        /// <param name="typename">Type name as string</param>
-        /// <returns>Formatted list of members</returns>
-        public static string[] GetReflectedObjectMembers(string typename)
-        {
-            Type t = GetReflectedType(typename);
-            if (t == null) return null;
-            return GetReflectedObjectMembers(t);
-        }
-
-        /// <summary>
-        /// Get list of All members in the object heirarchy displayed in C# format.
-        /// </summary>
-        /// <param name="obj">Object to enumerate</param>
-        /// <returns>Array of members with their current values</returns>
-        public static string[] GetReflectedObjectMembers(this Object obj)
-        {
-            return GetReflectedObjectMembers(obj.GetType(), obj);
-        }
-
-        /// <summary>
-        /// Get list of All members in the type heirarchy with object values displayed in C# format.
-        /// </summary>
-        /// <param name="t">Type of object to enumerate</param>
-        /// <param name="obj">Object containing values to display</param>
-        /// <returns>Array of members with their current values</returns>
-        public static string[] GetReflectedObjectMembers(this Type t, Object obj = null)
-        {
-
-            MemberInfo[] mis = GetAllMembers(t, null, MemberTypes.All, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            List<string> members = new List<string>(mis.Length);
-            foreach (var mi in mis)
-            {
-                switch (mi.MemberType)
-                {
-                    case MemberTypes.Constructor: members.Add(GetConstructorDeclaration(mi)); break;
-                    case MemberTypes.Event: members.Add(GetEventDeclaration(mi)); break;
-                    case MemberTypes.Field: members.Add(GetFieldDeclaration(mi, obj)); break;
-                    case MemberTypes.Method: members.Add(GetMethodDeclaration(mi)); break;
-                    case MemberTypes.Property: members.Add(GetPropertyDeclaration(mi, obj)); break;
-                    case MemberTypes.TypeInfo: members.Add(GetTypeDeclaration(mi)); break;
-                    default: members.Add(GetUnknownDeclaration(mi)); break;
-                }
-            }
-            return members.ToArray();
-        }
-        #region GetReflectedObjectMembers(Type) private methods
-        private static string GetConstructorDeclaration(MemberInfo mi)
-        {
-            var m = mi as ConstructorInfo;
-            if (m == null) return GetUnknownDeclaration(mi);
-            var sb = new StringBuilder();
-
-            //if (m.IsSpecialName) sb.Append("[special] ");
-            if (m.IsPublic) sb.Append("public ");
-            else if (m.IsAssembly) sb.Append("internal ");
-            else if (m.IsFamily) sb.Append("protected ");
-            else if (m.IsPrivate) sb.Append("private ");
-            if (m.IsStatic) sb.Append("static ");
-            if (m.IsVirtual && !m.IsFinal) sb.Append("virtual ");
-            if (m.IsVirtual && m.IsFinal) sb.Append("override ");
-            sb.Append(' ');
-            sb.Append(m.DeclaringType.Name);
-            sb.Append('.');
-            sb.Append(m.DeclaringType.Name); //sb.Append(m.Name);
-            sb.Append('(');
-            string comma = "";
-            foreach (ParameterInfo p in m.GetParameters())
-            {
-                sb.Append(comma);
-                if (p.IsIn && p.IsOut) sb.Append("ref ");
-                if (!p.IsIn && p.IsOut) sb.Append("out ");
-                sb.Append(MakeName(p.ParameterType));
-                if (p.HasDefaultValue)
-                {
-                    sb.Append(" = ");
-                    sb.Append(p.DefaultValue.GetType() == typeof(string) ? "\"" + p.DefaultValue.ToString() + "\"" : p.DefaultValue.ToString());
-                }
-                comma = ", ";
-            }
-            sb.Append(')');
-            return sb.ToString();
-        }
-        private static string GetEventDeclaration(MemberInfo mi)
-        {
-            var m = mi as EventInfo;
-            if (m == null) return GetUnknownDeclaration(mi);
-            var sb = new StringBuilder();
-
-            MethodInfo ac1 = m.GetAddMethod(true);
-            MethodInfo ac2 = m.GetRemoveMethod(true);
-            if (ac1 == null) ac1 = ac2;
-            if (ac2 == null) ac2 = ac1;
-            if (ac1.IsPublic && ac2.IsPublic) sb.Append("public ");
-            else if (ac1.IsAssembly && ac2.IsAssembly) sb.Append("internal ");
-            else if (ac1.IsFamily && ac2.IsFamily) sb.Append("protected ");
-            else if (ac1.IsPrivate && ac2.IsPrivate) sb.Append("private ");
-            if (ac1.IsStatic && ac2.IsStatic) sb.Append("static ");
-            if ((ac1.IsVirtual && !ac1.IsFinal) || (ac2.IsVirtual && !ac2.IsFinal)) sb.Append("virtual ");
-            if ((ac1.IsVirtual && ac1.IsFinal) || (ac2.IsVirtual && ac2.IsFinal)) sb.Append("override ");
-
-            sb.Append("event ");
-            sb.Append(MakeName(m.EventHandlerType));
-            sb.Append(' ');
-            sb.Append(m.DeclaringType.Name);
-            sb.Append('.');
-            sb.Append(m.Name);
-            return sb.ToString();
-        }
-        private static string GetFieldDeclaration(MemberInfo mi, Object obj = null)
-        {
-            var m = mi as FieldInfo;
-            if (m == null) return GetUnknownDeclaration(mi);
-            var sb = new StringBuilder();
-
-            if (m.IsSpecialName) sb.Append("[special] ");
-            if (m.IsPublic) sb.Append("public ");
-            else if (m.IsAssembly) sb.Append("internal ");
-            else if (m.IsFamily) sb.Append("protected ");
-            else if (m.IsPrivate) sb.Append("private ");
-            if (m.IsStatic) sb.Append("static ");
-            //if (m.IsVirtual && !m.IsFinal) sb.Append("virtual ");
-            //if (m.IsVirtual && m.IsFinal) sb.Append("override ");
-            sb.Append(MakeName(m.FieldType));
-            sb.Append(' ');
-            sb.Append(m.DeclaringType.Name);
-            sb.Append('.');
-            sb.Append(m.Name);
-            if (obj != null)
-            {
-                sb.Append(" = ");
-                object value = m.GetValue(obj);
-                if (value == null) sb.Append("null");
-                else
-                {
-                    string quote = (m.FieldType == typeof(string) ? "\"" : "");
-                    sb.Append(quote);
-                    try { sb.Append(m.GetValue(obj).ToString()); }
-                    catch { }
-                    sb.Append(quote);
-                }
-            }
-            return sb.ToString();
-        }
-        private static string GetMethodDeclaration(MemberInfo mi)
-        {
-            var m = mi as MethodInfo;
-            if (m == null) return GetUnknownDeclaration(mi);
-            var sb = new StringBuilder();
-
-            if (m.IsSpecialName) sb.Append("[special] ");
-            if (m.IsPublic) sb.Append("public ");
-            else if (m.IsAssembly) sb.Append("internal ");
-            else if (m.IsFamily) sb.Append("protected ");
-            else if (m.IsPrivate) sb.Append("private ");
-            if (m.IsStatic) sb.Append("static ");
-            if (m.IsVirtual && !m.IsFinal) sb.Append("virtual ");
-            if (m.IsVirtual && m.IsFinal) sb.Append("override ");
-            sb.Append(MakeName(m.ReturnType));
-            sb.Append(' ');
-            sb.Append(m.DeclaringType.Name);
-            sb.Append('.');
-            sb.Append(m.Name);
-            sb.Append('(');
-            string comma = "";
-            foreach (ParameterInfo p in m.GetParameters())
-            {
-                sb.Append(comma);
-                if (p.IsIn && p.IsOut) sb.Append("ref ");
-                if (!p.IsIn && p.IsOut) sb.Append("out ");
-                sb.Append(MakeName(p.ParameterType));
-                if (p.HasDefaultValue)
-                {
-                    sb.Append(" = ");
-                    sb.Append(p.DefaultValue.GetType() == typeof(string) ? "\"" + p.DefaultValue.ToString() + "\"" : p.DefaultValue.ToString());
-                }
-                comma = ", ";
-            }
-            sb.Append(')');
-            return sb.ToString();
-        }
-        private static string GetPropertyDeclaration(MemberInfo mi, Object obj = null)
-        {
-            var m = mi as PropertyInfo;
-            if (m == null) return GetUnknownDeclaration(mi);
-            var sb = new StringBuilder();
-
-            MethodInfo ac1 = m.GetGetMethod(true);
-            MethodInfo ac2 = m.GetSetMethod(true);
-            if (ac1 == null) ac1 = ac2;
-            if (ac2 == null) ac2 = ac1;
-            if (ac1.IsPublic && ac2.IsPublic) sb.Append("public ");
-            else if (ac1.IsAssembly && ac2.IsAssembly) sb.Append("internal ");
-            else if (ac1.IsFamily && ac2.IsFamily) sb.Append("protected ");
-            else if (ac1.IsPrivate && ac2.IsPrivate) sb.Append("private ");
-            if (ac1.IsStatic && ac2.IsStatic) sb.Append("static ");
-            if ((ac1.IsVirtual && !ac1.IsFinal) || (ac2.IsVirtual && !ac2.IsFinal)) sb.Append("virtual ");
-            if ((ac1.IsVirtual && ac1.IsFinal) || (ac2.IsVirtual && ac2.IsFinal)) sb.Append("override ");
-
-            sb.Append(MakeName(m.PropertyType));
-            sb.Append(' ');
-            sb.Append(m.DeclaringType.Name);
-            sb.Append('.');
-            sb.Append(m.Name);
-
-            ParameterInfo[] parameters = m.GetIndexParameters();
-            if (parameters.Length > 0)
-            {
-                sb.Append("[");
-                string comma = "";
-                foreach (ParameterInfo p in m.GetIndexParameters())
-                {
-                    sb.Append(comma);
-                    if (p.IsIn && p.IsOut) sb.Append("ref ");
-                    if (!p.IsIn && p.IsOut) sb.Append("out ");
-                    sb.Append(MakeName(p.ParameterType));
-                    if (p.HasDefaultValue)
-                    {
-                        sb.Append(" = ");
-                        sb.Append(p.DefaultValue.GetType() == typeof(string) ? "\"" + p.DefaultValue.ToString() + "\"" : p.DefaultValue.ToString());
-                    }
-                    comma = ", ";
-                }
-                sb.Append(']');
-            }
-
-            sb.Append(" { ");
-            if (m.CanRead) sb.Append("get; ");
-            if (m.CanWrite) sb.Append("set; ");
-            sb.Append("}");
-
-            if (obj != null && m.CanRead && parameters.Length == 0)
-            {
-                sb.Append(" = ");
-
-                object value = null;
-                try { value = m.GetValue(obj); }
-                catch { }
-                if (value == null) sb.Append("null");
-                else
-                {
-                    string quote = (m.PropertyType == typeof(string) ? "\"" : "");
-                    sb.Append(quote);
-                    try { sb.Append(m.GetValue(obj).ToString()); }
-                    catch { }
-                    sb.Append(quote);
-                }
-            }
-
-            return sb.ToString();
-        }
-        private static string GetTypeDeclaration(MemberInfo mi)
-        {
-            var m = mi as TypeInfo;
-            return GetUnknownDeclaration(mi);
-        }
-        private static string GetUnknownDeclaration(MemberInfo mi)
-        {
-            return string.Format("[{0}] {1}.{2}", mi.MemberType, mi.DeclaringType.Name, mi.Name);
-        }
-        private static string MakeName(Type t)
-        {
-            if (t == null) return "void";
-            var sb = new StringBuilder();
-            int i = t.Name.IndexOf('`');
-            sb.Append(i >= 0 ? t.Name.Substring(0, i) : t.Name);
-            if (t.IsGenericType)
-            {
-                sb.Append('<');
-                string comma = "";
-                foreach (Type arg in t.GetGenericArguments())
-                {
-                    sb.Append(comma);
-                    sb.Append(MakeName(arg));
-                    comma = ", ";
-                }
-                sb.Append('>');
-            }
-            return sb.ToString();
-        }
-        #endregion
-        #endregion
-    }
-
-    public static class DataSetExtensions
-    {
-        /// <summary>
-        /// Converts the specified column.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="column">The column.</param>
-        /// <param name="conversion">The conversion.</param>
-        public static void ConvertTo<T>(this DataColumn column, Func<object, T> conversion)
-        {
-            foreach (DataRow row in column.Table.Rows) { row[column] = conversion(row[column]); }
-        }
-
-        /// <summary>
-        /// Create a delimited string all the values in a DataTable column.
-        /// </summary>
-        /// <param name="column"></param>
-        /// <param name="elementDelimiter">character to be used as a delimiter between each row element</param>
-        /// <param name="removeEmpties">True to remove null or empty values. default=False</param>
-        /// <returns></returns>
-        public static string ToString(this DataColumn column, char elementDelimiter, bool removeEmpties = false)
-        {
-            if (column == null || column.Table == null) return string.Empty;
-            var sb = new StringBuilder();
-            bool needsComma = false;
-            foreach (DataRow r in column.Table.Rows)
-            {
-                var value = r[column].ToString().Trim();
-                if (removeEmpties && value.Length == 0) continue;
-                if (needsComma) sb.Append(elementDelimiter);
-                sb.Append(value);
-                needsComma = true;
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Create a typed list all the values in a DataTable column.
-        /// </summary>
-        /// <param name="column"></param>
-        /// <param name="removeEmpties">True to remove null or empty values. default=False</param>
-        /// <returns></returns>
-        public static IList ToList(this DataColumn column, bool removeEmpties = false)
-        {
-            if (column == null) return new List<Object>(0);
-            Type listType = typeof(List<>).MakeGenericType(new[] { column.DataType });
-            int maxCount = column.Table == null ? 0 : column.Table.Rows.Count;
-            IList list = (IList)Activator.CreateInstance(listType, new Object[] { maxCount });
-            if (column.Table == null) return list;
-            foreach (DataRow r in column.Table.Rows)
-            {
-                var value = r[column];
-                if (removeEmpties && value.ToString().Trim().Length == 0) continue;
-                list.Add(value);
-            }
-            return list;
-        }
-
-        /// <summary>
-        /// Convert a DataTable to a CSV string.
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <returns>formatted CSV string</returns>
-        public static string ToCSV(this DataTable dt)
-        {
-            MemoryStream sw = new MemoryStream();
-            try
-            {
-                dt.CreateDataReader().ToCSV(sw);
-                return sw.ToStringEx();
-            }
-            finally { sw.Dispose(); }
-        }
-
-        /// <summary>
-        /// Generic converter from DataReader to CSV stream. 
-        /// </summary>
-        /// <param name="dataReader"></param>
-        /// <param name="writer">Text stream to write CSV output to.</param>
-        public static void ToCSV(this IDataReader dataReader, Stream stream)
-        {
-            CsvWriter writer = null;
-            try
-            {
-                writer = new CsvWriter(stream);
-                for (int i = 0; i < dataReader.FieldCount; i++)
-                {
-                    writer.WriteField(dataReader.GetName(i));
-                }
-                writer.WriteEOL();
-
-                //Rows
-                while (dataReader.Read())
-                {
-                    for (int i = 0; i < dataReader.FieldCount; i++)
-                    {
-                        writer.WriteField(dataReader[i]);
-                    }
-                    writer.WriteEOL();
-                }
-            }
-            finally
-            {
-                if (writer!=null) writer.Dispose();
-            }
-        }
-    }
-
-    public static class EnumExtensions
-    {
-        /// <summary>
-        /// Retrieve the DescriptionAttribute string associated with an Enum value.
-        /// Example: 
-        /// enum MyEnum {
-        ///     [Description("My Value #1")] MyValue1,
-        ///     [Description("My Value #2")] MyValue2
-        ///  }
-        /// Useful for Data Binding an Enum with human-friendly Descriptions to ComboBoxes
-        /// http://www.codeproject.com/KB/cs/enumdatabinding.aspx
-        /// combo.DataSource = typeof(MyEnum).Descriptions();
-        /// combo.DisplayMember = "Value";
-        /// combo.ValueMember = "Key";
-        /// </summary>
-        /// <typeparam name="T">Enum type</typeparam>
-        /// <param name="value">Enum value to retrieve description string from.</param>
-        /// <returns>Associated description string or the enum value string itself</returns>
-        public static string Description<T>(this T value) where T : struct, IComparable, IConvertible, IFormattable
-        {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
-            FieldInfo fi = typeof(T).GetField(value.ToString());
-            DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            if (attributes.Length > 0) return attributes[0].Description;
-            else return value.ToString();
-        }
-
-        /// <summary>
-        /// Retrieve a list of all the DescriptionAttribute strings associated with an Enum type.
-        /// Example: 
-        /// enum MyEnum {
-        ///     [Description("My Value #1")] MyValue1,
-        ///     [Description("My Value #2")] MyValue2
-        ///  }
-        /// Useful for Data Binding an Enum with human-friendly Descriptions to ComboBoxes
-        /// http://www.codeproject.com/KB/cs/enumdatabinding.aspx
-        /// combo.DataSource = typeof(MyEnum).Descriptions();
-        /// combo.DisplayMember = "Value";
-        /// combo.ValueMember = "Key";
-        /// </summary>
-        /// <typeparam name="T">Enum type</typeparam>
-        /// <returns>Associated list of description strings for the enum type</returns>
-        public static IDictionary<T, string> AllDescriptions<T>(this T enm) where T : struct, IComparable, IConvertible, IFormattable
-        {
-            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
-            T[] enumValues = Enum.GetValues(typeof(T)) as T[];
-            Dictionary<T, string> d = new Dictionary<T, string>(enumValues.Length);
-            foreach (T value in enumValues) { d.Add(value, Description(value)); }
-            return d;
-        }
-    }
-
-    public static class AssemblyExtensions
-    {
-        /// <summary>
-        /// Get the first value (as string) for the first attribute of the given type.
-        /// </summary>
-        /// <typeparam name="T">Attribute to get value for</typeparam>
-        /// <param name="asm">Assembly to check</param>
-        /// <returns>Value as string or "" if no arguments, or null if attribute not found.</returns>
-        public static string Attribute<T>(this Assembly asm) where T : Attribute
-        {
-            foreach (CustomAttributeData data in asm.CustomAttributes)
-            {
-                if (typeof(T) != data.AttributeType) continue;
-                if (data.ConstructorArguments.Count > 0) return data.ConstructorArguments[0].Value.ToString();
-                if (data.NamedArguments.Count > 0) return data.NamedArguments[0].TypedValue.Value.ToString();
-                return string.Empty;
-            }
-            return null;
-        }
-
-        /// <summary>
-        ///  Detect if assembly attribute exists.
-        /// </summary>
-        /// <typeparam name="T">Attribute to search for</typeparam>
-        /// <param name="asm">Assembly to search in</param>
-        /// <returns>True if found</returns>
-        public static bool AttributeExists<T>(this Assembly asm) where T : Attribute
-        {
-            return asm.CustomAttributes.FirstOrDefault(ca => ca.AttributeType == typeof(T)) != null;
-        }
-
-        /// <summary>
-        /// Gets the build/link timestamp from the specified executable file header.
-        /// </summary>
-        /// <param name="filePath">PE file to retrieve build date from</param>
-        /// <returns>The local DateTime that the specified assembly was built.</returns>
-        /// <remarks>
-        /// WARNING: When compiled in a .netcore application/library, the PE timestamp 
-        /// is NOT set with the the application link time. It contains some other non-
-        /// timestamp hash value. To force the .netcore linker to embed the true 
-        /// timestamp as previously, add the csproj property 
-        /// "<Deterministic>False</Deterministic>".
-        /// </remarks>
-        private static DateTime PeTimeStamp(string filePath)
-        {
-            uint TimeDateStamp = 0;
-            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                //Minimum possible executable file size.
-                if (stream.Length < 268) throw new BadImageFormatException("Not a PE file. File too small.", filePath);
-                //The first 2 bytes in file == IMAGE_DOS_SIGNATURE, 0x5A4D, or MZ.
-                if (stream.ReadByte() != 'M' || stream.ReadByte() != 'Z') throw new BadImageFormatException("Not a PE file. DOS Signature not found.", filePath);
-                stream.Position = 60; //offset of IMAGE_DOS_HEADER.e_lfanew
-                stream.Position = ReadUInt32(stream); // e_lfanew = 128
-                uint ntHeadersSignature = ReadUInt32(stream); // ntHeadersSignature == 17744 aka "PE\0\0"
-                if (ntHeadersSignature != 17744) throw new BadImageFormatException("Not a PE file. NT Signature not found.", filePath);
-                stream.Position += 4; //offset of IMAGE_FILE_HEADER.TimeDateStamp
-                TimeDateStamp = ReadUInt32(stream); //unix-style time_t value
-            }
-
-            DateTime returnValue = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(TimeDateStamp);
-            returnValue = returnValue.ToLocalTime();
-
-            if (returnValue < new DateTime(2000, 1, 1) || returnValue > DateTime.Now)
-            {
-                // PEHeader link timestamp field is a hash of the content of this file because csproj property
-                // "Deterministic" == true so we just return the 2nd best "build" time (iffy, unreliable).
-                return File.GetCreationTime(filePath);
-            }
-
-            return returnValue;
-        }
-
-        /// <summary>
-        /// Gets the build/link timestamp from the specified assembly file header.
-        /// </summary>
-        /// <param name="asm">Assembly to retrieve build date from</param>
-        /// <returns>The local DateTime that the specified assembly was built.</returns>
-        /// <remarks>
-        /// WARNING: When compiled in a .netcore application/library, the PE timestamp 
-        /// is NOT set with the the application link time. It contains some other non-
-        /// timestamp (hash?) value. To force the .netcore linker to embed the true 
-        /// timestamp as previously, add the csproj property 
-        /// "<Deterministic>False</Deterministic>".
-        /// </remarks>
-        public static DateTime PeTimeStamp(this Assembly asm)
-        {
-            if (asm.IsDynamic)
-            {
-                // The assembly was dynamically built in-memory so the build date is Now. Besides, 
-                // accessing the location of a dynamically built assembly will throw an exception!
-                return DateTime.Now;
-            }
-
-            return PeTimeStamp(asm.Location);
-        }
-
-        /// <summary>
-        /// Support utility exclusively for PEtimestamp()
-        /// </summary>
-        /// <param name="fs">File stream</param>
-        /// <returns>32-bit unsigned int at current offset</returns>
-        private static uint ReadUInt32(FileStream fs)
-        {
-            byte[] bytes = new byte[4];
-            fs.Read(bytes, 0, 4);
-            return BitConverter.ToUInt32(bytes, 0);
-        }
-    }
-
-    public static class MemberInfoExtensions
-    {
-        /// <summary>
-        /// Get the first value (as string) for the first attribute of the given type
-        /// </summary>
-        /// <typeparam name="T">Attribute to get value for</typeparam>
-        /// <param name="mi">Object member info</param>
-        /// <returns>Value as string or "" if no arguments, or null if attribute not found.</returns>
-        public static string Attribute<T>(this MemberInfo mi) where T : Attribute
-        {
-            foreach (CustomAttributeData data in mi.CustomAttributes)
-            {
-                if (typeof(T) != data.AttributeType) continue;
-                if (data.ConstructorArguments.Count > 0) return data.ConstructorArguments[0].Value.ToString();
-                if (data.NamedArguments.Count > 0) return data.NamedArguments[0].TypedValue.Value.ToString();
-                return string.Empty;
-            }
-            return null;
-        }
-
-        /// <summary>
-        ///  Detect if assembly attribute exists.
-        /// </summary>
-        /// <typeparam name="T">Attribute to search for</typeparam>
-        /// <param name="mi">Object member info</param>
-        /// <returns>True if found</returns>
-        public static bool AttributeExists<T>(this MemberInfo mi) where T : Attribute
-        {
-            return mi.CustomAttributes.FirstOrDefault(ca => ca.AttributeType == typeof(T)) != null;
-        }
-    }
-
-    public static class AppDomainExtensions
-    {
-        /// <summary>
-        /// Normally, once the AppDomain has been created, the AppDomain.FriendlyName 
-        /// cannot be changed. This allows it to be changed.
-        /// </summary>
-        /// <param name="ad">AppDomain to change</param>
-        /// <param name="newname">New "FriendlyName"</param>
-        /// <returns>Previous friendly name.</returns>
-        public static string SetFriendlyName(this AppDomain ad, string newname)
-        {
-            var prevName = ad.FriendlyName;
-            MethodInfo mi = typeof(AppDomain).GetMethod("nSetupFriendlyName", BindingFlags.Instance | BindingFlags.NonPublic);
-            if (mi == null) return null;
-            mi.Invoke(ad, new object[] { newname });
-            return prevName;
-        }
-    }
-
-    public static class DateTimeExtensions
-    {
-        /// <summary>
-        /// Round datetime to the nearest whole day.
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        public static System.DateTime ToDay(this System.DateTime dt)
-        {
-            dt = dt.ToHour();
-            return new System.DateTime(dt.Year, dt.Month, 1, 0, 0, 0, 0, dt.Kind).AddDays((dt.Day-1) + (dt.Hour > 12 ? 1 : 0));
-        }
-
-        /// <summary>
-        /// Round datetime to the nearest whole hour.
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        public static System.DateTime ToHour(this System.DateTime dt)
-        {
-            dt = dt.ToMinute();
-            return new System.DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0, 0, dt.Kind).AddHours(dt.Hour + (dt.Minute > 30 ? 1 : 0));
-        }
-
-        /// <summary>
-        /// Round datetime to the nearest minute. 
-        /// </summary>
-        /// <param name="dt">Datetime to round</param>
-        /// <returns>Rounded datetime. dt.Kind is preserved.</returns>
-        public static DateTime ToMinute(this DateTime dt) => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute + (dt.Second > 30 ? 1 : 0), 0, dt.Kind);
-
-        /// <summary>
-        /// Round datetime to the nearest second. 
-        /// </summary>
-        /// <param name="dt">Datetime to round</param>
-        /// <returns>Rounded datetime. dt.Kind is preserved.</returns>
-        public static DateTime ToSecond(this DateTime dt) => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second + (dt.Millisecond > 500 ? 1 : 0), 0, dt.Kind);
-
-        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
-
-        /// <summary>
-        /// Convert datetime to unix time_t integer in seconds.
-        /// </summary>
-        /// <param name="dt">Datetime to convert.</param>
-        /// <returns>time_t integer representing seconds from 1/1/1970.</returns>
-        public static int ToUnixTime(this DateTime dt) => (int)(dt - UnixEpoch).TotalSeconds;
-
-        /// <summary>
-        /// Convert time_t seconds from 1/1/1970 to DateTime
-        /// </summary>
-        /// <param name="time_t">Seconds from 1/1/1970</param>
-        /// <returns>Datetime equivalant.</returns>
-        public static DateTime FromUnixTime(this int time_t) => UnixEpoch.AddSeconds(time_t);
-        /// <summary>
-        /// TimeSpan is NOT culture-aware, so we have to fake it out using DateTime culture.
-        /// </summary>
-        /// <param name="ts"></param>
-        /// <returns></returns>
-        public static string ToLocalizedString(this TimeSpan ts, string format="T")
-        {
-            if (format == "g" || format == "f" ) format = "t";
-            if (format == "G" || format == "F" || format == "c") format = "T";
-            if (format == "s") format = "HH:mm:ss";
-            var dt = new System.DateTime(Math.Abs(ts.Ticks));
-            return dt.ToString(format);
-        }
-
-        public static System.DateTime ToDateTime(this System.TimeSpan ts)
-        {
-            //Must be 1900-01-01 because that is the beginning of time for SQL Server DB's
-            return UnixEpoch.AddTicks(Math.Abs(ts.Ticks));
-        }
-
-        private static List<string> CurrentNames;   //for InvariantToLocalizedDateTime()
-        private static List<string> InvariantNames; //for InvariantToLocalizedDateTime()
-        private static string InvariantNamePattern; //for InvariantToLocalizedDateTime()
-        /// <summary>
-        /// Replace all occurances of Invariant date, time, or datetime 
-        /// (format "g", "G", "d", "D", "f", "F", "t", or "T") in string
-        /// with localized date, time or datetime.
-        /// Supports 1 or 2 digits for month, day, hour, min, sec and 
-        /// 2 or 4 digits for year. AM/PM is optional.
-        /// Extra spaces are handled.
-        /// Invalid datetime formats (e.g. month 13) are not replaced.
-        /// Note: Invariant DateTime format is the same as en-US format.
-        /// Warning: Calling this method on a string that is already 
-        /// localized may return unexpected results.
-        /// </summary>
-        /// <param name="description">
-        ///   String containing datetimes. If there are no datetimes in
-        ///   string or string is null, this string is returned unmodifed.
-        /// </param>
-        /// <param name="format">
-        ///   Explicit datetime format specifier to use for all datetime formats 
-        ///   in string. If undefined, will autodetect which format to use 
-        ///   (e.g. "g", "G", "d", "D", "f", "F", "t", or "T").
-        ///   </param>
-        /// <returns>updated string</returns>
-        public static string InvariantToLocalizedDateTime(this string description, string format = null)
-        {
-            if (description.IsNullOrEmpty() || description.Length < 6) return description;
-
-            //Logic to generate regex pattern.....
-            //var MonthNames = new List<string>(40);
-            //MonthNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.MonthNames);
-            //MonthNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames);
-            //MonthNames.RemoveAt(25); //some cultures have 13 months! We support Gregorian ONLY!
-            //MonthNames.RemoveAt(12);
-            //string longDatePattern = string.Concat(@"(?:", MonthNames.ToString('|'), @")\s+\d{1,2},\s*\d{2,4}");
-            //string shortDatePattern = @"\d{1,2}/\d{1,2}/\d{2,4}";
-            //string timePattern = @"\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s+AM|\s+PM)?";
-            //string pattern = @"((?:longDatePattern|shortDatePattern)(?:\s+timePattern)?|timePattern)";
-            //string pattern = string.Concat("((?:",longDatePattern,"|",shortDatePattern,@")(?:\s+",timePattern,")?|",timePattern,")");
-            string pattern = @"((?:(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s*\d{2,4}|\d{1,2}/\d{1,2}/\d{2,4})(?:\s+\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s+AM|\s+PM)?)?|\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s+AM|\s+PM)?)";
-
-            string result = Regex.Replace(description, pattern, delegate(Match m)
-            {
-                DateTime dt;
-                if (DateTime.TryParse(m.Value, System.Globalization.CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
-                {
-                    if (m.Value[0] > '9') //must be a long date e.g. January 1, 1970
-                    {
-                        if (format != null)
-                        {
-                            string f = format;
-                            if (format[0] == 'T' || format[0] == 't') f = (format[0] == 'T' ? "F" : "f");
-                            return dt.ToString(f);
-                        }
-                        if (dt.Hour == 0 && dt.Minute == 0 && dt.Second == 0) return dt.ToString("D");
-                        if (dt.Second == 0 && dt.Millisecond == 0) return dt.ToString("f");
-                        return dt.ToString("F");
-                    }
-                    if (m.Value.Any(x=>x=='/' || x=='-')) //must be a short date e.g. 1/1/1970 or 1970-01-01
-                    {
-                        if (format != null)
-                        {
-                            string f = format;
-                            if (format[0] == 'T' || format[0] == 't') f = (format[0] == 'T' ? "G" : "g");
-                            return dt.ToString(f);
-                        }
-                        if (dt.Hour == 0 && dt.Minute == 0 && dt.Second == 0) return dt.ToString("d");
-                        if (dt.Second == 0 && dt.Millisecond == 0) return dt.ToString("g");
-                        return dt.ToString("G");
-                    }
-                    //Must be just time e.g. 11:33:25 AM
-                    if (format != null)
-                    {
-                        string f = (format[0] == 'D' || format[0] == 'F' || format[0] == 'G' || format[0] == 'r' || format[0] == 's' || format[0] == 'u' || format[0] == 'U' ? "T" : "t");
-                        return dt.ToString(f);
-                    }
-                    if (dt.Second == 0 && dt.Millisecond == 0) return dt.ToString("t");
-                    return dt.ToString("T");
-                }
-                return m.Value;
-            }, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-            //Translate Month and DayOfWeek names as well.
-            if (Thread.CurrentThread.CurrentUICulture.ToString().StartsWith("en-")) return result; //no change
-
-            if (InvariantNames == null)
-            {
-                InvariantNames = new List<string>(40);
-                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.MonthNames);
-                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.DayNames);
-                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames);
-                InvariantNames.AddRange(CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedDayNames);
-                InvariantNames.RemoveAt(32); //some cultures have 13 months! We support Gregorian ONLY!
-                InvariantNames.RemoveAt(12);
-                InvariantNamePattern = string.Format(@"\b({0})\b", string.Join("|",InvariantNames));
-
-                //For efficiency, we assume the current locale will not change for the duration of the application.
-                CurrentNames = new List<string>(40);
-                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.MonthNames);
-                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.DayNames);
-                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.AbbreviatedMonthNames);
-                CurrentNames.AddRange(Thread.CurrentThread.CurrentUICulture.DateTimeFormat.AbbreviatedDayNames);
-                CurrentNames.RemoveAt(32); //some cultures have 13 months! We support Gregorian ONLY!
-                CurrentNames.RemoveAt(12);
-            }
-
-            return Regex.Replace(result, InvariantNamePattern, delegate(Match m)
-            {
-                int i = InvariantNames.IndexOf(x => x.EqualsI(m.Value));
-                if (i < 0) return m.Value;
-                return CurrentNames[i];
-            }, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        }
-     }
-
-    public static class GDI
-    {
-        public static void DrawRoundedRectangle(this Graphics g, Pen p, Rectangle r, int d)
-        {
-            System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
-
-            gp.AddArc(r.X, r.Y, d, d, 180, 90);
-            gp.AddArc(r.X + r.Width - d, r.Y, d, d, 270, 90);
-            gp.AddArc(r.X + r.Width - d, r.Y + r.Height - d, d, d, 0, 90);
-            gp.AddArc(r.X, r.Y + r.Height - d, d, d, 90, 90);
-            gp.AddLine(r.X, r.Y + r.Height - d, r.X, r.Y + d / 2);
-
-            g.DrawPath(p, gp);
-        }
-
-        public static void FillRoundedRectangle(this Graphics g, Brush b, Rectangle r, int d)
-        {
-            System.Drawing.Drawing2D.GraphicsPath gp = new System.Drawing.Drawing2D.GraphicsPath();
-
-            gp.AddArc(r.X, r.Y, d, d, 180, 90);
-            gp.AddArc(r.X + r.Width - d, r.Y, d, d, 270, 90);
-            gp.AddArc(r.X + r.Width - d, r.Y + r.Height - d, d, d, 0, 90);
-            gp.AddArc(r.X, r.Y + r.Height - d, d, d, 90, 90);
-            gp.AddLine(r.X, r.Y + r.Height - d, r.X, r.Y + d / 2);
-
-            g.FillPath(b, gp);
-        }
-
-        [DllImport("Shell32.dll")] private static extern int SHDefExtractIconW([MarshalAs(UnmanagedType.LPWStr)] string pszIconFile, int iIndex, int uFlags, out IntPtr phiconLarge, /*out*/ IntPtr phiconSmall, int nIconSize);
-        /// <summary>Returns an icon of the specified size that is contained in the specified file.</summary>
-        /// <param name="filePath">The path to the file that contains the icon.</param>
-        /// <param name="size">Size of icon to retrieve.</param>
-        /// <returns>The Icon representation of the image that is contained in the specified file. Must be disposed after use.</returns>
-        /// <exception cref="System.ArgumentException">The parameter filePath does not indicate a valid file.-or- indicates a Universal Naming Convention (UNC) path.</exception>
-        /// <remarks>
-        /// Icons files contain multiple sizes and bit-depths of an image ranging from 16x16 to 256x256 in multiples of 8. Example: 16x16, 24x24, 32x32, 48x48, 64x64, 96x96, 128*128, 256*256.
-        /// Icon.ExtractAssociatedIcon(filePath), retrieves only the 32x32 icon, period. This method will use the icon image that most closely matches the specified size and then resizes it to fit the specified size.
-        /// </remarks>
-        /// <see cref="https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw"/>
-        /// <see cref="https://devblogs.microsoft.com/oldnewthing/20140501-00/?p=1103"/>
-        public static Icon ExtractAssociatedIcon(string filePath, int size)
-        {
-            const int SUCCESS = 0;
-            IntPtr hIcon;
-
-            if (SHDefExtractIconW(filePath, 0, 0, out hIcon, IntPtr.Zero, size) == SUCCESS)
-            {
-                return Icon.FromHandle(hIcon);
-            }
-
-            return null;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MARGINS
-        {
-            public int leftWidth;
-            public int rightWidth;
-            public int topHeight;
-            public int bottomHeight;
-        }
-        [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
-        [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
-        /// <summary>
-        /// Enable dropshadow to a borderless form. Unlike forms with borders, forms with FormBorderStyle.None have no dropshadow. 
-        /// </summary>
-        /// <param name="form">Borderless form to add dropshadow to. Must be called AFTER form handle has been created. see Form.Created or Form.Shown events.</param>
-        /// <exception cref="InvalidOperationException">Must be called AFTER the form handle has been created.</exception>
-        /// <see cref="https://stackoverflow.com/questions/60913399/border-less-winform-form-shadow/60916421#60916421"/>
-        /// <remarks>
-        /// This method does nothing if the form does not have FormBorderStyle.None.
-        /// </remarks>
-        public static void ApplyShadows(Form form)
-        {
-            if (form.FormBorderStyle != FormBorderStyle.None) return;
-            if (Environment.OSVersion.Version.Major < 6) return;
-            if (!form.IsHandleCreated) throw new InvalidOperationException("Must be called AFTER the form handle has been created.");
-
-            var v = 2;
-            DwmSetWindowAttribute(form.Handle, 2, ref v, 4);
-
-            MARGINS margins = new MARGINS()
-            {
-                bottomHeight = 1,
-                leftWidth = 0,
-                rightWidth = 1,
-                topHeight = 0
-            };
-
-            DwmExtendFrameIntoClientArea(form.Handle, ref margins);
-        }
+        public static Stream GetManifestResourceStream(this Type t, string name) => t.Assembly.GetManifestResourceStream(t.Assembly.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith(name, StringComparison.OrdinalIgnoreCase)) ?? "NULL");
     }
 }

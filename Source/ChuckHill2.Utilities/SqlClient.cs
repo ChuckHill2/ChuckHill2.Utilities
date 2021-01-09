@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Utilities.Extensions.Reflection;
 
 namespace ChuckHill2.Utilities
 {
@@ -358,9 +359,9 @@ namespace ChuckHill2.Utilities
             if (connectionString.IsNullOrEmpty()) return string.Empty;
             try
             {
-                //'Data Source=(local);Initial Catalog=VIA_Security;Integrated Security=SSPI'
-                //'Data Source=(local);Initial Catalog=VIA3_Security;User ID=user2;Password=omnicell'
-                //'Data Source=(local);Initial Catalog=VIA3_Security;User ID=user3;Password="Wild pass2"'
+                //'Data Source=(local);Initial Catalog=MyDataBase;Integrated Security=SSPI'
+                //'Data Source=(local);Initial Catalog=MyDataBase;User ID=user2;Password=myuserpass'
+                //'Data Source=(local);Initial Catalog=MyDataBase;User ID=user3;Password="Wild pass2"'
                 if (!connectionString.ContainsI("Password=")) return connectionString;
                 SqlConnectionStringBuilder sb = new SqlConnectionStringBuilder(connectionString);
                 if (sb.Password.IsNullOrEmpty()) return connectionString;
@@ -380,7 +381,7 @@ namespace ChuckHill2.Utilities
         {
             var sb = new StringBuilder();
             string command = cmd.CommandText.Trim();
-            if (command.Contains("\n")) command = command.Beautify(true, "  ");
+            if (command.Contains("\n")) command = command.Trim();
             sb.AppendFormat("SqlExec [{0}].[{1}] ", cmd.Connection.DataSource, cmd.Connection.Database);
             sb.Append(command);
             foreach (DbParameter p in cmd.Parameters)
@@ -499,7 +500,7 @@ namespace ChuckHill2.Utilities
                     return Guid.Empty;
                 }
 
-                //Convert.ChangeType does not understand Omnicell D16 datetime format.
+                //Convert.ChangeType does not a numeric string datetime format.
                 if (t == typeof(DateTime))
                 {
                     string s = value.ToString().Trim();

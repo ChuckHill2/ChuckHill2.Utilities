@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using ChuckHill2.Utilities.Extensions;
 using Microsoft.Win32;
 
 namespace ChuckHill2.Utilities

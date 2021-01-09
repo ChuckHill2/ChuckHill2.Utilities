@@ -144,13 +144,21 @@ namespace ChuckHill2.Utilities.Extensions
         public static object To(Type dstType, object value, object defalt)
         {
             var v = To(dstType, value);
-            var d = Activator.CreateInstance(dstType);
-            if (d==v && dstType == defalt?.GetType())
+            object d = dstType.IsClass ? null : Activator.CreateInstance(dstType);
+            if (MyEquals(d,v) && dstType.IsAssignableFrom(defalt?.GetType()))
             {
                 return defalt;
             }
 
             return v;
+        }
+
+        private static bool MyEquals(object a, object b)
+        {
+            if (a == null && b == null) return true;
+            if (a == null && b != null) return false;
+            if (a != null && b == null) return false;
+            return a.Equals(b);
         }
 
         /// <summary>
@@ -485,7 +493,7 @@ namespace ChuckHill2.Utilities.Extensions
         ///   • Does not support nested data.<br />
         ///   • Class values must be read/writable properties that do not have any attribute with 'Ignore' in the type name.<br />
         /// </remarks>
-        public static IEnumerable<T> JsonToModels<T>(TextReader textReader) where T : class, new()
+        public static IEnumerable<T> JsonToModels<T>(this TextReader textReader) where T : class, new()
         {
             var properties = GetProperties(typeof(T));
 
@@ -793,6 +801,145 @@ namespace ChuckHill2.Utilities.Extensions
         }
 
         /// <summary>
+        /// Convert enumerable array of data models into a multi-line CSV string.
+        /// </summary>
+        /// <param name="array">Enumerable array of data models</param>
+        /// <returns>A multi-line CSV string</returns>
+        /// <seealso cref="ToCSV(this IEnumerable items, TextWriter textwriter)"/>
+        public static string ToCSV(this IEnumerable array)
+        {
+            using (var ms = new MemoryStream())
+            {
+                using (var sw = new StreamWriter(ms))
+                {
+                    ToCSV(array, sw);
+                    sw.Flush();
+                    ms.Position = 0;
+                    using (var sr = new StreamReader(ms))
+                    {
+                        return sr.ReadToEnd();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Serializes a single enumerable object into a single CSV document within the 
+        /// specified Stream. There are NO limits to the number of records written to the 
+        /// stream. There is no caching or buffering. Individual values are formatted and 
+        /// written to the stream immediately.
+        /// </summary>
+        /// <param name="items">Enumerable list of items to write.</param>
+        /// <param name="textwriter">
+        ///   Open stream to write to. Note: stream is not closed and stream pointer is not
+        ///   reset to beginning in order to potentially perform further processing.
+        /// </param>
+        /// <remarks>
+        /// • Writes columns in the same order as declared in the data model.
+        /// • Does not perform any custom formatting or language translation.
+        /// • <see cref="https://github.com/ChuckHill2/CsvExcelExportImport"/> for a mor comprehensive conversion.
+        /// </remarks>
+        public static void ToCSV(this IEnumerable items, TextWriter textwriter)
+        {
+            var properties = GetProperties(GetElementType(items));
+
+            using (var writer = new CsvWriter(textwriter))
+            {
+                // Write header record
+                foreach (var p in properties)
+                {
+                    writer.WriteField(p.Name);
+                }
+
+                writer.WriteEOL();
+
+                // Write records
+                foreach (var item in items)
+                {
+                    foreach (var p in properties)
+                    {
+                        writer.WriteField(p.GetValue(item));
+                    }
+
+                    writer.WriteEOL();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get enumerable text objects beginning at the current position in the stream.
+        /// </summary>
+        /// <typeparam name="T">Type of class objects to read into.</typeparam>
+        /// <param name="textReader">Stream to read. Must contain at least 2 rows and 2 columns.</param>
+        /// <returns>
+        ///   Enumerable list of class object. DO NOT close the stream until after the
+        ///   enumerable list has been evaluated.
+        /// </returns>
+        /// <remarks>
+        /// • The column headings in the CSV stream must be of the same names as the model property name. Mismatched names are ignored.
+        /// • The CSV column order is not important.
+        /// • Does not perform any language translation.
+        /// • CSV values that cannot be converted to the model column type will default to the default value for that data type..
+        /// • <see cref="https://github.com/ChuckHill2/CsvExcelExportImport"/> for a mor comprehensive conversion.
+        /// </remarks>
+        public static IEnumerable<T> CsvToModels<T>(this TextReader textReader)
+        {
+            var t = typeof(T);
+            var properties = GetProperties(t);
+            using (var reader = new CsvReader(textReader))
+            {
+                var headers = reader.ReadRecord();
+                properties = SyncWithHeaders(properties, headers);
+                while (!reader.EndOfFile)
+                {
+                    var index = 0;
+                    var nuClass = (T)Activator.CreateInstance(t);
+                    foreach (var field in reader.ReadField())
+                    {
+                        var pa = properties[index];
+                        // CSV cannot detect difference between "" and null, so we opt for null to support nullable types.
+                        pa.SetValue(nuClass, field.Length == 0 ? null : field);
+                        index++;
+                    }
+
+                    if (index > 0)
+                    {
+                        yield return nuClass;
+                    }
+                }
+
+                yield break;
+            }
+        }
+
+        /// <summary>
+        /// Convert CSV formatted string into an enumerable array of data models.
+        /// </summary>
+        /// <typeparam name="T">Type of class objects to  write into.</typeparam>
+        /// <param name="csvString">A multi-line CSV string. Must have at least 2 rows and 2 columns.</param>
+        /// <returns>
+        ///  An enumerable list of class objects. 
+        /// </returns>
+        /// <remarks>
+        /// • The column headings in the CSV stream must be of the same names as the model property name. Mismatched names are ignored.
+        /// • The CSV column order is not important.
+        /// • Does not perform any language translation.
+        /// • CSV values that cannot be converted to the model column type will default to the default value for that data type..
+        /// • <see cref="https://github.com/ChuckHill2/CsvExcelExportImport"/> for a mor comprehensive conversion.
+        /// </remarks>
+        public static IEnumerable<T> CsvToModels<T>(this string csvString)
+        {
+            using (var sr = new StringReader(csvString))
+            {
+                foreach(T v in sr.CsvToModels<T>())
+                {
+                    yield return v;
+                }
+            }
+            yield break;
+        }
+
+        /// <summary>
         /// Insert null records into a sequence where the specified value changes.
         /// Data should already be sorted by the specified key.
         /// Used for adding a delimiter between changes.
@@ -815,6 +962,7 @@ namespace ChuckHill2.Utilities.Extensions
                 {
                     // Just in case someone called SplitBy twice.
                     yield return enumerator.Current;
+                    firstRow = true;
                     continue;
                 }
 
@@ -936,6 +1084,12 @@ namespace ChuckHill2.Utilities.Extensions
             return props;
         }
 
+        /// <summary>
+        /// Infer element type from an anonymous non-generic Enumerable object WITHOUT evaluating the enumerable object.
+        /// </summary>
+        /// <param name="enumerable">An anonymous non-generic Enumerable object</param>
+        /// <returns>Type of items in enumerable array.</returns>
+        /// <exception cref="System.InvalidDataException">Cannot determine underlying type of the enumerable object.</exception>
         private static Type GetElementType(IEnumerable enumerable)
         {
             Type[] interfaces = enumerable.GetType().GetInterfaces();
@@ -946,7 +1100,7 @@ namespace ChuckHill2.Utilities.Extensions
             // Peek at the first element in the list if we couldn't determine the element type.
             if (elementType == null || elementType == typeof(object))
             {
-                throw new InvalidDataException($"Cannot determine underlying type of enumerable object.");
+                throw new InvalidDataException($"Cannot determine underlying type of the enumerable object.");
                 // First element will be lost if element is returned via 'yield return'.
                 // object firstElement = enumerable.Cast<object>().FirstOrDefault();
                 // if (firstElement != null) elementType = firstElement.GetType();
@@ -991,12 +1145,13 @@ namespace ChuckHill2.Utilities.Extensions
 
         private class ModelProperty
         {
+            //The minimum necessary member property properties needed to read and write the values.
             public string Name { get; set; }
             public Type Type { get; set; }
             public Func<object, object> GetValue { get; set; }
             public Action<object, object> SetValue { get; set; }
 
-            public override string ToString() => $"{Name}, {Type.Name}";
+            public override string ToString() => $"{Name}, {Type.Name}"; //for debugging
         }
     }
 }
