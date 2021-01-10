@@ -245,7 +245,7 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Logging.docx" />
+    <None Include="Logging.md" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -261,7 +261,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Win32.cs" />
-    <None Include="WhitePaper.doc" />
+    <None Include="WhitePaper.md" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ColorPickerPanelVert.resx">
