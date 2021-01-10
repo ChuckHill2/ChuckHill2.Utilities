@@ -71,8 +71,6 @@ The following applications let you monitor/listen for debug output on your local
 
 **In-house DBMon.exe**
 
-TFS$/Pandora/Pandora.Internal.Tools/Pandora.Diagnostics.DBMon/Release/DBMon.exe
-
 Lightweight console application (16KB). Extremely fast, low latency. Works on local system only.
 
 Console Command-line Arguments
