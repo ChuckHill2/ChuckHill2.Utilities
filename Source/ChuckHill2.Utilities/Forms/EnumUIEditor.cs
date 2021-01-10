@@ -8,14 +8,14 @@ using System.Text;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     ///  @image html EnumUIEditor.png
     /// <summary>
     /// UITypeEditor for setting regular and bitwise enums (aka Flags attribute).
     /// </summary>
     /// <remarks>
-    ///  For [Flags] bitwise enum values that evaluate to 0 are special in that when that enum is checked, all others are 
+    ///  For [Flags] bitwise enum values that evaluate to 0 are special in that when that enum is checked, all others are
     ///  unchecked. Typically the zero'th enum is considered the uninitialized default. Regular enums only allow one selection.
     /// If any enum values have a [Description("Hello World")] attribute associated with them, then they will show up as tooltips.
     /// If any enum values have a [Image(typeof(Direction),"Left.png"] attribute associated with them, then they will show up as icons.<br />

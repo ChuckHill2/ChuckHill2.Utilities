@@ -7,10 +7,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 using Microsoft.Win32;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Principally locates product files and assemblies that CLR loader 
@@ -855,7 +855,7 @@ namespace ChuckHill2.Utilities
 
     #region Example Custom Resolver
     /// <summary>
-    /// This is example product-specific code to ChuckHill2.Utilities.Resolver initializer delegate. FOR EXAMPLE ONLY.
+    /// This is example product-specific code to ChuckHill2.Resolver initializer delegate. FOR EXAMPLE ONLY.
     /// </summary>
     internal static class MyProductResolver
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     //Useful notes.... Google: c# app.config include file
     //http://stackoverflow.com/questions/480538/use-xml-includes-or-config-references-in-app-config-to-include-other-config-file

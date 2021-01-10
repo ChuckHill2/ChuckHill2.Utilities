@@ -1,6 +1,6 @@
 using System;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Lightweight/Fast Performance Timer. Similar to System.Diagnostics.Stopwatch().

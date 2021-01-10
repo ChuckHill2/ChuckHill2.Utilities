@@ -5,8 +5,9 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Diagnostics;
-using ChuckHill2.Utilities;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2;
+using ChuckHill2.Forms;
+using ChuckHill2.Extensions;
 
 namespace ColorEditor
 {

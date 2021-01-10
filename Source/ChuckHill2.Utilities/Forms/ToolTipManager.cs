@@ -56,7 +56,7 @@ using System.Windows.Forms;
 //  • Class-level variables whose scope is limited to a single property has the same name as the property followed by 2 underscores and the fist character is lowercase (e.g. MyProperty uses __myProperty).
 //  • Controls within a form start with "m_' followed by a 2-3 letter mnemonic describing the type of control, followed by the CamelCase'd name (e.g. m_txtMyTextbox). This makes them easy to find with intellisense.
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     /// ToolTips for all the form controls. Does not support non-Control-based objects.
@@ -132,7 +132,7 @@ namespace ChuckHill2.Utilities
         }
 
         /// <summary>
-        /// Function that retrieves the custom tooltip popup message for the specified control. If undefined, uses Control.AccessibleDescription. 
+        /// Function that retrieves the custom tooltip popup message for the specified control. If undefined, uses Control.AccessibleDescription.
         /// This is used exclusively by AddToolTips() which is never called from within designed code.
         /// The Designer has its own mechanism for adding tooltips.
         /// </summary>
@@ -356,7 +356,7 @@ namespace ChuckHill2.Utilities
         /// </remarks>
         [Category("Behavior"), Description("Gets or sets the time that passes before the tooltip appears.")]
         [DefaultValue(defaultInitialDelay)]
-        public int InitialDelay 
+        public int InitialDelay
         {
             get => __initialDelay;
             set { __initialDelay = value; IdleTimer.Interval = __initialDelay; }
@@ -397,7 +397,7 @@ namespace ChuckHill2.Utilities
 
         #region Constructors/Destructors
         /// <summary>
-        /// Create tooltip-style help for all the controls in the specified form. 
+        /// Create tooltip-style help for all the controls in the specified form.
         /// ToolTipManager.Host must be set before this object can be used.
         /// There can be only ONE instance per owner form.
         /// </summary>
@@ -423,8 +423,8 @@ namespace ChuckHill2.Utilities
         /// </summary>
         /// <param name="host">Form owner of these tooltips. Null throws an exception.</param>
         /// <param name="tipMessageReader">
-        ///   Delegate that retrieves the tooltip popup message for the specified control. 
-        ///   If undefined, uses Control.AccessibleDescription. 
+        ///   Delegate that retrieves the tooltip popup message for the specified control.
+        ///   If undefined, uses Control.AccessibleDescription.
         ///   This is used exclusively by AddToolTips().
         /// </param>
         public ToolTipManager(Form host, TipMessageReaderDelegate tipMessageReader = null)
@@ -542,10 +542,10 @@ namespace ChuckHill2.Utilities
         /// Note: This cannot overwrite any tooltips created by RegisterTooltip() or the Designer. It must be unregistered first.
         /// </summary>
         /// <param name="msgReader">Override TipMessageReader delegate that retrieves a control's tooltip message.</param>
-        public void CreateRuntimeToolTips(TipMessageReaderDelegate msgReader = null) 
-        { 
+        public void CreateRuntimeToolTips(TipMessageReaderDelegate msgReader = null)
+        {
             if (Host == null) return;
-            RecurseCreateRuntimeToolTips(Host, msgReader ?? _tipMessageReader); 
+            RecurseCreateRuntimeToolTips(Host, msgReader ?? _tipMessageReader);
         }
         private void RecurseCreateRuntimeToolTips(Control control, TipMessageReaderDelegate msgReader)
         {
@@ -659,9 +659,9 @@ namespace ChuckHill2.Utilities
             {
                 Debug.WriteLine($"MouseMovedEvent: {c?.Name ?? "(null)"}: HasTipProp=false. Stopping IdleTimer and Hiding.");
                 //_currentControl = null; //uncomment if user should  be allowed to re-enter the control from form space to see the tooltip again/
-                IdleTimer.Stop(); 
+                IdleTimer.Stop();
                 Hide(UseFading);
-                return; 
+                return;
             }
 
             Debug.WriteLine($"MouseMovedEvent: {c?.Name ?? "(null)"}: Starting new tooltip.");
@@ -764,7 +764,7 @@ namespace ChuckHill2.Utilities
         ///  This ensures ToolTipManager.Host is serialized by the Designer.
         ///  This has no effect during runtime.
         /// </summary>
-        public override ISite Site 
+        public override ISite Site
         {
             // See: https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.design.icomponentchangeservice?view=netcore-3.1
             get => base.Site;
@@ -964,8 +964,8 @@ namespace ChuckHill2.Utilities
         // Properties and actions for a single tooltip
         private class TipProp: IDisposable
         {
-            public enum CreationSource 
-            { 
+            public enum CreationSource
+            {
                 Auto = 0,   //Created by AddAllToolTips()
                 Designer,   //Created by SetMessage()/SetTitle()/SetIcon()
                 Registered, //Created by RegisterTooltip()
@@ -978,7 +978,7 @@ namespace ChuckHill2.Utilities
             public ToolTipIcon ToolTipIcon { get; private set; }
             public CreationSource CreatedBy { get; private set; } //Determines HOW tooltip was added. Via RegisterToolTip() or AddAllToolTips()
 
-            // Require resources from the ToolTipManager that may not have been initialized at time of this object creation, 
+            // Require resources from the ToolTipManager that may not have been initialized at time of this object creation,
             //so we cannot create private copies of them in the constructor.
             private readonly ToolTipManager TTParent;
 
@@ -1039,7 +1039,7 @@ namespace ChuckHill2.Utilities
                 if (c is NumericUpDown || c is ComboBox) cur = Cursors.IBeam;
                 else cur = c.Cursor;
 
-                var rc = TTResources.GetCursorDimensions(cur); 
+                var rc = TTResources.GetCursorDimensions(cur);
                 mousePosition.Offset(rc.X - cur.HotSpot.X, rc.Bottom - cur.HotSpot.Y + 1);
                 return mousePosition;
             }
@@ -1085,8 +1085,8 @@ namespace ChuckHill2.Utilities
         private class PopupPanel : Form
         {
             private Image __image;
-            public Image Image 
-            { 
+            public Image Image
+            {
                 get => __image;
                 set
                 {
@@ -1193,9 +1193,9 @@ namespace ChuckHill2.Utilities
         }
 
         /// <summary>
-        /// Mouse handler for the entire form. Captures all mouse and click 
+        /// Mouse handler for the entire form. Captures all mouse and click
         /// events for entire form. Including those within child controls.
-        /// Multiple instances may be used on the same form (I don't know why...). 
+        /// Multiple instances may be used on the same form (I don't know why...).
         /// Just Dispose() upon completion to release shared resources..
         /// </summary>
         private class GlobalMouseHandler : IMessageFilter, IDisposable
@@ -1217,7 +1217,7 @@ namespace ChuckHill2.Utilities
             public event EventHandler<MouseEventArgs> MouseMoved; // = delegate { };
 
             /// <summary>
-            ///  This event is triggered when a mouse click occured somewhere on the form. 
+            ///  This event is triggered when a mouse click occured somewhere on the form.
             ///  Use Control.MousePosition to get the location of the click.
             /// </summary>
             public event EventHandler<EventArgs> Click; // = delegate { };
@@ -1255,12 +1255,12 @@ namespace ChuckHill2.Utilities
             }
 
             // Disable mouse detection if host form is not active.
-            private void Host_Activated(object s, EventArgs e) 
+            private void Host_Activated(object s, EventArgs e)
             {
                 Debug.WriteLine($"Host Activated: {Host.Name}");
-                if (Enabled) EnableMsgFilter(true); 
+                if (Enabled) EnableMsgFilter(true);
             }
-            private void Host_Deactivate(object s, EventArgs e) 
+            private void Host_Deactivate(object s, EventArgs e)
             {
                 Debug.WriteLine($"Host Deactivated: {Host.Name}");
                 if (Enabled) EnableMsgFilter(false);
@@ -1268,7 +1268,7 @@ namespace ChuckHill2.Utilities
 
 #region IDisposable Members
             /// <summary>
-            /// Disposes this instance. This class uses shared application resources. 
+            /// Disposes this instance. This class uses shared application resources.
             /// </summary>
             public void Dispose()
             {
@@ -1443,7 +1443,7 @@ namespace ChuckHill2.Utilities
                     RGBtoHLS(__fillColor, out int h, out int l, out int s);
 
                     var borderColor = HLStoRGB(__fillColor, h, NewLuminosity(l, -150), s); //much darker than fill color
-                    if (BorderPen != null) { BorderPen.Dispose(); BorderPen = null; } 
+                    if (BorderPen != null) { BorderPen.Dispose(); BorderPen = null; }
                     BorderPen = new Pen(borderColor, 1.0f);
 
                     var dividerColor = HLStoRGB(__fillColor, h, NewLuminosity(l, -40), s); //slightly darker than fill color

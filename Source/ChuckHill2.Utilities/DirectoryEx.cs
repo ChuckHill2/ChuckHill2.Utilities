@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     public static class DirectoryEx
     {

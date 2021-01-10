@@ -4,9 +4,9 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     ///     Robust CSV writer that can write to a file, or any open stream.

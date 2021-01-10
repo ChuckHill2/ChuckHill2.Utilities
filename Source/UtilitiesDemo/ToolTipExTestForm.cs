@@ -1,6 +1,6 @@
 using System;
 using System.Windows.Forms;
-using ChuckHill2.Utilities;
+using ChuckHill2.Forms;
 
 namespace UtilitiesDemo
 {

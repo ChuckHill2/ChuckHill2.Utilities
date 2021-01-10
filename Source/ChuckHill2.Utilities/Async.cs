@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Threading;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Non-GUI asynchronous event executor.  It does not require a System.Windows.Forms object to operate.  

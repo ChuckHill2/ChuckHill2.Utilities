@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Serialization;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     [Serializable]
     public class DataModel : IEquatable<DataModel>, IEqualityComparer<DataModel>

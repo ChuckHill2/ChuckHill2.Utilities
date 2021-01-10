@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     /// Displays a frame around a group of controls with an optional caption.
@@ -34,7 +34,7 @@ namespace ChuckHill2.Utilities
         public event EventHandler BackgroundGradientChanged;
 
         #region Hidden/Unused Properties
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
         /// <summary> This is not used. See the BackgroundGradient property.</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Color BackColor { get => BackgroundGradient.Color1; set => BackgroundGradient.Color1 = value; }

@@ -2,32 +2,32 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions;
 using Cyotek.Windows.Forms;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
-    ///  @image html ColorPickerPanelVert.png
+    ///  @image html ColorPickerPanelHorz.png
     /// <summary>
     /// A Color picker/chooser panel that allows the user to visually select a color by modifying various color properties and see the results live in the preview.
-    /// This resizable panel is oriented vertically.
+    /// This resizable panel is oriented Horizontally.
     /// </summary>
     /// <remarks>
     /// Note: When a color swatch has focus, pressing enter will popup the standard color dialog to change the color of the selected item.
     /// </remarks>
     [DefaultEvent("PreviewColorChanged")]
     [DefaultProperty("Color")]
-    public partial class ColorPickerPanelVert : UserControl
+    public partial class ColorPickerPanelHorz : UserControl
     {
         #region Constants
-        private static readonly object EVENT_PREVIEWCOLORCHANGED = new object();
+        private static readonly object _eventPreviewColorChanged = new object();
         #endregion
 
         #region Constructors
         /// <summary>
-        ///  Initializes a new instance of the ColorPickerPanelVert class.
+        ///  Initializes a new instance of the ColorPickerPanelHorz class.
         /// </summary>
-        public ColorPickerPanelVert()
+        public ColorPickerPanelHorz()
         {
             this.InitializeComponent();
             this.screenColorPicker.Image = Image.FromStream(typeof(Cyotek.Windows.Forms.ScreenColorPicker).GetManifestResourceStream("eyedropper.png"));
@@ -42,8 +42,8 @@ namespace ChuckHill2.Utilities
         [Category("Property Changed"), Description("Triggered when the preview color has changed.")]
         public event EventHandler PreviewColorChanged
         {
-            add { this.Events.AddHandler(EVENT_PREVIEWCOLORCHANGED, value); }
-            remove { this.Events.RemoveHandler(EVENT_PREVIEWCOLORCHANGED, value); }
+            add { this.Events.AddHandler(_eventPreviewColorChanged, value); }
+            remove { this.Events.RemoveHandler(_eventPreviewColorChanged, value); }
         }
         #endregion
 
@@ -55,29 +55,7 @@ namespace ChuckHill2.Utilities
         public Color Color
         {
             get { return colorEditorManager.Color; }
-            set { colorEditorManager.Color = value; previewPanel.Color = value; }
-        }
-
-        /// <summary>
-        /// Force this control to scale/resize width/height proportionately such that the ColorWheel will always completely fill the top of the control.
-        /// </summary>
-        [Category("Layout"), Description("As the control width is changed, the height is also changed to optimally fit all the child controls.")]
-        [DefaultValue(false)]
-        public bool ProportionalResizing { get; set; }
-
-        private int __bottomHeight = 0;
-        /// <summary>
-        /// Height of bottom half of this control that excludes the square ColorWheel. Important when one wants to force the square ColorWheel control to use all the surrounding free space in the panel.
-        /// </summary>
-        private int BottomHeight
-        {
-            get
-            {
-                //Height of all controls EXCEPT colorWheel. Used to force the square ColorWheel control to use all the surrounding free space when ColorPickerPanelVert is used in a UITypeEditor.
-                //Late initialization because child controls may be resized due to DPI changes. 
-                if (__bottomHeight==0) __bottomHeight = (this.ClientRectangle.Height - colorGrid.Top) + (colorWheel.Bottom - colorGrid.Top);
-                return __bottomHeight;
-            }
+            set { colorEditorManager.Color = value; }
         }
 
         /// <summary>
@@ -113,7 +91,7 @@ namespace ChuckHill2.Utilities
         protected virtual void OnPreviewColorChanged(EventArgs e)
         {
             EventHandler handler;
-            handler = (EventHandler)this.Events[EVENT_PREVIEWCOLORCHANGED];
+            handler = (EventHandler)this.Events[_eventPreviewColorChanged];
             handler?.Invoke(this, e);
         }
 
@@ -141,25 +119,9 @@ namespace ChuckHill2.Utilities
             }
         }
 
-        protected override void OnResize(EventArgs e)
-        {
-            //Force ColorWheel to use all the surrounding free space when this is enabled.
-            if (ProportionalResizing)
-            {
-                if (this.Dock == DockStyle.Fill) //used by UITypeEditor.DropDownControl()
-                {
-                    if (this.Parent != null)
-                        this.Parent.Height = this.Width + BottomHeight; //In layout, ColorWheel is at top and is square where its width==height
-                }
-                else this.Height = this.Width + BottomHeight;
-            }
-
-            base.OnResize(e);
-        }
-
         private void previewPanel_Click(object sender, EventArgs e)
         {
-            colorEditorManager.Color = previewPanel.Color;
+            this.Color = previewPanel.Color;
         }
         #endregion
     }

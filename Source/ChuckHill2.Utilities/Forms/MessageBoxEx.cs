@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     /// Displays a message box in front of the specified object and with the specified text, caption, buttons, and icon.
@@ -183,14 +183,14 @@ namespace ChuckHill2.Utilities
                 if (fc != null && fc.Count > 0) owner = fc[0];
             }
             if (owner == null) { return null; }
-            
+
             Control c = owner as Control;
             if (c != null && c.InvokeRequired) { return owner; }
             _owner = owner.Handle;
 
             if (_owner == IntPtr.Zero) { return null; }
 
-            //Temporarily block during MessageBox repositioning only. 
+            //Temporarily block during MessageBox repositioning only.
             //It's released before the MessageBox is displayed.
             //This is necessary for multi-threaded calls.
 
@@ -301,7 +301,7 @@ namespace ChuckHill2.Utilities
             sb.AppendLine();    //put following text body on the next line
             StringBuilder sb2 = new StringBuilder(GetWindowTextLength(GetDlgItem(hWnd, 0xFFFF)) + 2);
             SendMessage(GetDlgItem(hWnd, 0xFFFF), WM_GETTEXT, sb2.Capacity, sb2);  //Get message body
-            sb2.Replace("\r", string.Empty); //In order to create multiple lines in a messagebox or a Label in general, one must 
+            sb2.Replace("\r", string.Empty); //In order to create multiple lines in a messagebox or a Label in general, one must
             sb2.Replace("\n", "\r\n");       //use '\n', not '\r\n'. Everywhere else one must use '\r\n', so we fix it here.
             sb.Append(sb2.ToString()); //Munge the title with the body text
             sb.AppendLine();    //add final newline

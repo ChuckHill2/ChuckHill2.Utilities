@@ -9,10 +9,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using ChuckHill2.Utilities.Extensions;
-using ChuckHill2.Utilities.Extensions.Reflection;
+using ChuckHill2.Extensions;
+using ChuckHill2.Extensions.Reflection;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     public static class SqlClient
     {

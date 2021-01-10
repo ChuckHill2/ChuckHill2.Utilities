@@ -1,4 +1,4 @@
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     partial class ConnectionStringDlg
     {
@@ -46,19 +46,19 @@ namespace ChuckHill2.Utilities
             this.m_cmbUsername = new System.Windows.Forms.ComboBox();
             this.m_chkShowPassword = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
-            // 
+            //
             // label1
-            // 
+            //
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(8, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(255, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Specify the following to connect to SQL Server data:";
-            // 
+            //
             // m_cmbDataSource
-            // 
-            this.m_cmbDataSource.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.m_cmbDataSource.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_cmbDataSource.FormattingEnabled = true;
             this.m_cmbDataSource.Location = new System.Drawing.Point(24, 46);
@@ -68,27 +68,27 @@ namespace ChuckHill2.Utilities
             this.m_cmbDataSource.DropDown += new System.EventHandler(this.m_cmbDataSource_DropDown);
             this.m_cmbDataSource.TextUpdate += new System.EventHandler(this.m_cmbDataSource_TextUpdate);
             this.m_cmbDataSource.Leave += new System.EventHandler(this.m_cmbDataSource_Leave);
-            // 
+            //
             // label2
-            // 
+            //
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(9, 26);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(161, 13);
             this.label2.TabIndex = 3;
             this.label2.Text = "1. Select or enter a s&erver name:";
-            // 
+            //
             // label3
-            // 
+            //
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 75);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(207, 13);
             this.label3.TabIndex = 4;
             this.label3.Text = "2. Enter information to log on to the server:";
-            // 
+            //
             // m_radIntegratedSecurity
-            // 
+            //
             this.m_radIntegratedSecurity.AutoSize = true;
             this.m_radIntegratedSecurity.Location = new System.Drawing.Point(27, 92);
             this.m_radIntegratedSecurity.Name = "m_radIntegratedSecurity";
@@ -98,9 +98,9 @@ namespace ChuckHill2.Utilities
             this.m_radIntegratedSecurity.Text = "Use &Windows NT Integrated security";
             this.m_radIntegratedSecurity.UseVisualStyleBackColor = true;
             this.m_radIntegratedSecurity.CheckedChanged += new System.EventHandler(this.m_rad_CheckedChanged);
-            // 
+            //
             // m_radUserPass
-            // 
+            //
             this.m_radUserPass.AutoSize = true;
             this.m_radUserPass.Location = new System.Drawing.Point(27, 114);
             this.m_radUserPass.Name = "m_radUserPass";
@@ -110,47 +110,47 @@ namespace ChuckHill2.Utilities
             this.m_radUserPass.Text = "&Use a specific user name and password:";
             this.m_radUserPass.UseVisualStyleBackColor = true;
             this.m_radUserPass.CheckedChanged += new System.EventHandler(this.m_rad_CheckedChanged);
-            // 
+            //
             // m_lblUsername
-            // 
+            //
             this.m_lblUsername.Location = new System.Drawing.Point(4, 130);
             this.m_lblUsername.Name = "m_lblUsername";
             this.m_lblUsername.Size = new System.Drawing.Size(100, 23);
             this.m_lblUsername.TabIndex = 7;
             this.m_lblUsername.Text = "User &name:";
             this.m_lblUsername.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
+            //
             // m_lblPassword
-            // 
+            //
             this.m_lblPassword.Location = new System.Drawing.Point(4, 154);
             this.m_lblPassword.Name = "m_lblPassword";
             this.m_lblPassword.Size = new System.Drawing.Size(100, 23);
             this.m_lblPassword.TabIndex = 9;
             this.m_lblPassword.Text = "&Password:";
             this.m_lblPassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
+            //
             // m_txtPassword
-            // 
-            this.m_txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.m_txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_txtPassword.Location = new System.Drawing.Point(103, 156);
             this.m_txtPassword.Name = "m_txtPassword";
             this.m_txtPassword.Size = new System.Drawing.Size(188, 20);
             this.m_txtPassword.TabIndex = 10;
             this.m_txtPassword.UseSystemPasswordChar = true;
-            // 
+            //
             // label6
-            // 
+            //
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(12, 198);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(182, 13);
             this.label6.TabIndex = 12;
             this.label6.Text = "3. Select the &database on the server:";
-            // 
+            //
             // m_cmbDatabase
-            // 
-            this.m_cmbDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.m_cmbDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_cmbDatabase.FormattingEnabled = true;
             this.m_cmbDatabase.Location = new System.Drawing.Point(27, 214);
@@ -158,9 +158,9 @@ namespace ChuckHill2.Utilities
             this.m_cmbDatabase.Size = new System.Drawing.Size(264, 21);
             this.m_cmbDatabase.TabIndex = 13;
             this.m_cmbDatabase.DropDown += new System.EventHandler(this.m_cmbDatabase_DropDown);
-            // 
+            //
             // m_btnTestConnection
-            // 
+            //
             this.m_btnTestConnection.Location = new System.Drawing.Point(27, 247);
             this.m_btnTestConnection.Name = "m_btnTestConnection";
             this.m_btnTestConnection.Size = new System.Drawing.Size(104, 23);
@@ -168,9 +168,9 @@ namespace ChuckHill2.Utilities
             this.m_btnTestConnection.Text = "&Test Connection";
             this.m_btnTestConnection.UseVisualStyleBackColor = true;
             this.m_btnTestConnection.Click += new System.EventHandler(this.m_btnTestConnection_Click);
-            // 
+            //
             // m_btnCancel
-            // 
+            //
             this.m_btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.m_btnCancel.Location = new System.Drawing.Point(218, 247);
             this.m_btnCancel.Name = "m_btnCancel";
@@ -179,9 +179,9 @@ namespace ChuckHill2.Utilities
             this.m_btnCancel.Text = "Cancel";
             this.m_btnCancel.UseVisualStyleBackColor = true;
             this.m_btnCancel.Click += new System.EventHandler(this.m_btnCancel_Click);
-            // 
+            //
             // m_btnOK
-            // 
+            //
             this.m_btnOK.Location = new System.Drawing.Point(137, 247);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(75, 23);
@@ -189,10 +189,10 @@ namespace ChuckHill2.Utilities
             this.m_btnOK.Text = "OK";
             this.m_btnOK.UseVisualStyleBackColor = true;
             this.m_btnOK.Click += new System.EventHandler(this.m_btnOK_Click);
-            // 
+            //
             // m_cmbUsername
-            // 
-            this.m_cmbUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.m_cmbUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_cmbUsername.FormattingEnabled = true;
             this.m_cmbUsername.Location = new System.Drawing.Point(103, 132);
@@ -202,9 +202,9 @@ namespace ChuckHill2.Utilities
             this.m_cmbUsername.DropDown += new System.EventHandler(this.m_cmbUsername_DropDown);
             this.m_cmbUsername.TextUpdate += new System.EventHandler(this.m_cmbUsername_TextUpdate);
             this.m_cmbUsername.Leave += new System.EventHandler(this.m_cmbUsername_Leave);
-            // 
+            //
             // m_chkShowPassword
-            // 
+            //
             this.m_chkShowPassword.AutoSize = true;
             this.m_chkShowPassword.Location = new System.Drawing.Point(103, 178);
             this.m_chkShowPassword.Name = "m_chkShowPassword";
@@ -213,9 +213,9 @@ namespace ChuckHill2.Utilities
             this.m_chkShowPassword.Text = "Show Password";
             this.m_chkShowPassword.UseVisualStyleBackColor = true;
             this.m_chkShowPassword.CheckedChanged += new System.EventHandler(this.m_chkShowPassword_CheckedChanged);
-            // 
+            //
             // ConnectionStringDlg
-            // 
+            //
             this.AcceptButton = this.m_btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

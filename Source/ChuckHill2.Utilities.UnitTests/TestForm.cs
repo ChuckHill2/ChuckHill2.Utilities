@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     public partial class TestForm : Form
     {

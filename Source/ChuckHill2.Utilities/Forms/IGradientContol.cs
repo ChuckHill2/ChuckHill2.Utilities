@@ -3,14 +3,14 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     // NOTE: These components must reside in a separate assembly in order to
     // allow the Designer to be able to serialize these new GradientBrush properties.
 
-    // NOTE: For performance reasons, components in the auto-populated area of 
-    // the Toolbox do not display custom bitmaps, and the ToolboxBitmapAttribute 
-    // is not supported. To display an icon for a custom component in the 
+    // NOTE: For performance reasons, components in the auto-populated area of
+    // the Toolbox do not display custom bitmaps, and the ToolboxBitmapAttribute
+    // is not supported. To display an icon for a custom component in the
     // Toolbox, use the Choose Toolbox Items dialog box to load your component.
 
     // SplitContainer contains array of SplitterPanel so this would take significant effort to imlement gradient backgrounds.
@@ -34,7 +34,7 @@ namespace ChuckHill2.Utilities
         event EventHandler BackgroundGradientChanged;
 
         #region Base System.Windows.Forms.Control Properties
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
 
         /// <summary>
         /// Retrieves the rectangle of the inner area of this control.
@@ -71,7 +71,7 @@ namespace ChuckHill2.Utilities
         /// </summary>
         Font Font { get; set; }
 
-        //! @endcond  
+        //! @endcond
         #endregion
     }
 

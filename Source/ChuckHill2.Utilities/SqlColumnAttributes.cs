@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
-using ChuckHill2.Utilities.Extensions;
-using SqlColDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, ChuckHill2.Utilities.SqlColumnAttributes>>;
+using ChuckHill2.Extensions;
+using SqlColDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, ChuckHill2.SqlColumnAttributes>>;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Retrieve the column attributes for all the columns of all the tables 

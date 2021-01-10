@@ -4,14 +4,11 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions;
+using System.Windows.Forms; //Control.Invoke() only
 using Microsoft.Win32;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
-    //This source file is linked to many projects so we cannot use any 
-    //other outside utility functions except for Win32Exception.cs
     public class WinService : IDisposable
     {
         #region -= Win32 =-
@@ -377,38 +374,38 @@ namespace ChuckHill2.Utilities
                 Int32 DesiredAccess,
                 out IntPtr PolicyHandle
                 );
- 
+
             [DllImport("advapi32.dll", SetLastError = true, PreserveSig = true)]
             private static extern int LsaAddAccountRights(
                 IntPtr PolicyHandle,
                 IntPtr AccountSid,
                 LSA_UNICODE_STRING[] UserRights,
                 int CountOfRights);
- 
+
             [DllImport("advapi32")]
             public static extern void FreeSid(IntPtr pSid);
- 
+
             [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true, PreserveSig = true)]
             private static extern bool LookupAccountName(
                 string lpSystemName, string lpAccountName,
                 IntPtr psid,
                 ref int cbsid,
                 StringBuilder domainName, ref int cbdomainLength, ref int use);
- 
+
             [DllImport("advapi32.dll")]
             private static extern bool IsValidSid(IntPtr pSid);
- 
+
             [DllImport("advapi32.dll")]
             private static extern int LsaClose(IntPtr ObjectHandle);
- 
+
             [DllImport("kernel32.dll")]
             private static extern int GetLastError();
- 
+
             [DllImport("advapi32.dll")]
             private static extern int LsaNtStatusToWinError(int status);
- 
+
             // define the structures
- 
+
             private enum LSA_AccessPolicy : long
             {
                 POLICY_VIEW_LOCAL_INFORMATION = 0x00000001L,
@@ -425,7 +422,7 @@ namespace ChuckHill2.Utilities
                 POLICY_LOOKUP_NAMES = 0x00000800L,
                 POLICY_NOTIFICATION = 0x00001000L
             }
- 
+
             [StructLayout(LayoutKind.Sequential)]
             private struct LSA_OBJECT_ATTRIBUTES
             {
@@ -436,7 +433,7 @@ namespace ChuckHill2.Utilities
                 public IntPtr SecurityDescriptor;
                 public IntPtr SecurityQualityOfService;
             }
- 
+
             [StructLayout(LayoutKind.Sequential)]
             private struct LSA_UNICODE_STRING
             {
@@ -455,7 +452,7 @@ namespace ChuckHill2.Utilities
             public static void SetRight(String accountName, String privilegeName)
             {
                 int winErrorCode = 0; //contains the last error
- 
+
                 //pointer an size for the SID
                 IntPtr sid = IntPtr.Zero;
                 int sidSize = 0;
@@ -472,7 +469,7 @@ namespace ChuckHill2.Utilities
                 Win32Exception.ClearLastError();
                 LookupAccountName(String.Empty, accountName, sid, ref sidSize, domainName, ref nameSize, ref accountType);
                 if (sidSize==0) throw new Win32Exception("LookupAccountName", String.Format("LookupAccountName failed: Could not find \"{0}\".", accountName));
- 
+
                 //allocate buffers
                 domainName = new StringBuilder(nameSize);
                 sid = Marshal.AllocHGlobal(sidSize);
@@ -535,17 +532,17 @@ namespace ChuckHill2.Utilities
                     if (policyHandle != IntPtr.Zero) LsaClose(policyHandle);
                     if (sid != IntPtr.Zero) FreeSid(sid);
                 }
-            }   
+            }
         }
         #endregion
 
         #region -= Static Service Management Methods =-
         /// <summary>
-        /// Uninstall the specified service. 
+        /// Uninstall the specified service.
         /// Terminates other processes that have the specified service open so reboot is not required.
-        /// 
-        /// Exceptions: 
-        ///   ChuckHill2.Utilities.Win32Exception:
+        ///
+        /// Exceptions:
+        ///   ChuckHill2.Win32Exception:
         ///     OpenSCManager: Could not connect to service control manager.
         ///     OpenService: Service not installed.
         ///     DeleteService: Could not delete service
@@ -561,7 +558,7 @@ namespace ChuckHill2.Utilities
                 IntPtr service = OpenService(scman, ServiceName, ServiceRights.StandardRightsRequired | ServiceRights.Stop | ServiceRights.QueryStatus);
                 if (service == IntPtr.Zero) throw new Win32Exception("OpenService","Service not installed.");
 
-                //Services.msc opens ALL the service entries. It will cause the service from being 
+                //Services.msc opens ALL the service entries. It will cause the service from being
                 //completely uninstalled. It will just be marked for deletion upon reboot.
                 //There may be others....
                 foreach (Process p in Process.GetProcessesByName("mmc")) p.Kill(); //aka Services.msc
@@ -596,9 +593,8 @@ namespace ChuckHill2.Utilities
 
         /// <summary>
         /// Test if specified service is installed
-        /// 
-        /// Exceptions: 
-        ///   ChuckHill2.Utilities.Win32Exception:
+        /// Exceptions:
+        ///   ChuckHill2.Win32Exception:
         ///     OpenSCManager: Could not connect to service control manager.
         /// </summary>
         /// <param name="ServiceName"></param>
@@ -630,9 +626,9 @@ namespace ChuckHill2.Utilities
 
         /// <summary>
         /// Install a service with various parameters.
-        /// 
-        /// Exceptions: 
-        ///   ChuckHill2.Utilities.Win32Exception:
+        ///
+        /// Exceptions:
+        ///   ChuckHill2.Win32Exception:
         ///     OpenSCManager: Could not connect to service control manager.
         ///     CreateService: Failed to install service.
         ///     ChangeServiceConfig2: Description not assigned to service.
@@ -654,12 +650,12 @@ namespace ChuckHill2.Utilities
             IntPtr scman = IntPtr.Zero;
             try
             {
-                if (runAsAccount.IsNullOrEmpty() || runAsAccount.EqualsI("LocalSystem") || runAsAccount.EqualsI(@"NT AUTHORITY\SYSTEM")) //force to run as LocalSystem (aka NT AUTHORITY)
+                if (string.IsNullOrWhiteSpace(runAsAccount) || runAsAccount.Equals("LocalSystem",StringComparison.OrdinalIgnoreCase) || runAsAccount.Equals(@"NT AUTHORITY\SYSTEM", StringComparison.OrdinalIgnoreCase)) //force to run as LocalSystem (aka NT AUTHORITY)
                 {
                     runAsAccount = null;
                     runAsPassword = null;
                 }
-                if (!runAsAccount.IsNullOrEmpty())
+                if (!string.IsNullOrWhiteSpace(runAsAccount))
                 {
                     runAsAccount = UserAccount.FixSamAccountName(runAsAccount);
                     if (!UserAccount.ValidateCredentials(runAsAccount, runAsPassword)) throw new System.Security.Authentication.InvalidCredentialException(string.Format("Accunt \"{0}\" credentials are invalid.", runAsAccount));
@@ -684,14 +680,14 @@ namespace ChuckHill2.Utilities
                     }
 
                     service = CreateService(
-                        scman, 
-                        ServiceName, 
+                        scman,
+                        ServiceName,
                         DisplayName,
-                        ServiceRights.QueryStatus | ServiceRights.Start | ServiceRights.ChangeConfig, 
-                        SERVICE_WIN32_OWN_PROCESS, 
-                        ServiceBootFlag.AutoStart, 
-                        ServiceError.Normal, 
-                        executable, 
+                        ServiceRights.QueryStatus | ServiceRights.Start | ServiceRights.ChangeConfig,
+                        SERVICE_WIN32_OWN_PROCESS,
+                        ServiceBootFlag.AutoStart,
+                        ServiceError.Normal,
+                        executable,
                         null,  //name of load order group to which this service belongs
                         IntPtr.Zero, //load order index within the above load order group
                         (sb!=null?sb.ToString():null), //list of services-by-name that this service is dependent upon
@@ -752,9 +748,9 @@ namespace ChuckHill2.Utilities
 
         /// <summary>
         /// Start the specified service.
-        /// 
-        /// Exceptions: 
-        ///   ChuckHill2.Utilities.Win32Exception:
+        ///
+        /// Exceptions:
+        ///   ChuckHill2.Win32Exception:
         ///     OpenSCManager: Could not connect to service control manager.
         ///     OpenService: Could not open service.
         /// </summary>
@@ -779,9 +775,9 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Stop the specified service.
         /// If the service does not stop in a timely fashion, it is KILLed.
-        /// 
-        /// Exceptions: 
-        ///   ChuckHill2.Utilities.Win32Exception:
+        ///
+        /// Exceptions:
+        ///   ChuckHill2.Win32Exception:
         ///     OpenSCManager: Could not connect to service control manager.
         ///     OpenService: Could not open service.
         /// </summary>
@@ -980,7 +976,7 @@ namespace ChuckHill2.Utilities
         }
         #endregion -= Static Methods =-
 
-        #region -= [Legacy] (instance) Service State Notification (aka is running or not) =-
+        #region Async Live Service State Notification (aka is running or not)
         public delegate void StatusHandler(object sender, StatusEventArgs e);
         public class StatusEventArgs : System.EventArgs
         {
@@ -1031,7 +1027,7 @@ namespace ChuckHill2.Utilities
                                 m_owner.Invoke(ServiceStatus, this, new StatusEventArgs(m_isRunning));  //execute on same thread as caller
                         }
                     }
-                    catch //(Exception ex) 
+                    catch //(Exception ex)
                     {
                         //DBG.WriteLine("Polling Error: {0}",ex.Message);
                     }

@@ -4,8 +4,10 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using NUnit.Framework;
+using ChuckHill2.Forms;
+using ChuckHill2;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     [TestFixture]
     public class ComponentTests

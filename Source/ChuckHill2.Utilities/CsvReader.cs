@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Parse a file, a string, or open stream of CSV formatted text data.

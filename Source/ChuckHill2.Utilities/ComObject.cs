@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Base class to a custom-crafted COM interface class. This enables the developer to put a friendlier face on a instantiated COM object. 

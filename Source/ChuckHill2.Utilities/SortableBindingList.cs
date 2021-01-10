@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Use this instead of List&gt;&lt; as a DataSource for DataGridView object. It provides built-in support for sorting columns in a DataGridView.

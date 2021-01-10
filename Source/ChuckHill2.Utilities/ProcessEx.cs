@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     public class ProcessEx
     {

@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     ///  @image html SplitColorPanel.png
     /// <summary>
@@ -77,7 +77,7 @@ namespace ChuckHill2.Utilities
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new event EventHandler Validated;
         #pragma warning restore CS0067 //The event is never used
-        //! @endcond  
+        //! @endcond
         #endregion Hidden/Unused Properties
 
         private Color __color;

@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     ///  Represents a common dialog box that enables the user to define custom colors.

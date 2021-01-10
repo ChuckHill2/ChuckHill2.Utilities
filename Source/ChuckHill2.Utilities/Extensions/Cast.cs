@@ -35,7 +35,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace ChuckHill2.Utilities.Extensions
+namespace ChuckHill2.Extensions
 {
     public static class Cast
     {

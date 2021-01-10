@@ -6,7 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     ///  @image html NamedColorComboBox.png
     /// <summary>
@@ -113,7 +113,7 @@ namespace ChuckHill2.Utilities
 
         #region Hidden/Disabled Properties
         private const string NOTUSED = "Not used in "+nameof(NamedColorComboBox)+".";
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new AutoCompleteStringCollection AutoCompleteCustomSource { get; set; }
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Exception to throw when a p/Invoked API fails. This is better than 
@@ -32,12 +32,12 @@ namespace ChuckHill2.Utilities
         #endregion
 
         /// <summary>
-        /// Initializes a new instance of the ChuckHill2.Utilities.Win32Exception class
+        /// Initializes a new instance of the ChuckHill2.Win32Exception class
         /// with the last Win32 error that occurred.
         /// </summary>
         public Win32Exception() : this(string.Empty, Marshal.GetLastWin32Error(), string.Empty) { }
         /// <summary>
-        /// Initializes a new instance of the ChuckHill2.Utilities.Win32Exception class
+        /// Initializes a new instance of the ChuckHill2.Win32Exception class
         /// with the last Win32 error that occurred with a specified detailed description.
         /// </summary>
         /// <param name="msg">A detailed description of the error.</param>
@@ -50,7 +50,7 @@ namespace ChuckHill2.Utilities
         /// <param name="msg">A detailed description of the error.</param>
         public Win32Exception(int hResult, string msg) : this(string.Empty, hResult, msg) { }
         /// <summary>
-        /// Initializes a new instance of the ChuckHill2.Utilities.Win32Exception class
+        /// Initializes a new instance of the ChuckHill2.Win32Exception class
         /// with the last Win32 error that occurred, the name of the Win32 function that 
         /// caused this error, and a specified detailed description.
         /// </summary>
@@ -58,7 +58,7 @@ namespace ChuckHill2.Utilities
         /// <param name="msg">A detailed description of the error.</param>
         public Win32Exception(string pInvokeEntryPoint, string msg) : this(pInvokeEntryPoint, Marshal.GetLastWin32Error(), msg) { }
         /// <summary>
-        /// Initializes a new instance of the ChuckHill2.Utilities.Win32Exception class
+        /// Initializes a new instance of the ChuckHill2.Win32Exception class
         /// with the name of the Win32 function that caused this error, the specified 
         /// error, and the specified detailed description.
         /// </summary>

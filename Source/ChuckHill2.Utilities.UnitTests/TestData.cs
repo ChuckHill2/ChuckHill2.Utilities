@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     public static class TestData
     {

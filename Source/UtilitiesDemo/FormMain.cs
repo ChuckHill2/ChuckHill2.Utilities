@@ -7,7 +7,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Windows.Forms;
-using ChuckHill2.Utilities;
+using ChuckHill2;
+using ChuckHill2.Forms;
 
 namespace UtilitiesDemo
 {

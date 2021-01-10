@@ -61,7 +61,7 @@ namespace UtilitiesDemo
             this.m_tsSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.m_tsTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.m_tsDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
-            this.m_ttToolTipManager = new ChuckHill2.Utilities.ToolTipManager(this.components);
+            this.m_ttToolTipManager = new ChuckHill2.Forms.ToolTipManager(this.components);
             this.m_grpGroupBox.SuspendLayout();
             this.m_pnlPanel.SuspendLayout();
             this.m_tabControl.SuspendLayout();
@@ -443,7 +443,7 @@ namespace UtilitiesDemo
         private System.Windows.Forms.ToolStripSeparator m_tsSeparator;
         private System.Windows.Forms.ToolStripTextBox m_tsTextBox;
         private System.Windows.Forms.ToolStripDropDownButton m_tsDropDownButton;
-        private ChuckHill2.Utilities.ToolTipManager m_ttToolTipManager;
+        private ChuckHill2.Forms.ToolTipManager m_ttToolTipManager;
     }
 }
 

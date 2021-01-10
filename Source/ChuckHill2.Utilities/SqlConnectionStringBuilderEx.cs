@@ -3,9 +3,9 @@ using System.Collections;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Text;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Extends SqlConnectionStringBuilder to normalize the computername in SqlConnectionStringBuilder.DataSource. 

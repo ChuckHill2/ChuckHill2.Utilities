@@ -6,7 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     ///  @image html NamedColorListBox.png
     /// <summary>
@@ -116,7 +116,7 @@ namespace ChuckHill2.Utilities
 
         #region Hidden/Disabled Properties
         private const string NOTUSED = "Not used in " + nameof(NamedColorListBox) + ".";
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new object DataSource { get; set; }
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -192,7 +192,7 @@ namespace ChuckHill2.Utilities
         [Obsolete(NOTUSED + " See event SelectionChanged", true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new event EventHandler SelectedValueChanged;
         #pragma warning restore CS0067 //The event is never used
-        //! @endcond 
+        //! @endcond
         #endregion
 
         /// <summary>

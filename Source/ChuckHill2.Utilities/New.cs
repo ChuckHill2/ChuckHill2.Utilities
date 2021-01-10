@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Create object with default constructor even if it doesn't have a default parameterless constructor. 

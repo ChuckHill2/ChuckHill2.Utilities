@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     /// Handles the layout of its components and arranges them in the format of a table automatically.
@@ -34,7 +34,7 @@ namespace ChuckHill2.Utilities
         public event EventHandler BackgroundGradientChanged;
 
         #region Hidden/Unused Properties
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
         /// <summary> This is not used. See the BackgroundGradient property.</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Color BackColor { get => BackgroundGradient.Color1; set => BackgroundGradient.Color1 = value; }
@@ -130,7 +130,7 @@ namespace ChuckHill2.Utilities
         }
 
         // The following are helper classes exclusively used by DrawCellBorders().
-        // It turns out that TableLayoutPanel.OnPaintBackground() uses this non-public 
+        // It turns out that TableLayoutPanel.OnPaintBackground() uses this non-public
         // class, so we simulate it here via reflection just for the class members needed.
 
         private static class TableLayout

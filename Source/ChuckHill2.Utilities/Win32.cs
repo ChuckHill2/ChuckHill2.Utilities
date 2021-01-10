@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Useful Win32 utilities

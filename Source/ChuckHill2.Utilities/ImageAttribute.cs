@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Resources;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Associate an image with any application element. 

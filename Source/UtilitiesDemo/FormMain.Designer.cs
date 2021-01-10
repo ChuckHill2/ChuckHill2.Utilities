@@ -31,25 +31,25 @@ namespace UtilitiesDemo
             this.m_tpGradientControls = new System.Windows.Forms.TabPage();
             this.m_tcSubGradientControls = new System.Windows.Forms.TabControl();
             this.m_tpGradientBrushStyles = new System.Windows.Forms.TabPage();
-            this.gradientLabel13 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel12 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel11 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel10 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel9 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel8 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel7 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel6 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel5 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientLabel2 = new ChuckHill2.Utilities.GradientLabel();
+            this.gradientLabel13 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel12 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel11 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel10 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel9 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel8 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel7 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel6 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel5 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientLabel2 = new ChuckHill2.Forms.GradientLabel();
             this.m_tpMiscControls = new System.Windows.Forms.TabPage();
-            this.gradientLabel4 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientGroupBox1 = new ChuckHill2.Utilities.GradientGroupBox();
-            this.gradientLabel3 = new ChuckHill2.Utilities.GradientLabel();
-            this.gradientPanel1 = new ChuckHill2.Utilities.GradientPanel();
+            this.gradientLabel4 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientGroupBox1 = new ChuckHill2.Forms.GradientGroupBox();
+            this.gradientLabel3 = new ChuckHill2.Forms.GradientLabel();
+            this.gradientPanel1 = new ChuckHill2.Forms.GradientPanel();
             this.label25 = new System.Windows.Forms.Label();
             this.m_tpFlowLayoutPanel = new System.Windows.Forms.TabPage();
-            this.gradientLabel1 = new ChuckHill2.Utilities.GradientLabel();
-            this.m_flpGradientFlowLayoutPanel = new ChuckHill2.Utilities.GradientFlowLayoutPanel();
+            this.gradientLabel1 = new ChuckHill2.Forms.GradientLabel();
+            this.m_flpGradientFlowLayoutPanel = new ChuckHill2.Forms.GradientFlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -71,12 +71,12 @@ namespace UtilitiesDemo
             this.label23 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
             this.m_tpTableLayoutPanel = new System.Windows.Forms.TabPage();
-            this.label2 = new ChuckHill2.Utilities.GradientLabel();
-            this.m_tlpGradientTableLayoutPanel = new ChuckHill2.Utilities.GradientTableLayoutPanel();
+            this.label2 = new ChuckHill2.Forms.GradientLabel();
+            this.m_tlpGradientTableLayoutPanel = new ChuckHill2.Forms.GradientTableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.m_tpBrushProperties = new System.Windows.Forms.TabPage();
-            this.label1 = new ChuckHill2.Utilities.GradientLabel();
+            this.label1 = new ChuckHill2.Forms.GradientLabel();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.m_tcMain = new System.Windows.Forms.TabControl();
             this.m_tpColorPickers = new System.Windows.Forms.TabPage();
@@ -86,13 +86,13 @@ namespace UtilitiesDemo
             this.m_btnColorComboBox = new System.Windows.Forms.Button();
             this.m_btnColorTreeView = new System.Windows.Forms.Button();
             this.m_btnColorListBox = new System.Windows.Forms.Button();
-            this.m_cbbColorComboBox = new ChuckHill2.Utilities.NamedColorComboBox();
-            this.m_ctvColorTreeView = new ChuckHill2.Utilities.NamedColorTreeView();
-            this.m_clbColorListBox = new ChuckHill2.Utilities.NamedColorListBox();
+            this.m_cbbColorComboBox = new ChuckHill2.Forms.NamedColorComboBox();
+            this.m_ctvColorTreeView = new ChuckHill2.Forms.NamedColorTreeView();
+            this.m_clbColorListBox = new ChuckHill2.Forms.NamedColorListBox();
             this.m_tpColorEditorHorz = new System.Windows.Forms.TabPage();
-            this.m_cppColorPickerPanelHorz = new ChuckHill2.Utilities.ColorPickerPanelHorz();
+            this.m_cppColorPickerPanelHorz = new ChuckHill2.Forms.ColorPickerPanelHorz();
             this.m_tpColorEditorVert = new System.Windows.Forms.TabPage();
-            this.m_cppColorPickerPanelVert = new ChuckHill2.Utilities.ColorPickerPanelVert();
+            this.m_cppColorPickerPanelVert = new ChuckHill2.Forms.ColorPickerPanelVert();
             this.m_tpPopups = new System.Windows.Forms.TabPage();
             this.m_btnMiniMessageBox = new System.Windows.Forms.Button();
             this.m_btnMessageBoxEx = new System.Windows.Forms.Button();
@@ -168,7 +168,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel13
             // 
-            this.gradientLabel13.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterBackwardDiagonal, false);
+            this.gradientLabel13.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.CenterBackwardDiagonal, false);
             this.gradientLabel13.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel13.Location = new System.Drawing.Point(162, 430);
             this.gradientLabel13.Name = "gradientLabel13";
@@ -179,7 +179,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel12
             // 
-            this.gradientLabel12.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterForwardDiagonal, false);
+            this.gradientLabel12.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.CenterForwardDiagonal, false);
             this.gradientLabel12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel12.Location = new System.Drawing.Point(162, 324);
             this.gradientLabel12.Name = "gradientLabel12";
@@ -190,7 +190,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel11
             // 
-            this.gradientLabel11.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterVertical, false);
+            this.gradientLabel11.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.CenterVertical, false);
             this.gradientLabel11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel11.Location = new System.Drawing.Point(162, 218);
             this.gradientLabel11.Name = "gradientLabel11";
@@ -201,7 +201,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel10
             // 
-            this.gradientLabel10.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.CenterHorizontal, false);
+            this.gradientLabel10.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.CenterHorizontal, false);
             this.gradientLabel10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel10.Location = new System.Drawing.Point(162, 112);
             this.gradientLabel10.Name = "gradientLabel10";
@@ -212,7 +212,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel9
             // 
-            this.gradientLabel9.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Center, false);
+            this.gradientLabel9.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.Center, false);
             this.gradientLabel9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel9.Location = new System.Drawing.Point(162, 6);
             this.gradientLabel9.Name = "gradientLabel9";
@@ -223,7 +223,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel8
             // 
-            this.gradientLabel8.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.BackwardDiagonal, false);
+            this.gradientLabel8.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.BackwardDiagonal, false);
             this.gradientLabel8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel8.Location = new System.Drawing.Point(6, 430);
             this.gradientLabel8.Name = "gradientLabel8";
@@ -234,7 +234,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel7
             // 
-            this.gradientLabel7.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.ForwardDiagonal, false);
+            this.gradientLabel7.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.ForwardDiagonal, false);
             this.gradientLabel7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel7.Location = new System.Drawing.Point(6, 324);
             this.gradientLabel7.Name = "gradientLabel7";
@@ -245,7 +245,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel6
             // 
-            this.gradientLabel6.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Vertical, false);
+            this.gradientLabel6.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.Vertical, false);
             this.gradientLabel6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel6.Location = new System.Drawing.Point(6, 218);
             this.gradientLabel6.Name = "gradientLabel6";
@@ -256,7 +256,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel5
             // 
-            this.gradientLabel5.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.gradientLabel5.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.Horizontal, false);
             this.gradientLabel5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel5.Location = new System.Drawing.Point(6, 112);
             this.gradientLabel5.Name = "gradientLabel5";
@@ -267,7 +267,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel2
             // 
-            this.gradientLabel2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.SystemColors.Control, ChuckHill2.Utilities.GradientStyle.Solid, false);
+            this.gradientLabel2.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.SystemColors.Control, ChuckHill2.Forms.GradientStyle.Solid, false);
             this.gradientLabel2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gradientLabel2.Location = new System.Drawing.Point(6, 6);
             this.gradientLabel2.Name = "gradientLabel2";
@@ -292,7 +292,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel4
             // 
-            this.gradientLabel4.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Transparent, System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(192))))), ChuckHill2.Utilities.GradientStyle.Center, true);
+            this.gradientLabel4.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Transparent, System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(192))))), ChuckHill2.Forms.GradientStyle.Center, true);
             this.gradientLabel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.gradientLabel4.Location = new System.Drawing.Point(11, 170);
             this.gradientLabel4.Name = "gradientLabel4";
@@ -303,7 +303,7 @@ namespace UtilitiesDemo
             // 
             // gradientGroupBox1
             // 
-            this.gradientGroupBox1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.LightCyan, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Vertical, true);
+            this.gradientGroupBox1.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.LightCyan, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.Vertical, true);
             this.gradientGroupBox1.Location = new System.Drawing.Point(225, 29);
             this.gradientGroupBox1.Name = "gradientGroupBox1";
             this.gradientGroupBox1.Size = new System.Drawing.Size(212, 138);
@@ -313,7 +313,7 @@ namespace UtilitiesDemo
             // 
             // gradientLabel3
             // 
-            this.gradientLabel3.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.gradientLabel3.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Forms.GradientStyle.Horizontal, false);
             this.gradientLabel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.gradientLabel3.Location = new System.Drawing.Point(3, 3);
             this.gradientLabel3.Name = "gradientLabel3";
@@ -324,7 +324,7 @@ namespace UtilitiesDemo
             // 
             // gradientPanel1
             // 
-            this.gradientPanel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.gradientPanel1.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.Horizontal, false);
             this.gradientPanel1.Controls.Add(this.label25);
             this.gradientPanel1.Location = new System.Drawing.Point(11, 37);
             this.gradientPanel1.Name = "gradientPanel1";
@@ -357,7 +357,7 @@ namespace UtilitiesDemo
             // 
             this.gradientLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gradientLabel1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.gradientLabel1.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Forms.GradientStyle.Horizontal, false);
             this.gradientLabel1.Location = new System.Drawing.Point(3, 3);
             this.gradientLabel1.Name = "gradientLabel1";
             this.gradientLabel1.Size = new System.Drawing.Size(603, 23);
@@ -370,7 +370,7 @@ namespace UtilitiesDemo
             this.m_flpGradientFlowLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_flpGradientFlowLayoutPanel.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.m_flpGradientFlowLayoutPanel.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.Horizontal, false);
             this.m_flpGradientFlowLayoutPanel.BackgroundImage = global::UtilitiesDemo.Properties.Resources.CartoonPeople;
             this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label5);
             this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label6);
@@ -613,7 +613,7 @@ namespace UtilitiesDemo
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.label2.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Forms.GradientStyle.Horizontal, false);
             this.label2.Location = new System.Drawing.Point(3, 3);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(603, 23);
@@ -626,7 +626,7 @@ namespace UtilitiesDemo
             this.m_tlpGradientTableLayoutPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_tlpGradientTableLayoutPanel.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Utilities.GradientStyle.Horizontal, true);
+            this.m_tlpGradientTableLayoutPanel.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Aqua, System.Drawing.Color.DeepPink, ChuckHill2.Forms.GradientStyle.Horizontal, true);
             this.m_tlpGradientTableLayoutPanel.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.OutsetPartial;
             this.m_tlpGradientTableLayoutPanel.ColumnCount = 2;
             this.m_tlpGradientTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -676,7 +676,7 @@ namespace UtilitiesDemo
             // 
             // label1
             // 
-            this.label1.BackgroundGradient = new ChuckHill2.Utilities.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Utilities.GradientStyle.Horizontal, false);
+            this.label1.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.Color.Silver, System.Drawing.Color.Transparent, ChuckHill2.Forms.GradientStyle.Horizontal, false);
             this.label1.Dock = System.Windows.Forms.DockStyle.Top;
             this.label1.Location = new System.Drawing.Point(3, 3);
             this.label1.Name = "label1";
@@ -800,7 +800,7 @@ namespace UtilitiesDemo
             this.m_cbbColorComboBox.Name = "m_cbbColorComboBox";
             this.m_cbbColorComboBox.Size = new System.Drawing.Size(180, 19);
             this.m_cbbColorComboBox.TabIndex = 2;
-            this.m_cbbColorComboBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_cbbColorComboBox_SelectionChanged);
+            this.m_cbbColorComboBox.SelectionChanged += new ChuckHill2.Forms.NamedColorEventHandler(this.m_cbbColorComboBox_SelectionChanged);
             // 
             // m_ctvColorTreeView
             // 
@@ -811,7 +811,7 @@ namespace UtilitiesDemo
             this.m_ctvColorTreeView.Name = "m_ctvColorTreeView";
             this.m_ctvColorTreeView.Size = new System.Drawing.Size(224, 468);
             this.m_ctvColorTreeView.TabIndex = 1;
-            this.m_ctvColorTreeView.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_ctvColorTreeView_SelectionChanged);
+            this.m_ctvColorTreeView.SelectionChanged += new ChuckHill2.Forms.NamedColorEventHandler(this.m_ctvColorTreeView_SelectionChanged);
             // 
             // m_clbColorListBox
             // 
@@ -822,7 +822,7 @@ namespace UtilitiesDemo
             this.m_clbColorListBox.Name = "m_clbColorListBox";
             this.m_clbColorListBox.Size = new System.Drawing.Size(180, 468);
             this.m_clbColorListBox.TabIndex = 0;
-            this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
+            this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Forms.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
             // 
             // m_tpColorEditorHorz
             // 
@@ -1023,14 +1023,14 @@ namespace UtilitiesDemo
         private System.Windows.Forms.TabPage m_tpGradientControls;
         private System.Windows.Forms.TabControl m_tcSubGradientControls;
         private System.Windows.Forms.TabPage m_tpMiscControls;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel4;
-        private ChuckHill2.Utilities.GradientGroupBox gradientGroupBox1;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel3;
-        private ChuckHill2.Utilities.GradientPanel gradientPanel1;
+        private ChuckHill2.Forms.GradientLabel gradientLabel4;
+        private ChuckHill2.Forms.GradientGroupBox gradientGroupBox1;
+        private ChuckHill2.Forms.GradientLabel gradientLabel3;
+        private ChuckHill2.Forms.GradientPanel gradientPanel1;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.TabPage m_tpFlowLayoutPanel;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel1;
-        private ChuckHill2.Utilities.GradientFlowLayoutPanel m_flpGradientFlowLayoutPanel;
+        private ChuckHill2.Forms.GradientLabel gradientLabel1;
+        private ChuckHill2.Forms.GradientFlowLayoutPanel m_flpGradientFlowLayoutPanel;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
@@ -1052,39 +1052,39 @@ namespace UtilitiesDemo
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.TabPage m_tpTableLayoutPanel;
-        private ChuckHill2.Utilities.GradientLabel label2;
-        private ChuckHill2.Utilities.GradientTableLayoutPanel m_tlpGradientTableLayoutPanel;
+        private ChuckHill2.Forms.GradientLabel label2;
+        private ChuckHill2.Forms.GradientTableLayoutPanel m_tlpGradientTableLayoutPanel;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TabPage m_tpBrushProperties;
-        private ChuckHill2.Utilities.GradientLabel label1;
+        private ChuckHill2.Forms.GradientLabel label1;
         private System.Windows.Forms.PropertyGrid propertyGrid1;
         private System.Windows.Forms.TabControl m_tcMain;
         private System.Windows.Forms.TabPage m_tpColorPickers;
         private System.Windows.Forms.TabControl m_tcSubColorPickers;
         private System.Windows.Forms.TabPage m_tpLists;
-        private ChuckHill2.Utilities.NamedColorComboBox m_cbbColorComboBox;
-        private ChuckHill2.Utilities.NamedColorTreeView m_ctvColorTreeView;
-        private ChuckHill2.Utilities.NamedColorListBox m_clbColorListBox;
+        private ChuckHill2.Forms.NamedColorComboBox m_cbbColorComboBox;
+        private ChuckHill2.Forms.NamedColorTreeView m_ctvColorTreeView;
+        private ChuckHill2.Forms.NamedColorListBox m_clbColorListBox;
         private System.Windows.Forms.TabPage m_tpColorEditorHorz;
         private System.Windows.Forms.TabPage m_tpColorEditorVert;
-        private ChuckHill2.Utilities.ColorPickerPanelHorz m_cppColorPickerPanelHorz;
-        private ChuckHill2.Utilities.ColorPickerPanelVert m_cppColorPickerPanelVert;
+        private ChuckHill2.Forms.ColorPickerPanelHorz m_cppColorPickerPanelHorz;
+        private ChuckHill2.Forms.ColorPickerPanelVert m_cppColorPickerPanelVert;
         private System.Windows.Forms.Button m_btnColorComboBox;
         private System.Windows.Forms.Button m_btnColorTreeView;
         private System.Windows.Forms.Button m_btnColorListBox;
         private System.Windows.Forms.Label m_lblColorSelectStatus;
         private System.Windows.Forms.TabPage m_tpGradientBrushStyles;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel13;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel12;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel11;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel10;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel9;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel8;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel7;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel6;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel5;
-        private ChuckHill2.Utilities.GradientLabel gradientLabel2;
+        private ChuckHill2.Forms.GradientLabel gradientLabel13;
+        private ChuckHill2.Forms.GradientLabel gradientLabel12;
+        private ChuckHill2.Forms.GradientLabel gradientLabel11;
+        private ChuckHill2.Forms.GradientLabel gradientLabel10;
+        private ChuckHill2.Forms.GradientLabel gradientLabel9;
+        private ChuckHill2.Forms.GradientLabel gradientLabel8;
+        private ChuckHill2.Forms.GradientLabel gradientLabel7;
+        private ChuckHill2.Forms.GradientLabel gradientLabel6;
+        private ChuckHill2.Forms.GradientLabel gradientLabel5;
+        private ChuckHill2.Forms.GradientLabel gradientLabel2;
         private System.Windows.Forms.TabPage m_tpPopups;
         private System.Windows.Forms.Button m_btnToolTipEx;
         private System.Windows.Forms.Button m_btnToolTipManager;

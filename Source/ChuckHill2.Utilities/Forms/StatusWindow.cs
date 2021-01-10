@@ -4,10 +4,10 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
-    /// Friendly scrolling status window. String data that exceeds user-specified MaxLength 
+    /// Friendly scrolling status window. String data that exceeds user-specified MaxLength
     /// is deleted to minimize the memory footprint. Supports multi-threaded environments.
     /// </summary>
     [ToolboxBitmap(typeof(System.Windows.Forms.TextBox))]
@@ -15,17 +15,17 @@ namespace ChuckHill2.Utilities
     {
         /// <summary>
         /// Open Stream/File to write output to.
-        /// The status window only holds so much text and eventually scrolls off (see this.MaxLength). 
+        /// The status window only holds so much text and eventually scrolls off (see this.MaxLength).
         /// This allows ALL the output to be captured.
         /// </summary>
         public TextWriter AltOutput = null;
 
         /// <summary>
-        /// Friendly scrolling status window. String data that exceeds user-specified MaxLength 
+        /// Friendly scrolling status window. String data that exceeds user-specified MaxLength
         /// is deleted to minimize the memory footprint. Supports multi-threaded environments.
-        /// Initializes a new instance of the ChuckHill2.Utilities.StatusWindow class.
+        /// Initializes a new instance of the ChuckHill2.StatusWindow class.
         /// </summary>
-        public StatusWindow() : base() 
+        public StatusWindow() : base()
         {
             base.Multiline = true;
             base.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -50,7 +50,7 @@ namespace ChuckHill2.Utilities
 
         private delegate void StatusWindowCallback(string format, params object[] args);
         /// <summary>
-        /// Append a formatted string to the existing text in the status window. 
+        /// Append a formatted string to the existing text in the status window.
         /// May be safely called from another thread.
         /// </summary>
         /// <param name="format">A string.Format-like composite format string.</param>
@@ -68,9 +68,9 @@ namespace ChuckHill2.Utilities
 
             if (AltOutput != null)
             {
-                try 
-                { 
-                    AltOutput.WriteLine(s); 
+                try
+                {
+                    AltOutput.WriteLine(s);
                     AltOutput.Flush();
                 }
                 catch { AltOutput = null; }

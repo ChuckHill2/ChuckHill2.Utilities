@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions;  //needed for GDI.ExtractAssociatedIcon() and GDI.ApplyShadows()
+using ChuckHill2.Extensions;  //needed for GDI.ExtractAssociatedIcon() and GDI.ApplyShadows()
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     /// Displays a small message box in front of the specified object and with the specified text, caption, buttons, and icon.
@@ -294,7 +294,7 @@ namespace ChuckHill2.Utilities
             //Simple Border (not used)
             //e.Graphics.DrawRectangle(SystemPens.ActiveBorder, 0, 0, this.Width - 1, this.Height - 1);
 
-            //Draw 2-pixel 3-D border. 
+            //Draw 2-pixel 3-D border.
             //Would use ControlPaint.DrawBorder3D(e.Graphics,  this.ClientRectangle, Border3DStyle.Raised), however for some reason,
             //the bottom & right lines come out as cyan!! So we just draw the border by hand. Perhaps because it's drawing on the edge
             //of the form and Pens draw to the right/bottom of the pixel?

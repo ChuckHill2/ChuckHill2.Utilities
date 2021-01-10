@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     public static class XmlIO
     {

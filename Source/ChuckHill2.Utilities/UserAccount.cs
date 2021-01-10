@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Security.Principal;
 using System.Text;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 using Microsoft.Win32;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Common Windows user/logon account and permissions API

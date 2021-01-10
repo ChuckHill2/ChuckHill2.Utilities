@@ -6,14 +6,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
-    /// Represents a window or dialog box that makes up an application's user interface.
-    /// Extends System.Windows.Forms.Form to support a gradient color for the background.
+    /// Group collections of controls.
+    /// Extends System.Windows.Forms.Panel to support a gradient color for the background.
     /// </summary>
-    [ToolboxItem(true), ToolboxBitmap(typeof(Form))]
-    public class GradientForm : Form, IGradientControl
+    [ToolboxItem(true), ToolboxBitmap(typeof(Panel))]
+    public class GradientPanel : Panel, IGradientControl
     {
         private GradientBrush __backgroundGradient = null;
         /// <summary> The gradient brush used to fill the background.</summary>
@@ -34,7 +34,7 @@ namespace ChuckHill2.Utilities
         public event EventHandler BackgroundGradientChanged;
 
         #region Hidden/Unused Properties
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
         /// <summary> This is not used. See the BackgroundGradient property.</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Color BackColor { get => BackgroundGradient.Color1; set => BackgroundGradient.Color1 = value; }

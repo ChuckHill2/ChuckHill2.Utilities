@@ -17,9 +17,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+
+
+
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities.Extensions
+namespace ChuckHill2.Extensions
 {
     public static class AppDomainExtensions
     {

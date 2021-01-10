@@ -1,9 +1,9 @@
 using System;
 using Cyotek.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
-    partial class ColorPickerPanelHorz
+    partial class ColorPickerPanelVert
     {
         /// <summary>
         /// Required designer variable.
@@ -20,66 +20,33 @@ namespace ChuckHill2.Utilities
         {
             this.components = new System.ComponentModel.Container();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.colorEditor = new Cyotek.Windows.Forms.ColorEditor();
-            this.previewPanel = new ChuckHill2.Utilities.SplitColorPanel();
             this.screenColorPicker = new Cyotek.Windows.Forms.ScreenColorPicker();
-            this.colorWheel = new Cyotek.Windows.Forms.ColorWheel();
             this.colorGrid = new Cyotek.Windows.Forms.ColorGrid();
+            this.previewPanel = new ChuckHill2.Forms.SplitColorPanel();
+            this.colorWheel = new Cyotek.Windows.Forms.ColorWheel();
+            this.colorEditor = new Cyotek.Windows.Forms.ColorEditor();
             this.colorEditorManager = new Cyotek.Windows.Forms.ColorEditorManager();
             this.SuspendLayout();
-            // 
-            // colorEditor
-            // 
-            this.colorEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.colorEditor.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.colorEditor.Location = new System.Drawing.Point(201, 47);
-            this.colorEditor.Margin = new System.Windows.Forms.Padding(0);
-            this.colorEditor.Name = "colorEditor";
-            this.colorEditor.ShowColorSpaceLabels = false;
-            this.colorEditor.Size = new System.Drawing.Size(231, 182);
-            this.colorEditor.TabIndex = 0;
-            // 
-            // previewPanel
-            // 
-            this.previewPanel.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.previewPanel.Color = System.Drawing.Color.Empty;
-            this.previewPanel.Location = new System.Drawing.Point(444, 152);
-            this.previewPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.previewPanel.Name = "previewPanel";
-            this.previewPanel.Size = new System.Drawing.Size(75, 75);
-            this.previewPanel.TabIndex = 3;
-            this.previewPanel.Click += new System.EventHandler(this.previewPanel_Click);
-            // 
+            //
             // screenColorPicker
-            // 
-            this.screenColorPicker.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            //
+            this.screenColorPicker.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.screenColorPicker.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.screenColorPicker.Location = new System.Drawing.Point(444, 48);
+            this.screenColorPicker.Location = new System.Drawing.Point(2, 457);
             this.screenColorPicker.Margin = new System.Windows.Forms.Padding(0);
             this.screenColorPicker.Name = "screenColorPicker";
-            this.screenColorPicker.Size = new System.Drawing.Size(75, 75);
+            this.screenColorPicker.Size = new System.Drawing.Size(91, 40);
             this.toolTip.SetToolTip(this.screenColorPicker, "Click and drag to select screen color");
             this.screenColorPicker.Zoom = 6;
-            // 
-            // colorWheel
-            // 
-            this.colorWheel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.colorWheel.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.colorWheel.Location = new System.Drawing.Point(0, -2);
-            this.colorWheel.Margin = new System.Windows.Forms.Padding(0);
-            this.colorWheel.Name = "colorWheel";
-            this.colorWheel.Size = new System.Drawing.Size(201, 201);
-            this.colorWheel.TabIndex = 4;
-            // 
+            //
             // colorGrid
-            // 
-            this.colorGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            //
+            this.colorGrid.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.colorGrid.AutoAddColors = false;
             this.colorGrid.CellBorderStyle = Cyotek.Windows.Forms.ColorCellBorderStyle.None;
             this.colorGrid.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.colorGrid.EditMode = Cyotek.Windows.Forms.ColorEditingMode.Both;
-            this.colorGrid.Location = new System.Drawing.Point(0, 199);
+            this.colorGrid.Location = new System.Drawing.Point(2, 189);
             this.colorGrid.Margin = new System.Windows.Forms.Padding(0);
             this.colorGrid.Name = "colorGrid";
             this.colorGrid.Padding = new System.Windows.Forms.Padding(0);
@@ -90,30 +57,64 @@ namespace ChuckHill2.Utilities
             this.colorGrid.Spacing = new System.Drawing.Size(0, 0);
             this.colorGrid.TabIndex = 7;
             this.colorGrid.EditingColor += new System.EventHandler<Cyotek.Windows.Forms.EditColorCancelEventArgs>(this.colorGrid_EditingColor);
-            // 
+            //
+            // previewPanel
+            //
+            this.previewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.previewPanel.Color = System.Drawing.Color.Empty;
+            this.previewPanel.Location = new System.Drawing.Point(103, 457);
+            this.previewPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.previewPanel.Name = "previewPanel";
+            this.previewPanel.Size = new System.Drawing.Size(91, 40);
+            this.previewPanel.TabIndex = 3;
+            this.previewPanel.Click += new System.EventHandler(this.previewPanel_Click);
+            //
+            // colorWheel
+            //
+            this.colorWheel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.colorWheel.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.colorWheel.Location = new System.Drawing.Point(0, -5);
+            this.colorWheel.Margin = new System.Windows.Forms.Padding(0);
+            this.colorWheel.Name = "colorWheel";
+            this.colorWheel.Size = new System.Drawing.Size(196, 196);
+            this.colorWheel.TabIndex = 4;
+            //
+            // colorEditor
+            //
+            this.colorEditor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.colorEditor.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.colorEditor.Location = new System.Drawing.Point(2, 269);
+            this.colorEditor.Margin = new System.Windows.Forms.Padding(0);
+            this.colorEditor.Name = "colorEditor";
+            this.colorEditor.ShowColorSpaceLabels = false;
+            this.colorEditor.Size = new System.Drawing.Size(192, 186);
+            this.colorEditor.TabIndex = 0;
+            //
             // colorEditorManager
-            // 
+            //
             this.colorEditorManager.ColorEditor = this.colorEditor;
             this.colorEditorManager.ColorGrid = this.colorGrid;
             this.colorEditorManager.ColorWheel = this.colorWheel;
             this.colorEditorManager.ScreenColorPicker = this.screenColorPicker;
             this.colorEditorManager.ColorChanged += new System.EventHandler(this.colorEditorManager_ColorChanged);
-            // 
-            // ColorPickerPanelHorz
-            // 
+            //
+            // ColorPickerPanelVert
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Transparent;
-            this.Controls.Add(this.colorEditor);
+            this.Controls.Add(this.colorGrid);
             this.Controls.Add(this.previewPanel);
             this.Controls.Add(this.screenColorPicker);
             this.Controls.Add(this.colorWheel);
-            this.Controls.Add(this.colorGrid);
+            this.Controls.Add(this.colorEditor);
             this.Margin = new System.Windows.Forms.Padding(0);
-            this.MaximumSize = new System.Drawing.Size(1000, 999);
-            this.MinimumSize = new System.Drawing.Size(376, 182);
-            this.Name = "ColorPickerPanelHorz";
-            this.Size = new System.Drawing.Size(519, 277);
+            this.MinimumSize = new System.Drawing.Size(192, 497);
+            this.Name = "ColorPickerPanelVert";
+            this.Size = new System.Drawing.Size(196, 499);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -126,7 +127,7 @@ namespace ChuckHill2.Utilities
         private Cyotek.Windows.Forms.ColorWheel colorWheel;
         private Cyotek.Windows.Forms.ColorEditorManager colorEditorManager;
         private Cyotek.Windows.Forms.ScreenColorPicker screenColorPicker;
-        private ChuckHill2.Utilities.SplitColorPanel previewPanel;
+        private ChuckHill2.Forms.SplitColorPanel previewPanel;
         private System.Windows.Forms.ToolTip toolTip;
     }
 }

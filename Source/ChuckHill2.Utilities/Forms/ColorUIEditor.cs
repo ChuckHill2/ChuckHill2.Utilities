@@ -13,7 +13,7 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     ///  @image html ColorUIEditor.png
     /// <summary>Provides an enhanced <see cref="T:System.Drawing.Design.UITypeEditor" /> for visually picking a color.</summary>
@@ -36,7 +36,7 @@ namespace ChuckHill2.Utilities
         private Size preferredSize;
 
         #region Override Methods
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
 
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) => UITypeEditorEditStyle.DropDown;
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
@@ -58,8 +58,8 @@ namespace ChuckHill2.Utilities
 
                     dropdownControl.Color = (Color)value;
 
-                    // The UITypeEditor may have changed the width during a previous call. 
-                    // We reset it here so it will be resized to the current column width. 
+                    // The UITypeEditor may have changed the width during a previous call.
+                    // We reset it here so it will be resized to the current column width.
                     // The height is proportionately scaled via ProportionalResizing flag.
                     this.dropdownControl.Size = preferredSize;
 

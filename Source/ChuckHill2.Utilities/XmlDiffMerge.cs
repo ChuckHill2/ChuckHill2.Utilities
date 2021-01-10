@@ -33,7 +33,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Creates and contains the differences between 2 similar XML files. The results may

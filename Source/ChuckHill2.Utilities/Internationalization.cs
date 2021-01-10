@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using ChuckHill2.Utilities.Extensions;
-using ChuckHill2.Utilities.Extensions.Reflection;
+using ChuckHill2.Extensions;
+using ChuckHill2.Extensions.Reflection;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Automatic and Dynamic translation of all strings in an application into another language.

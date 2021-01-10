@@ -20,10 +20,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
 // This namespace name is arbitrary. It can be changed to anything without adverse effects.
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     #region public Log interface
     /// <summary>

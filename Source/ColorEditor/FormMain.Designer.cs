@@ -36,9 +36,9 @@ namespace ColorEditor
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.m_radDisabled = new System.Windows.Forms.RadioButton();
             this.m_radEnabled = new System.Windows.Forms.RadioButton();
-            this.m_clbColorListBox = new ChuckHill2.Utilities.NamedColorListBox();
-            this.m_ctvColorTreeView = new ChuckHill2.Utilities.NamedColorTreeView();
-            this.m_cbbColorComboBox = new ChuckHill2.Utilities.NamedColorComboBox();
+            this.m_clbColorListBox = new ChuckHill2.Forms.NamedColorListBox();
+            this.m_ctvColorTreeView = new ChuckHill2.Forms.NamedColorTreeView();
+            this.m_cbbColorComboBox = new ChuckHill2.Forms.NamedColorComboBox();
             this.m_roundedRect = new System.Windows.Forms.Panel();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -145,7 +145,7 @@ namespace ColorEditor
             this.m_clbColorListBox.Name = "m_clbColorListBox";
             this.m_clbColorListBox.Size = new System.Drawing.Size(158, 448);
             this.m_clbColorListBox.TabIndex = 7;
-            this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
+            this.m_clbColorListBox.SelectionChanged += new ChuckHill2.Forms.NamedColorEventHandler(this.m_clbColorListBox_SelectionChanged);
             // 
             // m_ctvColorTreeView
             // 
@@ -165,7 +165,7 @@ namespace ColorEditor
             this.m_cbbColorComboBox.Name = "m_cbbColorComboBox";
             this.m_cbbColorComboBox.Size = new System.Drawing.Size(158, 19);
             this.m_cbbColorComboBox.TabIndex = 9;
-            this.m_cbbColorComboBox.SelectionChanged += new ChuckHill2.Utilities.NamedColorEventHandler(this.m_cbbColorComboBox_SelectionChanged);
+            this.m_cbbColorComboBox.SelectionChanged += new ChuckHill2.Forms.NamedColorEventHandler(this.m_cbbColorComboBox_SelectionChanged);
             // 
             // m_roundedRect
             // 
@@ -206,14 +206,14 @@ namespace ColorEditor
         private System.Windows.Forms.Button m_btnColorTreeView;
         private System.Windows.Forms.Button m_btnColorListBox;
         private System.Windows.Forms.Button m_btnSystemCustomColorDialog;
-        private ChuckHill2.Utilities.NamedColorListBox m_clbColorListBox;
-        //private ChuckHill2.Utilities.NamedColorTreeView m_ctvColorTreeView;
+        private ChuckHill2.Forms.NamedColorListBox m_clbColorListBox;
+        //private ChuckHill2.NamedColorTreeView m_ctvColorTreeView;
         private System.Windows.Forms.Button m_btnColorComboBox;
-        private ChuckHill2.Utilities.NamedColorComboBox m_cbbColorComboBox;
+        private ChuckHill2.Forms.NamedColorComboBox m_cbbColorComboBox;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton m_radDisabled;
         private System.Windows.Forms.RadioButton m_radEnabled;
-        private ChuckHill2.Utilities.NamedColorTreeView m_ctvColorTreeView;
+        private ChuckHill2.Forms.NamedColorTreeView m_ctvColorTreeView;
         private System.Windows.Forms.Panel m_roundedRect;
     }
 }

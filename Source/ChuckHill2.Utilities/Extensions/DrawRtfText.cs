@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
-namespace ChuckHill2.Utilities.Extensions
+namespace ChuckHill2.Extensions
 {
     public static class GraphicsExtension
     {

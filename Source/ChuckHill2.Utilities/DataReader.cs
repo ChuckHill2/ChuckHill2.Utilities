@@ -1,7 +1,7 @@
 using System;
 using System.Data;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Generic Base class for ALL custom DataReader's.

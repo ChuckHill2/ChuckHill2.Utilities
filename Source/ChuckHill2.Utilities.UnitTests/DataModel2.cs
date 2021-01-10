@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     [Serializable]
     public class DataModel2 : IEquatable<DataModel2>, IEqualityComparer<DataModel2>

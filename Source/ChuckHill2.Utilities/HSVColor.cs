@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Implicitly converts a System.Drawing.Color object to/from a HSV colorspace object.

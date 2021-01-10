@@ -6,9 +6,9 @@ using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Xml;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Extension to System.Configuration.ConfigurationManager for getting/setting 
@@ -270,7 +270,7 @@ namespace ChuckHill2.Utilities
 
         /// <summary>
         /// Watch for changes to current App.Config for the life of the application.
-        /// Note: If dynamically swapping in another app.Config via ChuckHill2.Utilities.AppConfig, 
+        /// Note: If dynamically swapping in another app.Config via ChuckHill2.AppConfig, 
         /// do not reference anything from this class until AFTER the swap is complete!
         /// </summary>
         /// <returns>handle to hold so GC will not collect this.</returns>

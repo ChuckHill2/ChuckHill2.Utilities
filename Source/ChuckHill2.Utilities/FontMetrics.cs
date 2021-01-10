@@ -3,9 +3,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     ///  @image html FontMetrics.png
     /// <summary>
@@ -100,7 +99,7 @@ namespace ChuckHill2.Utilities
         {
             if (from_unit == to_unit) return value;
 
-            // Convert to pixels. 
+            // Convert to pixels.
             switch (from_unit)
             {
                 case GraphicsUnit.Document:
@@ -122,7 +121,7 @@ namespace ChuckHill2.Utilities
                     throw new Exception($"FontInfo.ConvertUnits: Unknown input unit {from_unit}");
             }
 
-            // Convert from pixels to the new units. 
+            // Convert from pixels to the new units.
             switch (to_unit)
             {
                 case GraphicsUnit.Document:
@@ -271,7 +270,7 @@ namespace ChuckHill2.Utilities
             public byte tmUnderlined;      //Specifies an underlined font if it is nonzero.
             public byte tmStruckOut;       //A strikeout font if it is nonzero.
             public byte tmPitchAndFamily;  //Specifies information about the pitch, the technology, and the family of a physical font.
-            public byte tmCharSet;         //The character set of the font. 
+            public byte tmCharSet;         //The character set of the font.
         }
     }
 
@@ -314,10 +313,13 @@ namespace ChuckHill2.Utilities
             _style = font.Style;
             _unit = font.Unit;
 
-            var sz = TextRenderer.MeasureText("Hy", font);
-            Bitmap bmp = new Bitmap(sz.Width, sz.Height, PixelFormat.Format32bppArgb);
+            SizeF sz;
+            using (var g = Graphics.FromHwnd(IntPtr.Zero))
+                sz = g.MeasureString("Hy", font);
+
+            Bitmap bmp = new Bitmap((int)(sz.Width+0.5f), (int)(sz.Height + 0.5f), PixelFormat.Format32bppArgb);
             using (var g = Graphics.FromImage(bmp))
-                TextRenderer.DrawText(g, "Hy", font, new Point(0, 0), Color.Black);
+                g.DrawString("Hy", font, Brushes.Black, 0, 0);
 
             //var fn = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "MetricsTest.png");
             //bmp.Save(fn, ImageFormat.Png);
@@ -330,7 +332,7 @@ namespace ChuckHill2.Utilities
             //DescentPixels = 0;
             CellHeightPixels = rc.Height;
             InternalLeadingPixels = rc.Y;
-            LineSpacingPixels = sz.Height - rc.Bottom;
+            LineSpacingPixels = (int)(sz.Height + 0.5f) - rc.Bottom;
             //ExternalLeadingPixels = 0;
         }
 

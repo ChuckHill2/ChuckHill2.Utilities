@@ -2,20 +2,18 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
-    /// Handles the layout of its components and arranges them in a flow layout automatically.
-    /// Extends System.Windows.Forms.FlowLayoutPanel to support a gradient color for the background.
+    /// Provides run-time information or descriptive text for a control.
+    /// Extends System.Windows.Forms.Label to support a gradient color for the background.
     /// </summary>
-    [ToolboxItem(true), ToolboxBitmap(typeof(FlowLayoutPanel))]
-    public class GradientFlowLayoutPanel : FlowLayoutPanel, IGradientControl
+    [ToolboxItem(true), ToolboxBitmap(typeof(Label))]
+    public class GradientLabel : Label, IGradientControl
     {
         private GradientBrush __backgroundGradient = null;
         /// <summary> The gradient brush used to fill the background.</summary>
@@ -36,7 +34,7 @@ namespace ChuckHill2.Utilities
         public event EventHandler BackgroundGradientChanged;
 
         #region Hidden/Unused Properties
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
         /// <summary> This is not used. See the BackgroundGradient property.</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Color BackColor { get => BackgroundGradient.Color1; set => BackgroundGradient.Color1 = value; }
@@ -44,11 +42,12 @@ namespace ChuckHill2.Utilities
         /// <summary> This is not used. See the BackgroundGradientChanged event.</summary>
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new event EventHandler BackColorChanged { add { } remove { } }
+
         //! @endcond
         #endregion Hidden/Unused Properties
 
         /// <summary>Raises the BackgroundGradientChanged event.</summary>
-        /// <param name="e">An empty EventArgs that contains no event data. </param>
+        /// <param name="e">An empty EventArgs that contains no event data.</param>
         protected virtual void OnBackgroundGradientChanged(EventArgs e)
         {
             this.Invalidate();

@@ -6,11 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions;
-using ChuckHill2.Utilities.Extensions.Reflection;
+using ChuckHill2.Extensions;
+using ChuckHill2.Extensions.Reflection;
 using NUnit.Framework;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     [TestFixture]
     public class CommonExtensionsTests
@@ -31,7 +31,7 @@ namespace ChuckHill2.Utilities.UnitTests
         {
             var asm = Assembly.GetExecutingAssembly();
 
-            Assert.AreEqual("ChuckHill2.Utilities.UnitTests", asm.Attribute<AssemblyProductAttribute>(), "Attribute<> Constructor");
+            Assert.AreEqual("ChuckHill2.UnitTests", asm.Attribute<AssemblyProductAttribute>(), "Attribute<> Constructor");
             Assert.AreEqual("True", asm.Attribute<System.Runtime.CompilerServices.RuntimeCompatibilityAttribute>(), "Attribute<> Named");
             Assert.IsNull(asm.Attribute<System.Runtime.InteropServices.TypeLibVersionAttribute>(), "Attribute<> Missing");
             Assert.AreEqual("", asm.Attribute<UnitTestAttribute>(), "Attribute<> Named");

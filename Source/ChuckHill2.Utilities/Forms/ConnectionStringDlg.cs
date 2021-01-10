@@ -7,9 +7,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     public partial class ConnectionStringDlg : Form
     {
@@ -35,11 +35,11 @@ namespace ChuckHill2.Utilities
         //    //Alternatitive method for creating a connection string.
         //    //Some of the problems with this method are:
         //    // (1) Requires additional references that are not in the GAC. In other words, we must manage these additional assemblies ourselves.
-        //    // (2) There are many dialog options that will create a connection string that will fail in our environment. 
+        //    // (2) There are many dialog options that will create a connection string that will fail in our environment.
         //    // (3) The result requires additional manipulation in order to actually work in C#.
         //    //
         //    //http://www.codeproject.com/Articles/6080/Using-DataLinks-to-get-or-edit-a-connection-string
-        //    //Required References NOT in the GAC: 
+        //    //Required References NOT in the GAC:
         //    //    Interop.MSDASC - Microsoft OLE DB Service Component 1.0 Type Library
         //    //    C:\Program Files (x86)\Microsoft.NET\Primary Interop Assemblies\adodb.dll
         //    //    C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\Microsoft.CSharp.dll
@@ -81,8 +81,8 @@ namespace ChuckHill2.Utilities
                     sb.Password = m_txtPassword.Text;
                 }
                 else sb.IntegratedSecurity = true;
-                if (!isOleDb) 
-                { 
+                if (!isOleDb)
+                {
                     sb.MaxPoolSize = 200;
                     sb.ConnectTimeout = 600;
                 }
@@ -90,7 +90,7 @@ namespace ChuckHill2.Utilities
                 string cs = sb.ConnectionString;
                 if (isOleDb)
                 {
-                    //Integrated Security=true throws an exception when used with the 
+                    //Integrated Security=true throws an exception when used with the
                     //OleDb provider! This works for both OleDb and SQLServer providers.
                     cs = "Provider=SQLOLEDB;" + cs.Replace("Integrated Security=True", "Integrated Security=SSPI");
                 }
@@ -255,7 +255,7 @@ namespace ChuckHill2.Utilities
         private void m_chkShowPassword_CheckedChanged(object sender, EventArgs e)
         {
             var chk = sender as CheckBox;
-            m_txtPassword.UseSystemPasswordChar = !chk.Checked;            
+            m_txtPassword.UseSystemPasswordChar = !chk.Checked;
         }
 
         private void m_btnTestConnection_Click(object sender, EventArgs e)

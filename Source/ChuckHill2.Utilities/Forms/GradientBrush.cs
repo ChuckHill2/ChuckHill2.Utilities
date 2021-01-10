@@ -16,12 +16,12 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-// NOTE: For Winforms Designer serialization to work consistantly, this 
-// MUST be in a separate assembly from the Form that it is being used in. 
-// This is probably due to Visual Studio loading the assembly in order to 
+// NOTE: For Winforms Designer serialization to work consistantly, this
+// MUST be in a separate assembly from the Form that it is being used in.
+// This is probably due to Visual Studio loading the assembly in order to
 // use this and unable to reload when the project is rebuilt.
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     /// Known styles for the simple 2-color GradientBrush
@@ -148,9 +148,9 @@ namespace ChuckHill2.Utilities
         /// <summary>
         /// Create an object with hardcoded default values. This is not used...except maybe by reflection such as Activator.CreateInstance<GradientBrush>()
         /// </summary>
-        private GradientBrush() 
-        { 
-            Color1 = DefaultColor1; 
+        private GradientBrush()
+        {
+            Color1 = DefaultColor1;
             Color2 = DefaultColor2;
             Style = DefaultStyle;
             GammaCorrection = DefaultGammaCorrection;
@@ -160,10 +160,10 @@ namespace ChuckHill2.Utilities
         ///  Create an object using parent properties as defaults.
         /// </summary>
         /// <param name="parent">Parent control used to determine what defaults to use. Null is ok.</param>
-        public GradientBrush(Control parent) 
-        { 
-            Host = parent; 
-            Color1 = DefaultColor1; 
+        public GradientBrush(Control parent)
+        {
+            Host = parent;
+            Color1 = DefaultColor1;
             Color2 = DefaultColor2;
             Style = DefaultStyle;
             GammaCorrection = DefaultGammaCorrection;

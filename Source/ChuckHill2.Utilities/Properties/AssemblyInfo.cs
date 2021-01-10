@@ -9,6 +9,6 @@ using System.Runtime.CompilerServices;
 * Enum flags winforms designer editor
 * Gradient common controls")]
 
-[assembly: AssemblyProduct("ChuckHill2.Utilities")]
-[assembly: InternalsVisibleTo("ChuckHill2.Utilities.UnitTests")]
+[assembly: AssemblyProduct("ChuckHill2")]
+[assembly: InternalsVisibleTo("ChuckHill2.UnitTests")]
 

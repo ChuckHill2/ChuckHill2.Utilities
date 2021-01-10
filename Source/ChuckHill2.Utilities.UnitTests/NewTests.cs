@@ -6,11 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions;
-using ChuckHill2.Utilities.Extensions.Reflection;
+using ChuckHill2.Extensions;
+using ChuckHill2.Extensions.Reflection;
 using NUnit.Framework;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     [TestFixture]
     public class NewTests

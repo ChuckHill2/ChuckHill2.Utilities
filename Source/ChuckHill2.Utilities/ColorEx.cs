@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Extra Color struct functionality.

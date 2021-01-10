@@ -5,17 +5,17 @@ using System.Runtime.InteropServices;
 
 #pragma warning disable 1591 //warning CS1591: Missing XML comment for publicly visible type or member
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Primitive Developer one-off debugging utilities. 
-    /// For more comprehensive usage, use: var log = new ChuckHill2.Utilities.Log("General",SourceLevels.All);
+    /// For more comprehensive usage, use: var log = new ChuckHill2.Log("General",SourceLevels.All);
     /// </summary>
     public static class DBG
     {
         /// <summary>
         /// True to enable built-in developer debug trace logging. Useful for release debugging. 
-        /// "ChuckHill2.Utilities.DBG.DevLoggingEnabled" App.config entry determines the default enable
+        /// "ChuckHill2.DBG.DevLoggingEnabled" App.config entry determines the default enable
         /// state. If the entry is missing or the App.config does not exist, the default is false.
         /// This flag may be enabled or disabled at any time.
         /// </summary>
@@ -30,7 +30,7 @@ namespace ChuckHill2.Utilities
         /// (by virtue of OutputDebugString somewhere deep inside), BUT it also is can be redirected
         /// to other destination(s) in the app config. This API Delegate is a compromise.
         /// </summary>
-        private static readonly WriteDelegate _rawWrite;  //also directly used by class ChuckHill2.Utilities.FormattedDebugTraceListener.
+        private static readonly WriteDelegate _rawWrite;  //also directly used by class ChuckHill2.FormattedDebugTraceListener.
         private delegate void WriteDelegate(string msg);
         [DllImport("Kernel32.dll")]
         private static extern void OutputDebugString(string errmsg);
@@ -44,7 +44,7 @@ namespace ChuckHill2.Utilities
 
         static DBG() //Retrieve defaults upon assembly load.
         {
-            DBG.Enabled = ConfigEnabled("ChuckHill2.Utilities.DBG.DevLoggingEnabled");
+            DBG.Enabled = ConfigEnabled("ChuckHill2.DBG.DevLoggingEnabled");
             string enabled = Environment.GetEnvironmentVariable("DevLoggingEnabled");
             if (!string.IsNullOrWhiteSpace(enabled))
             {

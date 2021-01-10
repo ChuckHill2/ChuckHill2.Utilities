@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
-namespace ChuckHill2.Utilities.Extensions.Reflection
+namespace ChuckHill2.Extensions.Reflection
 {
     public static class ReflectionExtensions
     {

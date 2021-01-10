@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 using NUnit.Framework;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     [TestFixture]
     public class CastTests

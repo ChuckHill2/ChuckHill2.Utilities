@@ -1,6 +1,6 @@
 using System;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Defines a compile time-stamp custom attribute for an assembly manifest in the release configuration.

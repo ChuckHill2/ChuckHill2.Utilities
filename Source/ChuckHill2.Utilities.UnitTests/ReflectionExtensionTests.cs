@@ -6,10 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using ChuckHill2.Utilities.Extensions.Reflection;
+using ChuckHill2.Extensions.Reflection;
 using NUnit.Framework;
 
-namespace ChuckHill2.Utilities.UnitTests
+namespace ChuckHill2.UnitTests
 {
     [TestFixture]
     public class ReflectionExtensionsTests
@@ -71,6 +71,5 @@ namespace ChuckHill2.Utilities.UnitTests
             Assert.IsTrue(typeof(DataModel).MemberIs(tt.FullName), "type.MemberIs(typestring)");
             Assert.IsTrue(typeof(DataModel).MemberIs(tt), "type.MemberIs(type)");
         }
-
     }
 }

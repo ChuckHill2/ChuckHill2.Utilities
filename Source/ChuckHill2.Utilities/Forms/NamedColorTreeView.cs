@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     ///  @image html NamedColorTreeView.png
     /// <summary>
@@ -90,7 +90,7 @@ namespace ChuckHill2.Utilities
 
         #region Hidden/Disabled Properties
         private const string NOTUSED = "Not used in " + nameof(NamedColorTreeView) + ".";
-        //! @cond DOXYGENHIDE 
+        //! @cond DOXYGENHIDE
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new bool CheckBoxes { get; set; }
         [Obsolete(NOTUSED, true), Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -167,7 +167,7 @@ namespace ChuckHill2.Utilities
         public new event TreeNodeMouseClickEventHandler NodeMouseDoubleClick;
         #pragma warning restore CS0067 //The event is never used
 
-        //! @endcond  
+        //! @endcond
         #endregion
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace ChuckHill2.Utilities
                 new Rectangle(0, e.Bounds.Y, base.ClientRectangle.Width, e.Bounds.Height) :
                 new Rectangle(e.Bounds.X, e.Bounds.Y, base.ClientRectangle.Width - e.Bounds.X, e.Bounds.Height);
 
-            using (var br = new SolidBrush(backColor)) 
+            using (var br = new SolidBrush(backColor))
                 g.FillRectangle(br, bounds);
             #endregion
 

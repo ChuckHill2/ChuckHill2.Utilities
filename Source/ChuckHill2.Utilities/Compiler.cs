@@ -6,10 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using ChuckHill2.Utilities.Extensions;
+using ChuckHill2.Extensions;
 using Microsoft.CSharp;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2
 {
     /// <summary>
     /// Compile a source code file or source code string into a loaded assembly.

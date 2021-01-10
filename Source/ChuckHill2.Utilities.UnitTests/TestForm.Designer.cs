@@ -1,4 +1,4 @@
-﻿namespace ChuckHill2.Utilities.UnitTests
+﻿namespace ChuckHill2.UnitTests
 {
     partial class TestForm
     {

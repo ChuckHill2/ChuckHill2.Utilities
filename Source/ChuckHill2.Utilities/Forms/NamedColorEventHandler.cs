@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 
-namespace ChuckHill2.Utilities
+namespace ChuckHill2.Forms
 {
     /// <summary>
     /// Specify how the list of colors is ordered for NamedColorComboBox, NamedColorListBox, and NamedColorTreeView controls.
