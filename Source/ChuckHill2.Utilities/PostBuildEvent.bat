@@ -73,7 +73,9 @@ IF EXIST %HtmlHelp% RD /S /Q %HtmlHelp%
 @REM XCOPY ..\..\ReadmeImages %HtmlHelp%\ReadmeImages /S /I
 
 @REM Cannot use nuget because its latest is version 1.8.14. The actual latest is 1.8.20. We need the newer features.
-SET DOXYGEN=%ProgramFiles%\doxygen\bin\doxygen.exe
+@REM Eek! As of Microsoft Visual Studio Enterprise 2019 Version 16.7.7, and within the 
+@REM      post build event, %ProgramFiles%==%ProgramFiles(x86)%==C:\Program Files (x86) !!!
+SET DOXYGEN=C:\Program Files\doxygen\bin\doxygen.exe
 IF NOT EXIST "%DOXYGEN%" SET DOXYGEN=%ProgramFiles(x86)%\doxygen\bin\doxygen.exe
 IF NOT EXIST "%DOXYGEN%" CALL :GETFILE DOXYGEN doxygen.exe
 IF NOT EXIST "%DOXYGEN%" (
