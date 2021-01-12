@@ -112,7 +112,7 @@ namespace ChuckHill2
                         {
                             string lname = listener.ElementInformation.Properties["name"].Value as string;
                             //object ltype = listener.ElementInformation.Properties["type"].Value;
-                            if (!lname.EqualsI(TraceRedirectorListener.DEFAULTNAME)) continue;
+                            if (!lname.Equals(TraceRedirectorListener.DEFAULTNAME, StringComparison.OrdinalIgnoreCase)) continue;
                             exists = true;
                             break;
                         }
@@ -165,7 +165,7 @@ namespace ChuckHill2
                             index++;
                             string lname = listener.ElementInformation.Properties["name"].Value as string;
                             //object ltype = listener.ElementInformation.Properties["type"].Value;
-                            if (!lname.EqualsI(TraceRedirectorListener.DEFAULTNAME)) continue;
+                            if (!lname.Equals(TraceRedirectorListener.DEFAULTNAME, StringComparison.OrdinalIgnoreCase)) continue;
                             exists = true;
                             break;
                         }
@@ -207,7 +207,7 @@ namespace ChuckHill2
             foreach (ConfigurationElement ce in ConfigurationSwitches)
             {
                 string srcname = ce.ElementInformation.Properties["name"].Value as string;
-                if (!srcname.EqualsI(sourceName)) continue;
+                if (!srcname.Equals(sourceName, StringComparison.OrdinalIgnoreCase)) continue;
                 var pi = ce.ElementInformation.Properties["value"];
                 if (pi.Value == null) break;
                 if (prevSeverity == SourceLevels.Off) Enum.TryParse<SourceLevels>(pi.Value as string, true, out prevSeverity);
@@ -219,7 +219,7 @@ namespace ChuckHill2
             foreach (ConfigurationElement ce in ConfigurationSources)
             {
                 string srcname = ce.ElementInformation.Properties["name"].Value as string;
-                if (!srcname.EqualsI(sourceName)) continue;
+                if (!srcname.Equals(sourceName, StringComparison.OrdinalIgnoreCase)) continue;
                 var pi = ce.ElementInformation.Properties["switchValue"];
                 if (pi.Value == null) break;
                 if (prevSeverity == SourceLevels.Off) Enum.TryParse<SourceLevels>(pi.Value as string, true, out prevSeverity);
@@ -232,7 +232,7 @@ namespace ChuckHill2
             {
                 foreach(WeakReference wr in RawTraceSources)
                 {
-                    if (wr.Target == null || !wr.IsAlive ||  !(((TraceSource)wr.Target).Name.EqualsI(sourceName) || ((TraceSource)wr.Target).Switch.DisplayName.EqualsI(sourceName))) continue;
+                    if (wr.Target == null || !wr.IsAlive ||  !(((TraceSource)wr.Target).Name.Equals(sourceName, StringComparison.OrdinalIgnoreCase) || ((TraceSource)wr.Target).Switch.DisplayName.Equals(sourceName, StringComparison.OrdinalIgnoreCase))) continue;
                     var ts = (TraceSource)wr.Target;
                     if (prevSeverity == SourceLevels.Off) prevSeverity = ts.Switch.Level;
                     ts.Switch.Level = severity;
@@ -1521,7 +1521,7 @@ namespace ChuckHill2
         {
             try
             {
-                if (id == 0 && !source.EqualsI("TRACE")) //Occurs when msg is coming directly from Trace API
+                if (id == 0 && !source.Equals("TRACE", StringComparison.OrdinalIgnoreCase)) //Occurs when msg is coming directly from Trace API
                 {
                     Log.GetTraceSource("TRACE").TraceEvent(severity, 0, message);
                     return;
@@ -1771,16 +1771,16 @@ namespace ChuckHill2
             bool reboot = false; //True if created. Also means 'needs to reboot OS'
             try
             {
-                if (EventLog.SourceExists(log) && !EventLog.LogNameFromSourceName(log, machine).EqualsI(log))
+                if (EventLog.SourceExists(log) && !EventLog.LogNameFromSourceName(log, machine).Equals(log, StringComparison.OrdinalIgnoreCase))
                 {
                     string oldLog = EventLog.LogNameFromSourceName(log, machine);
                     int kount = 9999;  //assume we can't delete the log.
                     //do not clean up official Windows logs
-                    if (!oldLog.EqualsI("Application")
-                        && !oldLog.EqualsI("Security")
-                        && !oldLog.EqualsI("System")
-                        && !oldLog.EqualsI("Setup")
-                        && !oldLog.EqualsI(""))
+                    if (!oldLog.Equals("Application", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("Security", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("System", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("Setup", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("", StringComparison.OrdinalIgnoreCase))
                     {
                         EventLog logger = null;
                         try
@@ -1799,16 +1799,16 @@ namespace ChuckHill2
                     reboot = true;
                 }
 
-                if (EventLog.SourceExists(source) && !EventLog.LogNameFromSourceName(source, machine).EqualsI(log))
+                if (EventLog.SourceExists(source) && !EventLog.LogNameFromSourceName(source, machine).Equals(log, StringComparison.OrdinalIgnoreCase))
                 {
                     string oldLog = EventLog.LogNameFromSourceName(source, machine);
                     int kount = 9999;  //assume we can't delete the log.
                     //do not clean up official Windows logs
-                    if (!oldLog.EqualsI("Application")
-                        && !oldLog.EqualsI("Security")
-                        && !oldLog.EqualsI("System")
-                        && !oldLog.EqualsI("Setup")
-                        && !oldLog.EqualsI(""))
+                    if (!oldLog.Equals("Application", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("Security", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("System", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("Setup", StringComparison.OrdinalIgnoreCase)
+                        && !oldLog.Equals("", StringComparison.OrdinalIgnoreCase))
                     {
                         EventLog logger = null;
                         try
@@ -1822,8 +1822,8 @@ namespace ChuckHill2
                             if (logger != null) logger.Dispose();
                         }
                     }
-                    if (!source.EqualsI(oldLog)) EventLog.DeleteEventSource(source, machine);
-                    if (kount == 0 || source.EqualsI(oldLog)) EventLog.Delete(oldLog, machine);  //clean up if empty
+                    if (!source.Equals(oldLog, StringComparison.OrdinalIgnoreCase)) EventLog.DeleteEventSource(source, machine);
+                    if (kount == 0 || source.Equals(oldLog, StringComparison.OrdinalIgnoreCase)) EventLog.Delete(oldLog, machine);  //clean up if empty
                     reboot = true;
                 }
 
@@ -2024,7 +2024,7 @@ namespace ChuckHill2
                 string dir = Path.GetDirectoryName(outFile);
                 if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 createdNew = !File.Exists(outFile);
-                if (!createdNew && new FileInfo(outFile).Length > m_maxsize) //move over if exceeds maxsize
+                if (!createdNew && new FileInfo(outFile).Length > m_maxsize && !IsFileLocked(outFile)) //move over if exceeds maxsize
                 {
                     try
                     {
@@ -2113,6 +2113,28 @@ namespace ChuckHill2
             return s;
         }
 
+        private bool IsFileLocked(string fn)
+        {
+            try
+            {
+                using (FileStream stream = new FileStream(fn, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //   still being written to
+                //   or being processed by another thread
+                //   or does not exist (has already been processed)
+                return true;
+            }
+
+            //file is not locked
+            return false;
+        }
+
         //Did another instance (not thread) change the filename? This feature is not available in .NET
         [DllImport("Kernel32.dll")] private static extern int GetFinalPathNameByHandle(IntPtr hFile, StringBuilder filePath, int maxPathLength, int flags);
         private static string GetPathName(FileStream fs) //get the CURRENT path name to this filestream
@@ -2172,7 +2194,7 @@ namespace ChuckHill2
             {
                 if (m_mutex != null) m_mutex.WaitOne(60000);
                 m_logger.BaseStream.Seek(0, SeekOrigin.End);
-                if (!GetPathName((FileStream)m_logger.BaseStream).EqualsI(m_filename)) //file renamed by some other instance?
+                if (!GetPathName((FileStream)m_logger.BaseStream).Equals(m_filename, StringComparison.OrdinalIgnoreCase)) //file renamed by some other instance?
                 {
                     m_logger.Dispose();
                     m_logger = new StreamWriter(File.Open(m_filename, FileMode.Append, FileAccess.Write, FileShare.Read | FileShare.Write | FileShare.Delete));
@@ -2647,6 +2669,7 @@ GO
     #region TBD - MsmqTraceListener
     // TBD
     #endregion MsmqTraceListener
+
 
     #region Custom Listener Filters
     //Built-in System.Diagnostics listener filters are

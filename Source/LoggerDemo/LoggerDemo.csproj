@@ -4,13 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>UtilitiesDemo</RootNamespace>
-    <AssemblyName>UtilitiesDemo</AssemblyName>
+    <ProjectGuid>{DEDAEFDA-473C-4A0A-A093-A2100480B9D6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>LoggerDemo</RootNamespace>
+    <AssemblyName>LoggerDemo</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -21,7 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,83 +30,48 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Deterministic>false</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="Resources\favicon.ico" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <None Include="App.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="FormMain.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormMain.Designer.cs">
-      <DependentUpon>FormMain.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="FormMain.resx">
-      <DependentUpon>FormMain.cs</DependentUpon>
-    </EmbeddedResource>
-    <Compile Include="ToolTipExTestForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ToolTipExTestForm.Designer.cs">
-      <DependentUpon>ToolTipExTestForm.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="ToolTipExTestForm.resx">
-      <DependentUpon>ToolTipExTestForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <Compile Include="ToolTipManagerTestForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ToolTipManagerTestForm.Designer.cs">
-      <DependentUpon>ToolTipManagerTestForm.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="ToolTipManagerTestForm.resx">
-      <DependentUpon>ToolTipManagerTestForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <Compile Include="Program.cs" />
-    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChuckHill2.Utilities\ChuckHill2.Utilities.csproj">
       <Project>{44cf5926-3002-4c81-b44f-9975ec7d18ac}</Project>
       <Name>ChuckHill2.Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\CartoonPeople.png" />
-    <Content Include="Resources\Down.png" />
-    <Content Include="Resources\Left.png" />
-    <Content Include="Resources\Right.png" />
-    <Content Include="Resources\favicon.ico" />
-    <Content Include="Resources\Up.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -128,6 +128,7 @@
     <Compile Include="Forms\GradientTableLayoutPanel.cs"><SubType>Component</SubType></Compile>
     <Compile Include="Forms\IGradientContol.cs" />
     <Compile Include="Forms\MessageBoxEx.cs" />
+    <Compile Include="Forms\InactivityTimer.cs" />
     <Compile Include="Forms\MiniMessageBox.cs"><SubType>Form</SubType></Compile>
     <Compile Include="Forms\NamedColorComboBox.cs"><SubType>Component</SubType></Compile>
     <Compile Include="Forms\NamedColorEventHandler.cs" />

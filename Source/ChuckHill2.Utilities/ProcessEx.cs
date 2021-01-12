@@ -117,12 +117,13 @@ namespace ChuckHill2
         /// <param name="sbStdout">All console output is captured here. If null, no output is captured.</param>
         /// <param name="sbStderr">All console error output is captured here. If null, errors are redirected to 'sbStdout'.</param>
         /// <returns>True if successful (aka exit code==0)</returns>
-        public static bool Exec(string exe, string commandLine=null, string cwd=null, int timeoutSeconds=0, StringBuilder sbStdout=null, StringBuilder sbStderr=null)
+        public static bool Exec(string exe, string commandLine, string cwd, int timeoutSeconds, StringBuilder sbStdout=null, StringBuilder sbStderr=null)
         {
             int exitCode = 0; //zero == success
             Process p = null;
             if (string.IsNullOrWhiteSpace(cwd)) cwd = Environment.CurrentDirectory;
             if (sbStderr == null) sbStderr = sbStdout;
+            if (timeoutSeconds < 0) timeoutSeconds = 0;
 
             try
             {
@@ -145,11 +146,15 @@ namespace ChuckHill2
                     p.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs e) { if (e.Data != null) sbStderr.AppendLine(e.Data.Trim()); };
                 }
                 p.Start();
-                if (timeoutSeconds != 0)
+
+                if (sbStdout != null)
                 {
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
+                }
 
+                if (timeoutSeconds != 0)
+                {
                     if (p.WaitForExit(timeoutSeconds * 1000))
                         exitCode = p.ExitCode;
                     else
@@ -163,7 +168,7 @@ namespace ChuckHill2
             }
             catch (Exception ex) //error in execution of executable.
             {
-                if (sbStderr!=null) sbStderr.AppendFormat("Error: Exec(\"{0}\", \"{1}\", \"{2}\", {3})\r\n{4}\r\n", exe, commandLine, cwd, timeoutSeconds, ex.ToString().Trim());
+                if (sbStderr != null) sbStderr.AppendLine($"Error: Exec(\"{exe}{(string.IsNullOrWhiteSpace(commandLine) ? "" : " " + commandLine)}\", \"{cwd}\", {(timeoutSeconds == 0 ? "Infinite" : timeoutSeconds.ToString())} seconds)\r\n{ex.ToString().Trim()}");
                 return false;
             }
             finally
@@ -176,6 +181,64 @@ namespace ChuckHill2
                 }
             }
             return (exitCode == 0);
+        }
+
+        /// <summary>
+        /// Run an executable and DO NOT wait for it to complete. Throws no exceptions. Any errors are written to 'sbStderr'.
+        /// </summary>
+        /// <param name="exe">Full path to executable or batch file</param>
+        /// <param name="commandLine">Optional command line arguments. Note: args that contain whitespace MUST be quoted!</param>
+        /// <param name="cwd">Optional startup working directory. If null, defaults to current working directory.</param>
+        /// <param name="sbStdout">All console output is captured here. If null, no output is captured.</param>
+        /// <param name="sbStderr">All console error output is captured here. If null, errors are redirected to 'sbStdout'.</param>
+        /// <returns>
+        /// Running process object. Null if Exec() itself failed (see sbStderr for message).
+        /// Use p.WaitForExit(ms) to wait for completion.
+        /// Then use p.ExitCode for the process exit status..
+        /// Be sure to Dispose the process object when no longer needed..
+        /// </returns>
+        public static Process Exec(string exe, string commandLine, string cwd, StringBuilder sbStdout = null, StringBuilder sbStderr = null)
+        {
+            Process p = null;
+            if (string.IsNullOrWhiteSpace(cwd)) cwd = Environment.CurrentDirectory;
+            if (sbStderr == null) sbStderr = sbStdout;
+
+            try
+            {
+                ProcessStartInfo pi = new ProcessStartInfo();
+                pi.FileName = exe;
+                if (!string.IsNullOrWhiteSpace(commandLine)) pi.Arguments = commandLine;
+                pi.CreateNoWindow = true;
+                pi.WindowStyle = ProcessWindowStyle.Hidden;
+                pi.UseShellExecute = !Path.GetExtension(exe).EqualsI(".exe");
+                pi.WorkingDirectory = cwd;
+
+                p = new Process();
+                p.StartInfo = pi;
+                if (sbStdout != null)
+                {
+                    p.StartInfo.RedirectStandardError = true;
+                    p.StartInfo.RedirectStandardOutput = true;
+
+                    p.OutputDataReceived += delegate (object sender, DataReceivedEventArgs e) { if (e.Data != null) sbStdout.AppendLine(e.Data.Trim()); };
+                    p.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs e) { if (e.Data != null) sbStderr.AppendLine(e.Data.Trim()); };
+                }
+
+                p.Start();
+
+                if (sbStdout != null)
+                {
+                    p.BeginOutputReadLine();
+                    p.BeginErrorReadLine();
+                }
+            }
+            catch (Exception ex) //error in execution of executable.
+            {
+                if (sbStderr != null) sbStderr.AppendLine($"Error: Exec(\"{exe}{(string.IsNullOrWhiteSpace(commandLine) ? "" : " " + commandLine)}\", \"{cwd}\")\r\n{ex.ToString().Trim()}");
+                p = null;
+            }
+
+            return p;
         }
 
         #region GetParentProcess - Win32

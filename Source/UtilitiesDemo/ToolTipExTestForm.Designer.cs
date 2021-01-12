@@ -253,7 +253,7 @@ namespace UtilitiesDemo
             this.Controls.Add(this.m_txtTextBox);
             this.Controls.Add(this.m_lblLabel);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.Icon = global::UtilitiesDemo.Properties.Resources.Tools;
+            this.Icon = global::UtilitiesDemo.Properties.Resources.favicon;
             this.Name = "ToolTipExTestForm";
             this.Text = "ToolTipEx Test";
             this.m_grpGroupBox.ResumeLayout(false);

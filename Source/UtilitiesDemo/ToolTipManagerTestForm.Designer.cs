@@ -389,7 +389,7 @@ namespace UtilitiesDemo
             this.MainMenuStrip = this.m_msMenuStrip;
             this.Name = "ToolTipManagerTestForm";
             this.Text = "ToolTipManager Test";
-            this.Icon = global::UtilitiesDemo.Properties.Resources.Tools;
+            this.Icon = global::UtilitiesDemo.Properties.Resources.favicon;
             this.m_grpGroupBox.ResumeLayout(false);
             this.m_pnlPanel.ResumeLayout(false);
             this.m_pnlPanel.PerformLayout();

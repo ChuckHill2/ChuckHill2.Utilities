@@ -394,7 +394,7 @@ namespace UtilitiesDemo
             this.m_flpGradientFlowLayoutPanel.Controls.Add(this.label24);
             this.m_flpGradientFlowLayoutPanel.Location = new System.Drawing.Point(3, 29);
             this.m_flpGradientFlowLayoutPanel.Name = "m_flpGradientFlowLayoutPanel";
-            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(603, 527);
+            this.m_flpGradientFlowLayoutPanel.Size = new System.Drawing.Size(603, 529);
             this.m_flpGradientFlowLayoutPanel.TabIndex = 6;
             // 
             // label5
@@ -638,7 +638,7 @@ namespace UtilitiesDemo
             this.m_tlpGradientTableLayoutPanel.RowCount = 2;
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.m_tlpGradientTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(603, 527);
+            this.m_tlpGradientTableLayoutPanel.Size = new System.Drawing.Size(603, 529);
             this.m_tlpGradientTableLayoutPanel.TabIndex = 5;
             // 
             // label3
@@ -694,7 +694,7 @@ namespace UtilitiesDemo
             this.propertyGrid1.HelpBackColor = System.Drawing.Color.Azure;
             this.propertyGrid1.Location = new System.Drawing.Point(6, 26);
             this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(738, 522);
+            this.propertyGrid1.Size = new System.Drawing.Size(611, 538);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.ToolbarVisible = false;
             // 
@@ -991,7 +991,7 @@ namespace UtilitiesDemo
             this.ClientSize = new System.Drawing.Size(653, 620);
             this.Controls.Add(this.m_tcMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Icon = global::UtilitiesDemo.Properties.Resources.Tools;
+            this.Icon = global::UtilitiesDemo.Properties.Resources.favicon;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "FormMain";
             this.Text = "ChuckHill2 Utilities Demo";
