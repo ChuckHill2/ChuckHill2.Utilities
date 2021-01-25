@@ -153,6 +153,48 @@ namespace ChuckHill2.Extensions
         }
     }
 
+    public static class ControlExtensions
+    {
+        [DllImport("user32.dll")]
+        private extern static IntPtr SendMessage(IntPtr hWnd, int msg, bool wParam, int lParam);
+        private const int WM_SETREDRAW = 0x000B;
+
+        /// <summary>
+        /// Suspend all paint operations until ResumeDrawing() is called.
+        /// </summary>
+        /// <param name="ctrl">Control (and all it's children)  to suspend<./param>
+        public static void SuspendDrawing(this Control ctrl)
+        {
+            SendMessage(ctrl.Handle, WM_SETREDRAW, false, 0); //Stop redrawing
+        }
+
+        /// <summary>
+        /// Resume all paint operations on the given control.
+        /// </summary>
+        /// <param name="ctrl">Control (and all it's children)  to resump painting</param>
+        public static void ResumeDrawing(this Control ctrl)
+        {
+            SendMessage(ctrl.Handle, WM_SETREDRAW, true, 0);  //Turn on redrawing
+            ctrl.Invalidate();
+            ctrl.Refresh();
+        }
+
+        public static Rectangle ToParentRect(this Control parent, Control child)
+        {
+            var p = child.Parent;
+            var rc = child.Bounds;
+            while (p != null)
+            {
+                rc.X += p.Bounds.X;
+                rc.Y += p.Bounds.Y;
+                if (p == parent) break;
+                p = p.Parent;
+            }
+
+            return rc;
+        }
+    }
+
     public static class DataSetExtensions
     {
         /// <summary>
@@ -590,17 +632,34 @@ namespace ChuckHill2.Extensions
         /// Great for logging when the relevent message is in an inner exception.
         /// </remarks>
         /// <param name="ex">Exception to recurse</param>
+        /// <param name="delimiter">Delimiter between exception messages.</param>
         /// <returns>Combined exception message string.</returns>
-        public static string FullMessage(this Exception ex)
+        public static string FullMessage(this Exception ex, string delimiter = " / ")
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(ex.GetType().Name);
             sb.Append(": ");
+
+            if (delimiter.Contains('\n'))
+            {
+                sb.AppendLine();
+                for(int i=delimiter.Length-1; delimiter.Length>=0; i--)
+                {
+                    var c = delimiter[i];
+                    if (c != ' ' && c != '\t')
+                    {
+                        if (i == delimiter.Length - 1) break;
+                        sb.Append(delimiter.Substring(i + 1));
+                        break;
+                    }
+                }
+            }
+
             do
             {
                 sb.Append(ex.Message.Trim());
                 ex = ex.InnerException;
-                if (ex != null && !string.IsNullOrEmpty(ex.Message)) sb.Append(" / ");
+                if (ex != null && !string.IsNullOrEmpty(ex.Message)) sb.Append(delimiter);
                 else break;
             } while (ex != null);
             return sb.ToString();

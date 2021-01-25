@@ -2811,9 +2811,15 @@ GO
         //   ActivityId, CallStack (if Exception object not provided), LogicalOperationStack, ThreadName, and ThreadId
         //All others will work fine on other threads as they do not need the current thread state.
 
+        /// <summary>
+        /// The formatted user log message for this event.
+        /// </summary>
         public string UserMessage { get { return FormatMessage(userMessage); } }
 
         private string exceptionString = null;
+        /// <summary>
+        /// Gets the current exception or empty if there is no exception.
+        /// </summary>
         public string Exception
         {
             get
@@ -2824,14 +2830,40 @@ GO
             }
         }
 
+        /// <summary>
+        /// Get the call stack or exception (if it exists) for Verbose log messages only. Returns empty if not verbose.
+        /// </summary>
         public string ExceptionOrCallStack { get { return (severity < TraceEventType.Information ? (exception == null ? this.CallStack : this.Exception) : string.Empty); } }
+
+        /// <summary>
+        ///  Gets the message part of exception or empty if there is no exception.
+        /// </summary>
         public string ExceptionMessage { get { return (exception == null ? string.Empty : FormatMessage(exception.Message)); } }
+
+        /// <summary>
+        /// Gets the severity level for this log event.
+        /// </summary>
         public TraceEventType Severity { get { return severity; } }
+
+        /// <summary>
+        /// Gets the severity level for this log event.
+        /// </summary>
         public string SeverityString { get { return severity.ToString(); } } //needed when NOT using string.Format!
+
+        /// <summary>
+        /// Gets the integer source ID
+        /// </summary>
         public ushort SourceId { get { return sourceId; } }
+
+        /// <summary>
+        /// Gets the source name.
+        /// </summary>
         public string SourceName { get { return sourceName; } }
 
         private DateTime localdatetime = DateTime.MinValue;
+        /// <summary>
+        /// Gets the local datetime this event was posted.
+        /// </summary>
         public DateTime LocalDateTime 
         { 
             get 
@@ -2840,9 +2872,15 @@ GO
                 return localdatetime; 
             } 
         }
+        /// <summary>
+        /// Gets the UTC datetime this event was posted.
+        /// </summary>
         public DateTime DateTime { get { return Cache.DateTime; } } //TraceEventCache DateTime is UTC.
 
         private static string domainName = null;
+        /// <summary>
+        /// Gets the AppDomain friendly name for this event.
+        /// </summary>
         public string DomainName
         {
             get
@@ -2853,6 +2891,9 @@ GO
         }
 
         private static string entryAssemblyName = null;
+        /// <summary>
+        /// Gets the assembly name for this event.
+        /// </summary>
         public string EntryAssemblyName
         {
             get
@@ -2863,6 +2904,9 @@ GO
         }
 
         private Guid activityId = Guid.Empty;
+        /// <summary>
+        /// Gets the correlation activity id. 
+        /// </summary>
         public Guid ActivityId 
         { 
             get 
@@ -2873,6 +2917,9 @@ GO
         }
 
         private string callStack = null;
+        /// <summary>
+        /// Gets the call stack at the point of this event.
+        /// </summary>
         public string CallStack
         {
             get
@@ -2902,6 +2949,9 @@ GO
         }
 
         private string logicalOperationStack = null;
+        /// <summary>
+        /// Gets the entire correlated logical call stack form the call context.
+        /// </summary>
         public string LogicalOperationStack
         {
             get
@@ -2924,6 +2974,9 @@ GO
         }
 
         private static int processId = -1;
+        /// <summary>
+        /// Gets the unique identiier of the current process (PID)
+        /// </summary>
         public int ProcessId 
         { 
             get 
@@ -2934,6 +2987,9 @@ GO
         }
 
         private static string processName = null;
+        /// <summary>
+        /// Gets the name of this process.
+        /// </summary>
         public string ProcessName
         {
             get
@@ -2948,6 +3004,9 @@ GO
         }
 
         [ThreadStatic] private static int threadId = -1;
+        /// <summary>
+        /// Gets the current managed thread ID.
+        /// </summary>
         public int ThreadId 
         {
             //Note: In TraceEventCache, this is a string! We leave it native to let the user's string format determine how to display it.
@@ -2959,6 +3018,9 @@ GO
         }
 
         [ThreadStatic] private static string threadName = null;
+        /// <summary>
+        /// Gets the current thread name or 'Thread ' + ThreadId if no thread name has been assigned.
+        /// </summary>
         public string ThreadName
         {
             get
@@ -2969,6 +3031,9 @@ GO
         }
 
         private long timeStamp = -1;
+        /// <summary>
+        /// Gets the current number of ticks in the timer mechanism.
+        /// </summary>
         public long Timestamp 
         { 
             get 
@@ -2979,10 +3044,11 @@ GO
         }
 
         private string userDataString = null;
+        /// <summary>
+        /// Custom data provided by the user. Object must have overridden ToString() else the string output will be just the class name.
+        /// </summary>
         public string UserData 
         {
-            // Custom data provided by the user. Object must have overridden ToString() 
-            // else the string output will be just the class name.
             get 
             {
                 if (userDataString == null) userDataString = userData.ToString();
@@ -2991,6 +3057,9 @@ GO
         }
 
         public string version = null;
+        /// <summary>
+        /// Gets the version of the assembly that called this event.
+        /// </summary>
         public string Version
         {
             get
@@ -3010,6 +3079,10 @@ GO
         //private static bool isHosted = Path.GetFileName(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile).Equals("web.config", StringComparison.InvariantCultureIgnoreCase); //hack, but usually true.
         private bool gotHttpContext = !isHosted;
         private HttpContext internalHttpContext = null;
+
+        /// <summary>
+        /// Gets the System.Web.HttpContext instance for the current HTTP request.
+        /// </summary>
         private HttpContext InternalHttpContext
         {
             get
@@ -3024,6 +3097,9 @@ GO
         }
 
         private string userName = null;
+        /// <summary>
+        /// Gets the current user name associated with this HttpContext.
+        /// </summary>
         public string UserName
         {
             get
@@ -3040,6 +3116,9 @@ GO
         }
 
         private string userHostAddress = null;
+        /// <summary>
+        /// Gets IP address of remote client.
+        /// </summary>
         public string UserHostAddress
         {
             get
@@ -3064,6 +3143,9 @@ GO
         }
 
         private string requestUrl = null;
+        /// <summary>
+        /// Gets the request Url.
+        /// </summary>
         public string RequestUrl
         {
             get
@@ -3079,6 +3161,9 @@ GO
         }
 
         private string requestUserAgent = null;
+        /// <summary>
+        /// Gets the raw user agent string of the client browser.
+        /// </summary>
         public string RequestUserAgent
         {
             get
@@ -3094,6 +3179,9 @@ GO
         }
 
         private string requestUrlLocalPath = null;
+        /// <summary>
+        /// Gets the request url local file name.
+        /// </summary>
         public string RequestUrlLocalPath
         {
             get
@@ -3109,6 +3197,9 @@ GO
         }
 
         private string requestHttpMethod = null;
+        /// <summary>
+        /// Gets the HTTP data transfer method (such as GET, POST, or HEAD) used by the client.
+        /// </summary>
         public string RequestHttpMethod
         {
             get
@@ -3124,6 +3215,9 @@ GO
         }
 
         private string requestBrowserType = null;
+        /// <summary>
+        /// Gets the name and major (integer) version number of the browser.
+        /// </summary>
         public string RequestBrowserType
         {
             get
@@ -3139,6 +3233,9 @@ GO
         }
 
         private string requestData = null;
+        /// <summary>
+        /// Get request data payload.
+        /// </summary>
         public string RequestData
         {
             get

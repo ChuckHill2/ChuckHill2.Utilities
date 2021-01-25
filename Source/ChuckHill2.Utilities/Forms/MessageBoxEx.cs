@@ -7,13 +7,14 @@ using System.Windows.Forms;
 namespace ChuckHill2.Forms
 {
     /// <summary>
-    /// Displays a message box in front of the specified object and with the specified text, caption, buttons, and icon.
+    /// Displays a system message box in front of the specified object and with the specified text, caption, buttons, and icon.
     /// </summary>
     /// <remarks>
-    /// The problem with the standard system MessageBox is that it is always centered over the desktop, has no icon in the title bar, and does not handle multi-threading.
-    /// * This extended system MessageBox is centered over the owner window. If the owner is not specified, MessageBox is centered over the application window.
-    /// * If the parent or application has an icon, then it is also displayed in the caption bar.
-    /// * The ability to capture the messagebox content is available via a copy menu item over the messagebox system icon.
+    /// This is a wrapper for System.Windows.Forms.MessageBox which in turn is a wrapper for Win32 [User32] MessageBox.<br />
+    /// The problem with the standard system MessageBox is that it is always centered over the desktop, has no icon in the title bar, and does not handle multi-threading.<br />
+    /// * This extended system MessageBox is centered over the owner window. If the owner is not specified, MessageBox is centered over the application window.<br />
+    /// * If the parent or application has an icon, then it is also displayed in the caption bar.<br />
+    /// * The ability to capture the messagebox content is available via a copy menu item over the messagebox system icon.<br />
     /// * This is also multi-threaded compliant. By definition MessageBox is modal and no more than one instance can be displayed at a time. However, if called from another thread, this will block until the first messagebox is closed.
     /// </remarks>
     public static class MessageBoxEx

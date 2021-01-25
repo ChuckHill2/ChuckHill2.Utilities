@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6E95AE63-5E9A-44CA-80DB-EAD1F5460694}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>ChuckHill2.LoggerEditor</RootNamespace>
+    <AssemblyName>ChuckHill2.LoggerEditor</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Deterministic>false</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\favicon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FormatEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormatEditorForm.Designer.cs">
+      <DependentUpon>FormatEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormatEditorCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FormatEditorCtrl.Designer.cs">
+      <DependentUpon>FormatEditorCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LabeledTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ListenerChooser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ListenerChooser.Designer.cs">
+      <DependentUpon>ListenerChooser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormatEditor.cs" />
+    <Compile Include="ListenersCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListenersCtrl.Designer.cs">
+      <DependentUpon>ListenersCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConnectionStringEditor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
+    <Compile Include="SaveLogNameEditor.cs" />
+    <Compile Include="SourcesCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SourcesCtrl.Designer.cs">
+      <DependentUpon>SourcesCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SwitchGroupsCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SwitchGroupsCtrl.Designer.cs">
+      <DependentUpon>SwitchGroupsCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TraceCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TraceCtrl.Designer.cs">
+      <DependentUpon>TraceCtrl.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="FormatEditorForm.resx">
+      <DependentUpon>FormatEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormatEditorCtrl.resx">
+      <DependentUpon>FormatEditorCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ListenerChooser.resx">
+      <DependentUpon>ListenerChooser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ListenersCtrl.resx">
+      <DependentUpon>ListenersCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="SourcesCtrl.resx">
+      <DependentUpon>SourcesCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SwitchGroupsCtrl.resx">
+      <DependentUpon>SwitchGroupsCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TraceCtrl.resx">
+      <DependentUpon>TraceCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\DataSources\SwitchGroupsCtrl.Data.datasource" />
+    <None Include="Properties\DataSources\SwitchGroupsCtrl.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Debug.cs" />
+    <Compile Include="Program.cs" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\All.png" />
+    <Content Include="Resources\ConsoleTraceListener.png" />
+    <Content Include="Resources\Critical.png" />
+    <None Include="Resources\Delete.png" />
+    <Content Include="Resources\DelimitedListTraceListener.png" />
+    <Content Include="Resources\DataBase.png" />
+    <Content Include="Resources\DatabaseTraceListener.png" />
+    <Content Include="Resources\DebugTraceListener.png" />
+    <Content Include="Resources\DefaultTraceListener.png" />
+    <Content Include="Resources\EmailTraceListener.png" />
+    <Content Include="Resources\Empty.png" />
+    <Content Include="Resources\Error.png" />
+    <Content Include="Resources\EventLogTraceListener.png" />
+    <None Include="Resources\EventSchemaTraceListener.png" />
+    <Content Include="Resources\favicon.ico" />
+    <Content Include="Resources\Information.png" />
+    <None Include="Resources\minus16.png" />
+    <Content Include="Resources\MsmqTraceListener.png" />
+    <Content Include="Resources\Off.png" />
+    <None Include="Resources\openfile.png" />
+    <Content Include="Resources\pencil.png" />
+    <Content Include="Resources\FileTraceListener.png" />
+    <None Include="Resources\plus16.png" />
+    <Content Include="Resources\TextWriterTraceListener.png" />
+    <Content Include="Resources\Verbose.png" />
+    <Content Include="Resources\Warning.png" />
+    <Content Include="Resources\WmiTraceListener.png" />
+    <Content Include="Resources\XmlWriterTraceListener.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChuckHill2.Utilities\ChuckHill2.Utilities.csproj">
+      <Project>{44cf5926-3002-4c81-b44f-9975ec7d18ac}</Project>
+      <Name>ChuckHill2.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
