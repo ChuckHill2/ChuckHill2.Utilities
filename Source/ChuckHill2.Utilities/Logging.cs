@@ -2670,26 +2670,40 @@ GO
     // TBD
     #endregion MsmqTraceListener
 
-
     #region Custom Listener Filters
     //Built-in System.Diagnostics listener filters are
-    //  System.Diagnostics.EventTypeFilter - Exclude a severity level
-    //  System.Diagnostics.SourceFilter - Exclude a single source
+    //  System.Diagnostics.EventTypeFilter - TraceEvents >= SourceLevel
+    //  System.Diagnostics.SourceFilter - Allow a single source
 
     /// <summary>
-    /// Listener filter to not write out a list of specified sources.
-    /// Equivalant to System.Diagnostics.SourceFilter but for multiple sources.
+    /// Listener filter to block writing messages from this list of sources.
     /// The app.config attribute 'initializeData', contains a comma-delimited list of sources to ignore.
     /// </summary>
     public class MultiSourceFilter : TraceFilter
     {
         string[] Sources;
-        //List<string> Sources;
+
+        /// <summary>
+        /// Listener filter to block writing messages from this list of sources.
+        /// </summary>
+        /// <param name="initializeData">Comma-delimited list of sources to ignore</param>
         public MultiSourceFilter(string initializeData)
         {
             Sources = initializeData.Split(new char[]{',',' '},StringSplitOptions.RemoveEmptyEntries);
         }
 
+        /// <summary>Determines whether the trace listener should trace the event. </summary>
+        /// <param name="cache">A <see cref="T:System.Diagnostics.TraceEventCache" /> that represents the information cache for the trace event. (unused)</param>
+        /// <param name="source">The name of the source.</param>
+        /// <param name="eventType">One of the <see cref="T:System.Diagnostics.TraceEventType" /> values. (unused)</param>
+        /// <param name="id">A trace identifier number. (unused)</param>
+        /// <param name="formatOrMessage">The format to use for writing an array of arguments, or a message to write. (unused)</param>
+        /// <param name="args">An array of argument objects. (unused)</param>
+        /// <param name="data1">A trace data object. (unused)</param>
+        /// <param name="data">An array of trace data objects. (unused)</param>
+        /// <returns>
+        /// True if the trace should be produced; otherwise, False />.
+        /// </returns>
         public override bool ShouldTrace(TraceEventCache cache, string source, TraceEventType severity, int id, string formatOrMessage, object[] args, object data1, object[] data)
         {
             return !Sources.Contains(source, StringComparer.InvariantCultureIgnoreCase);

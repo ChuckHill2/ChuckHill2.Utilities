@@ -21,6 +21,30 @@ using System.Drawing.Design;
 
 namespace ChuckHill2.LoggerEditor
 {
+    /// <summary>
+    /// A listener may have 0 or more filter child nodes. A filter may allow or disallow a trace message to be written based upon the properties of the trace message.
+    ///
+    /// Known filters are:
+    ///
+    /// * ChuckHill2.MultiSourceFilter
+    /// 'initializeData' attribute contains a comma delimited list of source names that are not allowed to write to this listener. The source names may or may not be in the list of known sources as new sources may be created on the fly.
+    ///
+    /// * System.Diagnostics.SourceFilter
+    /// 'initializeData'attribute contains the name of a single source. This source is the only one allowed to write to this listener. The source name may or may not be in the list of known sources as new sources may be created on the fly.
+    ///
+    /// * System.Diagnostics.EventTypeFilter
+    /// 'initializeData' attribute contains the single source level (from enum Sourcelevels). Only TraceEvents at least as severe than than this source level are allowed to be written to this listener.
+    ///
+    /// An Example XML config format fragment is: 
+    /// <sharedListeners>
+    ///   <add name="MyListener" type="(assembly qualified name)" initializeData="(listener properties)"/>
+    ///     <filter type="(assembly qualified name)" initializeData="(sources or severitylevel)"/>
+    ///     <filter type="(assembly qualified name)" initializeData="(sources or severitylevel)"/>
+    ///   </add>
+    /// </sharedListeners>
+    ///
+    /// This logging editor does not add or modify any listener filters, however they are passed through untouched.
+    /// </summary>
     public partial class ListenersCtrl : UserControl
     {
         public class vx //exclusively used by ListenerTypes dictionary to essentially support 3 items
@@ -104,6 +128,13 @@ namespace ChuckHill2.LoggerEditor
 
                     props.Node = node; //Initializes the property class immediately., including props.Name.
                     var item = AddListViewItem(props);
+                }
+
+                if (m_lvListeners.Items.Count > 0) //set to the first item
+                {
+                    var item = m_lvListeners.Items[0];
+                    item.Selected = true;
+                    item.Focused = true;
                 }
             }
         }

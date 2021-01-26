@@ -29,20 +29,21 @@ namespace ChuckHill2.LoggerEditor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.m_btnCommit = new System.Windows.Forms.Button();
             this.m_btnExit = new System.Windows.Forms.Button();
             this.m_btnOpen = new System.Windows.Forms.Button();
             this.m_ttToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.m_appConfigFile = new ChuckHill2.LoggerEditor.LabeledTextBox();
             this.m_tcMain = new System.Windows.Forms.TabControl();
             this.m_tabListeners = new System.Windows.Forms.TabPage();
-            this.m_tabSwitchGroups = new System.Windows.Forms.TabPage();
-            this.m_tabSources = new System.Windows.Forms.TabPage();
-            this.m_tabTrace = new System.Windows.Forms.TabPage();
             this.m_ListenersControl = new ChuckHill2.LoggerEditor.ListenersCtrl();
+            this.m_tabSwitchGroups = new System.Windows.Forms.TabPage();
             this.m_SwitchesControl = new ChuckHill2.LoggerEditor.SwitchGroupsCtrl();
+            this.m_tabSources = new System.Windows.Forms.TabPage();
             this.m_SourcesControl = new ChuckHill2.LoggerEditor.SourcesCtrl();
+            this.m_tabTrace = new System.Windows.Forms.TabPage();
             this.m_TraceControl = new ChuckHill2.LoggerEditor.TraceCtrl();
-            this.m_appConfigFile = new ChuckHill2.LoggerEditor.LabeledTextBox();
             this.m_tcMain.SuspendLayout();
             this.m_tabListeners.SuspendLayout();
             this.m_tabSwitchGroups.SuspendLayout();
@@ -54,7 +55,7 @@ namespace ChuckHill2.LoggerEditor
             // 
             this.m_btnCommit.AccessibleDescription = "";
             this.m_btnCommit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_btnCommit.Location = new System.Drawing.Point(328, 467);
+            this.m_btnCommit.Location = new System.Drawing.Point(324, 425);
             this.m_btnCommit.Name = "m_btnCommit";
             this.m_btnCommit.Size = new System.Drawing.Size(75, 23);
             this.m_btnCommit.TabIndex = 0;
@@ -68,7 +69,7 @@ namespace ChuckHill2.LoggerEditor
             // 
             this.m_btnExit.AccessibleDescription = "";
             this.m_btnExit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_btnExit.Location = new System.Drawing.Point(409, 467);
+            this.m_btnExit.Location = new System.Drawing.Point(405, 425);
             this.m_btnExit.Name = "m_btnExit";
             this.m_btnExit.Size = new System.Drawing.Size(75, 23);
             this.m_btnExit.TabIndex = 1;
@@ -90,6 +91,22 @@ namespace ChuckHill2.LoggerEditor
             this.m_btnOpen.UseVisualStyleBackColor = true;
             this.m_btnOpen.Click += new System.EventHandler(this.m_btnOpen_Click);
             // 
+            // m_appConfigFile
+            // 
+            this.m_appConfigFile.AllowDrop = true;
+            this.m_appConfigFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.m_appConfigFile.Location = new System.Drawing.Point(12, 14);
+            this.m_appConfigFile.Name = "m_appConfigFile";
+            this.m_appConfigFile.ReadOnly = true;
+            this.m_appConfigFile.Size = new System.Drawing.Size(448, 20);
+            this.m_appConfigFile.TabIndex = 3;
+            this.m_appConfigFile.TextLabel = "Select Application Config File...";
+            this.m_ttToolTip.SetToolTip(this.m_appConfigFile, resources.GetString("m_appConfigFile.ToolTip"));
+            this.m_appConfigFile.DragDrop += new System.Windows.Forms.DragEventHandler(this.m_appConfigFile_DragDrop);
+            this.m_appConfigFile.DragEnter += new System.Windows.Forms.DragEventHandler(this.m_appConfigFile_DragEnter);
+            this.m_appConfigFile.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.m_appConfigFile_KeyPress);
+            // 
             // m_tcMain
             // 
             this.m_tcMain.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -102,19 +119,27 @@ namespace ChuckHill2.LoggerEditor
             this.m_tcMain.Location = new System.Drawing.Point(12, 41);
             this.m_tcMain.Name = "m_tcMain";
             this.m_tcMain.SelectedIndex = 0;
-            this.m_tcMain.Size = new System.Drawing.Size(472, 409);
+            this.m_tcMain.Size = new System.Drawing.Size(472, 379);
             this.m_tcMain.TabIndex = 9;
             // 
             // m_tabListeners
             // 
+            this.m_tabListeners.BackColor = System.Drawing.Color.AliceBlue;
             this.m_tabListeners.Controls.Add(this.m_ListenersControl);
             this.m_tabListeners.Location = new System.Drawing.Point(4, 22);
             this.m_tabListeners.Name = "m_tabListeners";
             this.m_tabListeners.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tabListeners.Size = new System.Drawing.Size(464, 383);
+            this.m_tabListeners.Size = new System.Drawing.Size(464, 353);
             this.m_tabListeners.TabIndex = 0;
             this.m_tabListeners.Text = "Listeners";
-            this.m_tabListeners.UseVisualStyleBackColor = true;
+            // 
+            // m_ListenersControl
+            // 
+            this.m_ListenersControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.m_ListenersControl.Location = new System.Drawing.Point(3, 3);
+            this.m_ListenersControl.Name = "m_ListenersControl";
+            this.m_ListenersControl.Size = new System.Drawing.Size(458, 347);
+            this.m_ListenersControl.TabIndex = 0;
             // 
             // m_tabSwitchGroups
             // 
@@ -122,10 +147,19 @@ namespace ChuckHill2.LoggerEditor
             this.m_tabSwitchGroups.Location = new System.Drawing.Point(4, 22);
             this.m_tabSwitchGroups.Name = "m_tabSwitchGroups";
             this.m_tabSwitchGroups.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tabSwitchGroups.Size = new System.Drawing.Size(464, 383);
+            this.m_tabSwitchGroups.Size = new System.Drawing.Size(464, 353);
             this.m_tabSwitchGroups.TabIndex = 2;
             this.m_tabSwitchGroups.Text = "SwitchGroups";
             this.m_tabSwitchGroups.UseVisualStyleBackColor = true;
+            // 
+            // m_SwitchesControl
+            // 
+            this.m_SwitchesControl.BackColor = System.Drawing.Color.AliceBlue;
+            this.m_SwitchesControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.m_SwitchesControl.Location = new System.Drawing.Point(3, 3);
+            this.m_SwitchesControl.Name = "m_SwitchesControl";
+            this.m_SwitchesControl.Size = new System.Drawing.Size(458, 347);
+            this.m_SwitchesControl.TabIndex = 0;
             // 
             // m_tabSources
             // 
@@ -133,10 +167,19 @@ namespace ChuckHill2.LoggerEditor
             this.m_tabSources.Location = new System.Drawing.Point(4, 22);
             this.m_tabSources.Name = "m_tabSources";
             this.m_tabSources.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tabSources.Size = new System.Drawing.Size(464, 383);
+            this.m_tabSources.Size = new System.Drawing.Size(464, 353);
             this.m_tabSources.TabIndex = 3;
             this.m_tabSources.Text = "Sources";
             this.m_tabSources.UseVisualStyleBackColor = true;
+            // 
+            // m_SourcesControl
+            // 
+            this.m_SourcesControl.BackColor = System.Drawing.Color.AliceBlue;
+            this.m_SourcesControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.m_SourcesControl.Location = new System.Drawing.Point(3, 3);
+            this.m_SourcesControl.Name = "m_SourcesControl";
+            this.m_SourcesControl.Size = new System.Drawing.Size(458, 347);
+            this.m_SourcesControl.TabIndex = 0;
             // 
             // m_tabTrace
             // 
@@ -144,66 +187,25 @@ namespace ChuckHill2.LoggerEditor
             this.m_tabTrace.Location = new System.Drawing.Point(4, 22);
             this.m_tabTrace.Name = "m_tabTrace";
             this.m_tabTrace.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tabTrace.Size = new System.Drawing.Size(464, 383);
+            this.m_tabTrace.Size = new System.Drawing.Size(464, 353);
             this.m_tabTrace.TabIndex = 1;
             this.m_tabTrace.Text = "Trace";
             this.m_tabTrace.UseVisualStyleBackColor = true;
             // 
-            // m_ListenersControl
-            // 
-            this.m_ListenersControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.m_ListenersControl.Location = new System.Drawing.Point(3, 3);
-            this.m_ListenersControl.Name = "m_ListenersControl";
-            this.m_ListenersControl.Size = new System.Drawing.Size(458, 377);
-            this.m_ListenersControl.TabIndex = 0;
-            // 
-            // m_SwitchesControl
-            // 
-            this.m_SwitchesControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.m_SwitchesControl.Location = new System.Drawing.Point(3, 3);
-            this.m_SwitchesControl.Name = "m_SwitchesControl";
-            this.m_SwitchesControl.Size = new System.Drawing.Size(458, 377);
-            this.m_SwitchesControl.TabIndex = 0;
-            // 
-            // m_SourcesControl
-            // 
-            this.m_SourcesControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.m_SourcesControl.Location = new System.Drawing.Point(3, 3);
-            this.m_SourcesControl.Name = "m_SourcesControl";
-            this.m_SourcesControl.Size = new System.Drawing.Size(458, 377);
-            this.m_SourcesControl.TabIndex = 0;
-            // 
             // m_TraceControl
             // 
+            this.m_TraceControl.BackColor = System.Drawing.Color.AliceBlue;
             this.m_TraceControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.m_TraceControl.Location = new System.Drawing.Point(3, 3);
             this.m_TraceControl.Name = "m_TraceControl";
-            this.m_TraceControl.Size = new System.Drawing.Size(458, 377);
+            this.m_TraceControl.Size = new System.Drawing.Size(458, 347);
             this.m_TraceControl.TabIndex = 0;
-            // 
-            // m_appConfigFile
-            // 
-            this.m_appConfigFile.AllowDrop = true;
-            this.m_appConfigFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_appConfigFile.Location = new System.Drawing.Point(12, 14);
-            this.m_appConfigFile.Name = "m_appConfigFile";
-            this.m_appConfigFile.ReadOnly = true;
-            this.m_appConfigFile.Size = new System.Drawing.Size(448, 20);
-            this.m_appConfigFile.TabIndex = 3;
-            this.m_appConfigFile.TextLabel = "Select Application Config File...";
-            this.m_ttToolTip.SetToolTip(this.m_appConfigFile, "Enter the application configuration file to be modified. Hand type,\r\ncopy n\'paste" +
-        ", drag n\'drop, or the open file button to the right.\r\nFor hand typing or copy n\'" +
-        "paste, press enter to load the file.");
-            this.m_appConfigFile.DragDrop += new System.Windows.Forms.DragEventHandler(this.m_appConfigFile_DragDrop);
-            this.m_appConfigFile.DragEnter += new System.Windows.Forms.DragEventHandler(this.m_appConfigFile_DragEnter);
-            this.m_appConfigFile.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.m_appConfigFile_KeyPress);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(496, 501);
+            this.ClientSize = new System.Drawing.Size(496, 460);
             this.Controls.Add(this.m_tcMain);
             this.Controls.Add(this.m_btnOpen);
             this.Controls.Add(this.m_appConfigFile);
