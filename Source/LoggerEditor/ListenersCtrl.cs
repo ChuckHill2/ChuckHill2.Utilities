@@ -489,9 +489,11 @@ namespace ChuckHill2.LoggerEditor
             }
         }
 
-        [Category("Output"), Description("By default, logfile name is the same as appname with a '.log' extension - " +
-            "Relative or full filepath which may contain environment variables including pseudo-environment variables:" +
-            " ProcessName, ProcessId(as 4 hex digits), AppDomainName, and BaseDir. DateTime in filename is not supported.")]
+        [Category("Output"), Description("By default, logfile name is the same as appname with a '.log' extension appended - " +
+            "The filename is a relative or full filepath which may contain environment variables enclosed in '%' chars, including pseudo-environment " +
+            "variables: %ProcessName%, %ProcessId% (as 4 hex digits), %AppDomainName%, and %BaseDir%. BaseDir is the current AppDomain " +
+            "startup folder which may be different than the application startup folder as in ASP.NET. " +
+            "The filename or folder does not need to exist.")]
         [DefaultValue("")]
         [Editor(typeof(SaveLogNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public string Filename { get; set; } = "";
