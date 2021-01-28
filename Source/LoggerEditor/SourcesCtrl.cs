@@ -81,16 +81,7 @@ namespace ChuckHill2.LoggerEditor
             }
             set
             {
-                if (value == null)
-                {
-                    PrevNode = null;
-                    m_cmbName.Tag = null;
-                    m_clbListeners.Items.Clear();
-                    KnownSourceLevels.Clear();
-                    KnownSourceLevels.AddRange(Enum.GetNames(typeof(SourceLevels)));
-                    return;
-                }
-
+                if (value == null) { Clear(); return; }
                 if (value.Name != "sources") throw new ArgumentException("Node is not a <sources> node.");
                 PrevNode = value;
 
@@ -121,6 +112,19 @@ namespace ChuckHill2.LoggerEditor
                     item.Focused = true;
                 }
             }
+        }
+
+        public void Clear()
+        {
+            m_cmbName.Tag = null;
+            m_cmbName.Text = null;
+            m_clbListeners.Items.Clear();
+            m_lvSources.Items.Clear();
+            KnownSourceLevels.Clear();
+            KnownSourceLevels.AddRange(Enum.GetNames(typeof(SourceLevels)));
+            m_cmbSourceLevel.SelectedIndex = -1;
+            m_cmbSourceLevel.DataSource = KnownSourceLevels;
+            PrevNode = null;
         }
 
         public void ReplaceListeners(string[] listeners)

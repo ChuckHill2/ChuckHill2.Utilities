@@ -93,7 +93,8 @@ namespace ChuckHill2.LoggerEditor
             this.m_numIndentSize.Name = "m_numIndentSize";
             this.m_numIndentSize.Size = new System.Drawing.Size(69, 20);
             this.m_numIndentSize.TabIndex = 9;
-            this.toolTip1.SetToolTip(this.m_numIndentSize, "The number of spaces \r\nin an indent.");
+            this.toolTip1.SetToolTip(this.m_numIndentSize, "The number of spaces for a single indent of \r\nDebug messages as set by Debug.Inde" +
+        "nt() and \r\nDebug.Unindent().");
             this.m_numIndentSize.Value = new decimal(new int[] {
             4,
             0,

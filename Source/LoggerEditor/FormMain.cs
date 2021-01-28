@@ -35,6 +35,7 @@ namespace ChuckHill2.LoggerEditor
         public FormMain()
         {
             InitializeComponent();
+            HelpInit();
             m_btnCommit.Enabled = false;
 
             try
@@ -45,6 +46,7 @@ namespace ChuckHill2.LoggerEditor
                     m_appConfigFile.Text = Path.GetFullPath(args[1]);
                     LoadXDoc();
                 }
+                else LoadXDoc();
             }
             catch { }
         }
@@ -68,6 +70,11 @@ namespace ChuckHill2.LoggerEditor
             XmlDocument xdoc = new XmlDocument();
             SystemDiagnosticsWorkNode = null;
             IsDirty = false;
+
+            m_ListenersControl.Clear();
+            m_SwitchesControl.Clear();
+            m_SourcesControl.Clear();
+            m_TraceControl.Clear();
 
             if (string.IsNullOrWhiteSpace(m_appConfigFile.Text))
             {
@@ -119,7 +126,7 @@ namespace ChuckHill2.LoggerEditor
             m_SwitchesControl.Node = (XmlElement)xdoc.SelectSingleNode("/configuration/system.diagnostics/switches");
 
             m_SourcesControl.ReplaceListeners(m_ListenersControl.KnownListeners);  //update listeners list in SourceControl before populating.
-            m_SourcesControl.ReplaceSwitches(m_SwitchesControl.KnownSwitches);     //update switchgroups list in SourceControl before populating.
+            m_SourcesControl.ReplaceSwitches(m_SwitchesControl.KnownSwitches);     //update switches list in SourceControl before populating.
             m_SourcesControl.Node = (XmlElement)xdoc.SelectSingleNode("/configuration/system.diagnostics/sources");
 
             m_TraceControl.ReplaceListeners(m_ListenersControl.KnownListeners);    //update listeners list in traceControl before populating.
@@ -163,18 +170,7 @@ namespace ChuckHill2.LoggerEditor
                 using (XmlWriter writer = XmlWriter.Create(filename, ws))
                     XDoc.Save(writer);
 
-                //Cleanup for next file
-
                 IsDirty = false;
-                m_btnCommit.Enabled = false;
-                m_appConfigFile.Text = "";
-                m_ListenersControl.ListenerListChanged -= m_ListenersControl_ListenerListChanged;
-                m_SwitchesControl.SwitchesListChanged -= m_SwitchesControl_SwitchesListChanged;
-
-                m_TraceControl.Node = null;
-                m_SourcesControl.Node = null;
-                m_SwitchesControl.Node = null;
-                m_ListenersControl.Node = null;
             }
 
             //this.Close();  //User must click exit
@@ -282,6 +278,37 @@ namespace ChuckHill2.LoggerEditor
             }
 
             LoadXDoc();
+        }
+
+        private bool InTabControl = false;
+        private void HelpInit()
+        {
+            //Determine if the focus is in the Tab control vs anywhere else so we know which help file to pop up.
+            m_tcMain.Enter += (s, e) => InTabControl = true;
+            m_btnHelp.Leave += (s, e) => InTabControl = false;
+            this.Click += (s, e) => InTabControl = false;
+            foreach (Control c in this.Controls)
+            {
+                if (c == m_btnHelp) continue;
+                if (c == m_tcMain) continue;
+                c.Click += (s,e) => InTabControl = false;
+            }
+        }
+
+        private void m_btnHelp_Click(object sender, EventArgs e)
+        {
+            HelpPopup.HelpItem tab = HelpPopup.HelpItem.Main;
+
+            if (InTabControl)
+            {
+                if (m_tcMain.SelectedTab == m_tabTrace) tab = HelpPopup.HelpItem.Trace;
+                else if (m_tcMain.SelectedTab == m_tabSwitches) tab = HelpPopup.HelpItem.Switches;
+                else if (m_tcMain.SelectedTab == m_tabSources) tab = HelpPopup.HelpItem.Sources;
+                else if (m_tcMain.SelectedTab == m_tabListeners) tab = HelpPopup.HelpItem.SharedListeners;
+                else if (m_tcMain.SelectedTab == m_tabSwitches) tab = HelpPopup.HelpItem.Switches;
+            }
+
+            HelpPopup.Show(this, tab);
         }
 
         /// <summary>

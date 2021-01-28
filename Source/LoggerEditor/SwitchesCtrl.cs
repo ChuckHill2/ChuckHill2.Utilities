@@ -11,11 +11,11 @@ using ChuckHill2.Forms;
 
 namespace ChuckHill2.LoggerEditor
 {
-    public partial class SwitchGroupsCtrl : UserControl
+    public partial class SwitchesCtrl : UserControl
     {
         private XmlElement PrevNode;
 
-        public SwitchGroupsCtrl()
+        public SwitchesCtrl()
         {
             InitializeComponent();
 
@@ -61,14 +61,7 @@ namespace ChuckHill2.LoggerEditor
             }
             set
             {
-                if (value == null)
-                {
-                    SwitchList.Clear();
-                    m_gridBindingSource.DataSource = null;
-                    PrevNode = null;
-                    return;
-                }
-
+                if (value == null) { Clear(); return; }
                 if (value.Name != "switches") throw new ArgumentException("Node is not a <switches> node.");
                 PrevNode = value;
 
@@ -83,12 +76,12 @@ namespace ChuckHill2.LoggerEditor
 
                 //re-initialize grid with data.
 
-                // DataSource=ChuckHill2.LoggerEditor.SwitchGroupsCtrl  //Data class must be public
+                // DataSource=ChuckHill2.LoggerEditor.SwitchesCtrl  //Data class must be public
                 // Member="Groups"
                 // This works because 'this' has the public property 'Groups'. Property cannot have [Browsable(false)] attribute
                 m_gridBindingSource.DataSource = this;
 
-                // DataSource=ChuckHill2.LoggerEditor.SwitchGroupsCtrl+Data //Data class must be public
+                // DataSource=ChuckHill2.LoggerEditor.SwitchesCtrl+Data //Data class must be public
                 // Member=""
                 // This would also work fine. Groups may be private.
                 // m_gridBindingSource.DataSource = Groups;
@@ -98,6 +91,13 @@ namespace ChuckHill2.LoggerEditor
                 // Also cannot use Designer to configure columns.
                 // m_grid.DataSource = SwitchList;
             }
+        }
+
+        public void Clear()
+        {
+            SwitchList.Clear();
+            m_gridBindingSource.ResetBindings(false);
+            PrevNode = null;
         }
 
         //Handle grid errors/exceptions in a safe and sane fashion
@@ -140,7 +140,7 @@ namespace ChuckHill2.LoggerEditor
 
             if (KnownSeverities.Any(m=>m.EqualsI(newName)))
             {
-                MiniMessageBox.ShowDialog(m_grid, "Illegal Switch Group Name. Name cannot be the same as a severity level.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MiniMessageBox.ShowDialog(m_grid, "Illegal Switch Name. Name cannot be the same as a trace level.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 e.Cancel = true;
                 return;
             }
@@ -151,7 +151,7 @@ namespace ChuckHill2.LoggerEditor
                 var name = row.Cells[nameof(m_gridcolName)].Value?.ToString();
                 if (name.EqualsI(newName))
                 {
-                    MiniMessageBox.ShowDialog(m_grid, "Duplicate Switch Group Name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MiniMessageBox.ShowDialog(m_grid, "Duplicate Switch Name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     e.Cancel = true;
                     return;
                 }

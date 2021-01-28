@@ -34,19 +34,20 @@ namespace ChuckHill2.LoggerEditor
             this.m_btnExit = new System.Windows.Forms.Button();
             this.m_btnOpen = new System.Windows.Forms.Button();
             this.m_ttToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.m_btnHelp = new System.Windows.Forms.Button();
             this.m_appConfigFile = new ChuckHill2.LoggerEditor.LabeledTextBox();
             this.m_tcMain = new System.Windows.Forms.TabControl();
             this.m_tabListeners = new System.Windows.Forms.TabPage();
             this.m_ListenersControl = new ChuckHill2.LoggerEditor.ListenersCtrl();
-            this.m_tabSwitchGroups = new System.Windows.Forms.TabPage();
-            this.m_SwitchesControl = new ChuckHill2.LoggerEditor.SwitchGroupsCtrl();
+            this.m_tabSwitches = new System.Windows.Forms.TabPage();
+            this.m_SwitchesControl = new ChuckHill2.LoggerEditor.SwitchesCtrl();
             this.m_tabSources = new System.Windows.Forms.TabPage();
             this.m_SourcesControl = new ChuckHill2.LoggerEditor.SourcesCtrl();
             this.m_tabTrace = new System.Windows.Forms.TabPage();
             this.m_TraceControl = new ChuckHill2.LoggerEditor.TraceCtrl();
             this.m_tcMain.SuspendLayout();
             this.m_tabListeners.SuspendLayout();
-            this.m_tabSwitchGroups.SuspendLayout();
+            this.m_tabSwitches.SuspendLayout();
             this.m_tabSources.SuspendLayout();
             this.m_tabTrace.SuspendLayout();
             this.SuspendLayout();
@@ -69,7 +70,7 @@ namespace ChuckHill2.LoggerEditor
             // 
             this.m_btnExit.AccessibleDescription = "";
             this.m_btnExit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_btnExit.Location = new System.Drawing.Point(405, 425);
+            this.m_btnExit.Location = new System.Drawing.Point(407, 425);
             this.m_btnExit.Name = "m_btnExit";
             this.m_btnExit.Size = new System.Drawing.Size(75, 23);
             this.m_btnExit.TabIndex = 1;
@@ -91,6 +92,20 @@ namespace ChuckHill2.LoggerEditor
             this.m_btnOpen.UseVisualStyleBackColor = true;
             this.m_btnOpen.Click += new System.EventHandler(this.m_btnOpen_Click);
             // 
+            // m_btnHelp
+            // 
+            this.m_btnHelp.AccessibleDescription = "";
+            this.m_btnHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.m_btnHelp.Location = new System.Drawing.Point(11, 425);
+            this.m_btnHelp.Name = "m_btnHelp";
+            this.m_btnHelp.Size = new System.Drawing.Size(75, 23);
+            this.m_btnHelp.TabIndex = 10;
+            this.m_btnHelp.Text = "Help";
+            this.m_ttToolTip.SetToolTip(this.m_btnHelp, "Commit changes. Does not exit. If not \r\nmodified, this button does nothing. \r\nUse" +
+        " Exit button to exit.");
+            this.m_btnHelp.UseVisualStyleBackColor = true;
+            this.m_btnHelp.Click += new System.EventHandler(this.m_btnHelp_Click);
+            // 
             // m_appConfigFile
             // 
             this.m_appConfigFile.AllowDrop = true;
@@ -98,7 +113,6 @@ namespace ChuckHill2.LoggerEditor
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_appConfigFile.Location = new System.Drawing.Point(12, 14);
             this.m_appConfigFile.Name = "m_appConfigFile";
-            this.m_appConfigFile.ReadOnly = true;
             this.m_appConfigFile.Size = new System.Drawing.Size(448, 20);
             this.m_appConfigFile.TabIndex = 3;
             this.m_appConfigFile.TextLabel = "Select Application Config File...";
@@ -113,7 +127,7 @@ namespace ChuckHill2.LoggerEditor
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.m_tcMain.Controls.Add(this.m_tabListeners);
-            this.m_tcMain.Controls.Add(this.m_tabSwitchGroups);
+            this.m_tcMain.Controls.Add(this.m_tabSwitches);
             this.m_tcMain.Controls.Add(this.m_tabSources);
             this.m_tcMain.Controls.Add(this.m_tabTrace);
             this.m_tcMain.Location = new System.Drawing.Point(12, 41);
@@ -141,16 +155,16 @@ namespace ChuckHill2.LoggerEditor
             this.m_ListenersControl.Size = new System.Drawing.Size(458, 347);
             this.m_ListenersControl.TabIndex = 0;
             // 
-            // m_tabSwitchGroups
+            // m_tabSwitches
             // 
-            this.m_tabSwitchGroups.Controls.Add(this.m_SwitchesControl);
-            this.m_tabSwitchGroups.Location = new System.Drawing.Point(4, 22);
-            this.m_tabSwitchGroups.Name = "m_tabSwitchGroups";
-            this.m_tabSwitchGroups.Padding = new System.Windows.Forms.Padding(3);
-            this.m_tabSwitchGroups.Size = new System.Drawing.Size(464, 353);
-            this.m_tabSwitchGroups.TabIndex = 2;
-            this.m_tabSwitchGroups.Text = "SwitchGroups";
-            this.m_tabSwitchGroups.UseVisualStyleBackColor = true;
+            this.m_tabSwitches.Controls.Add(this.m_SwitchesControl);
+            this.m_tabSwitches.Location = new System.Drawing.Point(4, 22);
+            this.m_tabSwitches.Name = "m_tabSwitches";
+            this.m_tabSwitches.Padding = new System.Windows.Forms.Padding(3);
+            this.m_tabSwitches.Size = new System.Drawing.Size(464, 353);
+            this.m_tabSwitches.TabIndex = 2;
+            this.m_tabSwitches.Text = "Switches";
+            this.m_tabSwitches.UseVisualStyleBackColor = true;
             // 
             // m_SwitchesControl
             // 
@@ -206,6 +220,7 @@ namespace ChuckHill2.LoggerEditor
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(496, 460);
+            this.Controls.Add(this.m_btnHelp);
             this.Controls.Add(this.m_tcMain);
             this.Controls.Add(this.m_btnOpen);
             this.Controls.Add(this.m_appConfigFile);
@@ -220,7 +235,7 @@ namespace ChuckHill2.LoggerEditor
             this.Text = "Logger Editor";
             this.m_tcMain.ResumeLayout(false);
             this.m_tabListeners.ResumeLayout(false);
-            this.m_tabSwitchGroups.ResumeLayout(false);
+            this.m_tabSwitches.ResumeLayout(false);
             this.m_tabSources.ResumeLayout(false);
             this.m_tabTrace.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -238,12 +253,13 @@ namespace ChuckHill2.LoggerEditor
         private System.Windows.Forms.TabControl m_tcMain;
         private System.Windows.Forms.TabPage m_tabListeners;
         private System.Windows.Forms.TabPage m_tabTrace;
-        private System.Windows.Forms.TabPage m_tabSwitchGroups;
+        private System.Windows.Forms.TabPage m_tabSwitches;
         private System.Windows.Forms.TabPage m_tabSources;
         private ListenersCtrl m_ListenersControl;
-        private SwitchGroupsCtrl m_SwitchesControl;
+        private SwitchesCtrl m_SwitchesControl;
         private TraceCtrl m_TraceControl;
         private SourcesCtrl m_SourcesControl;
+        private System.Windows.Forms.Button m_btnHelp;
     }
 }
 

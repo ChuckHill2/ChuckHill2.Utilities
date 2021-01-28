@@ -66,6 +66,12 @@
     <Compile Include="FormatEditorCtrl.Designer.cs">
       <DependentUpon>FormatEditorCtrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="HelpPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HelpPopup.Designer.cs">
+      <DependentUpon>HelpPopup.cs</DependentUpon>
+    </Compile>
     <Compile Include="LabeledTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -94,11 +100,11 @@
     <Compile Include="SourcesCtrl.Designer.cs">
       <DependentUpon>SourcesCtrl.cs</DependentUpon>
     </Compile>
-    <Compile Include="SwitchGroupsCtrl.cs">
+    <Compile Include="SwitchesCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SwitchGroupsCtrl.Designer.cs">
-      <DependentUpon>SwitchGroupsCtrl.cs</DependentUpon>
+    <Compile Include="SwitchesCtrl.Designer.cs">
+      <DependentUpon>SwitchesCtrl.cs</DependentUpon>
     </Compile>
     <Compile Include="TraceCtrl.cs">
       <SubType>UserControl</SubType>
@@ -111,6 +117,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormatEditorCtrl.resx">
       <DependentUpon>FormatEditorCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HelpPopup.resx">
+      <DependentUpon>HelpPopup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ListenerChooser.resx">
       <DependentUpon>ListenerChooser.cs</DependentUpon>
@@ -136,8 +145,8 @@
     <EmbeddedResource Include="SourcesCtrl.resx">
       <DependentUpon>SourcesCtrl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SwitchGroupsCtrl.resx">
-      <DependentUpon>SwitchGroupsCtrl.cs</DependentUpon>
+    <EmbeddedResource Include="SwitchesCtrl.resx">
+      <DependentUpon>SwitchesCtrl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TraceCtrl.resx">
       <DependentUpon>TraceCtrl.cs</DependentUpon>
@@ -178,6 +187,11 @@
     <None Include="Resources\EventSchemaTraceListener.png" />
     <Content Include="Resources\favicon.ico" />
     <Content Include="Resources\Information.png" />
+    <EmbeddedResource Include="Resources\Help\Main.rtf" />
+    <EmbeddedResource Include="Resources\Help\SharedListeners.rtf" />
+    <EmbeddedResource Include="Resources\Help\Sources.rtf" />
+    <EmbeddedResource Include="Resources\Help\Switches.rtf" />
+    <EmbeddedResource Include="Resources\Help\Trace.rtf" />
     <None Include="Resources\minus16.png" />
     <Content Include="Resources\MsmqTraceListener.png" />
     <Content Include="Resources\Off.png" />

@@ -45,12 +45,7 @@ namespace ChuckHill2.LoggerEditor
             }
             set
             {
-                if (value == null)
-                {
-                    PrevNode = null;
-                    return;
-                }
-
+                if (value == null) { Clear(); return; }
                 if (value.Name != "trace") throw new ArgumentException("Node is not a <trace> node.");
                 PrevNode = value;
 
@@ -67,6 +62,14 @@ namespace ChuckHill2.LoggerEditor
                     m_clbListeners.SetItemChecked(index, true);
                 }
             }
+        }
+
+        public void Clear()
+        {
+            m_clbListeners.Items.Clear();
+            m_numIndentSize.Value = 4;
+            m_radAutoFlushNo.Checked = false;
+            PrevNode = null;
         }
 
         public void ReplaceListeners(string[] listeners)

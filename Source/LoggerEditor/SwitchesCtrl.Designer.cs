@@ -1,6 +1,6 @@
 namespace ChuckHill2.LoggerEditor
 {
-    partial class SwitchGroupsCtrl
+    partial class SwitchesCtrl
     {
         /// <summary> 
         /// Required designer variable.
@@ -33,10 +33,10 @@ namespace ChuckHill2.LoggerEditor
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.m_grid = new System.Windows.Forms.DataGridView();
-            this.m_gridcolName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.m_gridcolSourceLevel = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.m_gridBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.m_lblTrace = new ChuckHill2.Forms.GradientLabel();
+            this.m_gridcolName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.m_gridcolSourceLevel = new System.Windows.Forms.DataGridViewComboBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.m_grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_gridBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -97,6 +97,24 @@ namespace ChuckHill2.LoggerEditor
             this.m_grid.UserDeletedRow += new System.Windows.Forms.DataGridViewRowEventHandler(this.m_grid_UserDeletedRow);
             this.m_grid.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.m_grid_UserDeletingRow);
             // 
+            // m_gridBindingSource
+            // 
+            this.m_gridBindingSource.AllowNew = true;
+            this.m_gridBindingSource.DataMember = "Groups";
+            this.m_gridBindingSource.DataSource = typeof(ChuckHill2.LoggerEditor.SwitchesCtrl);
+            // 
+            // m_lblTrace
+            // 
+            this.m_lblTrace.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.m_lblTrace.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.SystemColors.ControlDark, System.Drawing.Color.Transparent, ChuckHill2.Forms.GradientStyle.Horizontal, false);
+            this.m_lblTrace.Location = new System.Drawing.Point(3, 3);
+            this.m_lblTrace.Name = "m_lblTrace";
+            this.m_lblTrace.Size = new System.Drawing.Size(507, 23);
+            this.m_lblTrace.TabIndex = 1;
+            this.m_lblTrace.Text = " Switch Properties";
+            this.m_lblTrace.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // m_gridcolName
             // 
             this.m_gridcolName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
@@ -104,7 +122,7 @@ namespace ChuckHill2.LoggerEditor
             this.m_gridcolName.HeaderText = "Name";
             this.m_gridcolName.MinimumWidth = 103;
             this.m_gridcolName.Name = "m_gridcolName";
-            this.m_gridcolName.ToolTipText = "Switch group name";
+            this.m_gridcolName.ToolTipText = "Unique switch name";
             this.m_gridcolName.Width = 103;
             // 
             // m_gridcolSourceLevel
@@ -119,34 +137,15 @@ namespace ChuckHill2.LoggerEditor
             this.m_gridcolSourceLevel.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.m_gridcolSourceLevel.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             this.m_gridcolSourceLevel.ToolTipText = "Select a severity level. Note severity levels are cumulative\\n(e.g. Error=Errors " +
-    "only, Warning=Errors+Warnings, etc).\\nUse Right-click to change multiple rows at" +
-    " one time.";
+    "only, Warning=Errors+Warnings, etc).";
             // 
-            // m_gridBindingSource
-            // 
-            this.m_gridBindingSource.AllowNew = true;
-            this.m_gridBindingSource.DataMember = "Groups";
-            this.m_gridBindingSource.DataSource = typeof(ChuckHill2.LoggerEditor.SwitchGroupsCtrl);
-            // 
-            // m_lblTrace
-            // 
-            this.m_lblTrace.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_lblTrace.BackgroundGradient = new ChuckHill2.Forms.GradientBrush(null, System.Drawing.SystemColors.ControlDark, System.Drawing.Color.Transparent, ChuckHill2.Forms.GradientStyle.Horizontal, false);
-            this.m_lblTrace.Location = new System.Drawing.Point(3, 3);
-            this.m_lblTrace.Name = "m_lblTrace";
-            this.m_lblTrace.Size = new System.Drawing.Size(507, 23);
-            this.m_lblTrace.TabIndex = 1;
-            this.m_lblTrace.Text = " Switch Groups";
-            this.m_lblTrace.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // SwitchGroupsCtrl
+            // SwitchesCtrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.m_lblTrace);
             this.Controls.Add(this.m_grid);
-            this.Name = "SwitchGroupsCtrl";
+            this.Name = "SwitchesCtrl";
             this.Size = new System.Drawing.Size(513, 421);
             ((System.ComponentModel.ISupportInitialize)(this.m_grid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_gridBindingSource)).EndInit();
@@ -158,8 +157,8 @@ namespace ChuckHill2.LoggerEditor
 
         private System.Windows.Forms.DataGridView m_grid;
         private System.Windows.Forms.BindingSource m_gridBindingSource;
+        private Forms.GradientLabel m_lblTrace;
         private System.Windows.Forms.DataGridViewTextBoxColumn m_gridcolName;
         private System.Windows.Forms.DataGridViewComboBoxColumn m_gridcolSourceLevel;
-        private Forms.GradientLabel m_lblTrace;
     }
 }

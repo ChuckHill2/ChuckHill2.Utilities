@@ -34,9 +34,9 @@ namespace ChuckHill2.LoggerEditor
             this.m_btnAddListener = new System.Windows.Forms.Button();
             this.m_lvListeners = new System.Windows.Forms.ListView();
             this.m_ctxListeners = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.m_ctxListeners.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -89,7 +89,7 @@ namespace ChuckHill2.LoggerEditor
             this.toolTip1.SetToolTip(this.m_lvListeners, "List of available output destinations\r\nthat a source may write to. Right-\r\nclick " +
         "context menu to add and remove.");
             this.m_lvListeners.UseCompatibleStateImageBehavior = false;
-            this.m_lvListeners.View = System.Windows.Forms.View.SmallIcon;
+            this.m_lvListeners.View = System.Windows.Forms.View.List;
             this.m_lvListeners.SelectedIndexChanged += new System.EventHandler(this.m_lvListeners_SelectedIndexChanged);
             // 
             // m_ctxListeners
@@ -98,13 +98,13 @@ namespace ChuckHill2.LoggerEditor
             this.addToolStripMenuItem,
             this.removeToolStripMenuItem});
             this.m_ctxListeners.Name = "m_ctxListeners";
-            this.m_ctxListeners.Size = new System.Drawing.Size(181, 70);
+            this.m_ctxListeners.Size = new System.Drawing.Size(118, 48);
             // 
             // addToolStripMenuItem
             // 
             this.addToolStripMenuItem.Image = global::ChuckHill2.LoggerEditor.Properties.Resources.plus16;
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.addToolStripMenuItem.Text = "Add";
             this.addToolStripMenuItem.ToolTipText = "Add a new blank \r\noutput destination.\r\n";
             this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
@@ -113,7 +113,7 @@ namespace ChuckHill2.LoggerEditor
             // 
             this.removeToolStripMenuItem.Image = global::ChuckHill2.LoggerEditor.Properties.Resources.minus16;
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.ToolTipText = "Remove the current output destination. \r\nYou will be asked to verify.";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);

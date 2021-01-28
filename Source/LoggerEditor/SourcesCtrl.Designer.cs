@@ -61,7 +61,7 @@ namespace ChuckHill2.LoggerEditor
             this.m_ToolTip.SetToolTip(this.m_lvSources, "List of available logging sources the \r\nlogging API may write to. Right-click \r\nc" +
         "ontext menu to add and remove.");
             this.m_lvSources.UseCompatibleStateImageBehavior = false;
-            this.m_lvSources.View = System.Windows.Forms.View.SmallIcon;
+            this.m_lvSources.View = System.Windows.Forms.View.List;
             this.m_lvSources.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.m_lvSources_ItemSelectionChanged);
             // 
             // m_ctxSources
