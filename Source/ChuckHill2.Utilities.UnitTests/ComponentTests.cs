@@ -95,8 +95,8 @@ namespace ChuckHill2.UnitTests
                     //fm3.AscentPixels == 0 &&
                     //fm3.DescentPixels == 0 &&
                     fm3.CellHeightPixels == 12 &&
-                    fm3.InternalLeadingPixels == 3 &&
-                    fm3.LineSpacingPixels == 0
+                    fm3.InternalLeadingPixels == 4 &&
+                    fm3.LineSpacingPixels == 1
                     //fm3.ExternalLeadingPixels == 0
                     , "ImageFontMetrics values are incorrect.");
             }

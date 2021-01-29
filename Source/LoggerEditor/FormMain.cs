@@ -58,7 +58,7 @@ namespace ChuckHill2.LoggerEditor
             get
             {
                 if (!__isDirty && SystemDiagnosticsWorkNode != null)
-                    __isDirty = !XmlEquals(SystemDiagnosticsWorkNode, (XmlElement)XDoc.SelectSingleNode("/configuration/system.diagnostics"));
+                    __isDirty = !Tool.XmlEquals(SystemDiagnosticsWorkNode, (XmlElement)XDoc.SelectSingleNode("/configuration/system.diagnostics"));
 
                 return __isDirty;
             }
@@ -309,70 +309,6 @@ namespace ChuckHill2.LoggerEditor
             }
 
             HelpPopup.Show(this, tab);
-        }
-
-        /// <summary>
-        /// Recursivly compare 2 XML elements for equality.
-        /// </summary>
-        /// <param name="primary">First XmlElement to compare.</param>
-        /// <param name="secondary">Second XmlElement to compare.</param>
-        /// <remarks>
-        ///   • Attributes are not order dependent, however child XmlElement nodes are.
-        ///   • Only XmlElement, XmlText, and XmlAttribute nodes are compared. Other XmlNode types are ignored.
-        ///   • Comparison of XmlAttribute and XmlText content is case-insensitive.
-        /// </remarks>
-        /// <returns>True if equal</returns>
-        public static bool XmlEquals(XmlElement primary, XmlElement secondary)
-        {
-            if (primary.HasAttributes)
-            {
-                if (primary.Attributes.Count != secondary.Attributes.Count) return false;
-                foreach (XmlAttribute attr in primary.Attributes)
-                {
-                    if (secondary.Attributes[attr.Name] == null) return false;
-                    if (!attr.Value.EqualsI(secondary.Attributes[attr.Name].Value)) return false;
-                }
-            }
-
-            if (primary.HasChildNodes)
-            {
-                var e1 = primary.ChildNodes.OfType<XmlNode>().GetEnumerator();
-                var e2 = secondary.ChildNodes.OfType<XmlNode>().GetEnumerator();
-
-                while(e1.MoveNext())
-                {
-                    if (e1.Current.NodeType != XmlNodeType.Text && e1.Current.NodeType != XmlNodeType.Element) continue;
-                    if (e1.Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e1.Current.Value)) continue; //ignore empty whitespace text elements.
-                    while (e2.MoveNext())
-                    {
-                        if (e2.Current.NodeType != XmlNodeType.Text && e2.Current.NodeType != XmlNodeType.Element) continue;
-                        if (e2.Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2.Current.Value)) continue; //ignore empty whitespace text elements.
-                        break;
-                    }
-                    if (e2.Current == null) return false; //secondary node tree too short.
-
-                    if (e1.Current.NodeType == XmlNodeType.Text && e2.Current.NodeType != XmlNodeType.Text) return false;
-                    if (e1.Current.NodeType != XmlNodeType.Text && e2.Current.NodeType == XmlNodeType.Text) return false;
-                    if (e1.Current.NodeType == XmlNodeType.Text && e2.Current.NodeType == XmlNodeType.Text)
-                    {
-                         if (!e1.Current.Value.Squeeze().EqualsI(e2.Current.Value.Squeeze())) return false;
-                    }
-
-                    if (e1.Current.Name != e2.Current.Name) return false;
-
-                    if (!XmlEquals((XmlElement)e1.Current, (XmlElement)e2.Current)) return false;
-                }
-
-                while (e2.MoveNext())
-                {
-                    if (e2.Current.NodeType != XmlNodeType.Text && e2.Current.NodeType != XmlNodeType.Element) continue;
-                    if (e2.Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2.Current.Value)) continue;
-                    break;
-                }
-                if (e2.Current != null) return false; //still more elements in secondary node tree.
-            }
-
-            return true;
         }
     }
 }

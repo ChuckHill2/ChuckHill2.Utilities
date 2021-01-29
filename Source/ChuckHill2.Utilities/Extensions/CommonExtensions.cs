@@ -666,7 +666,7 @@ namespace ChuckHill2.Extensions
         }
     }
 
-    public static class GDI
+    public static class GDIExtensions
     {
         /// <summary>
         /// Draw a rectangle with rounded corners.
@@ -727,70 +727,6 @@ namespace ChuckHill2.Extensions
             gp.AddLine(bounds.X, bounds.Y + bounds.Height - dia, bounds.X, bounds.Y + dia / 2);
 
             graphics.FillPath(brush, gp);
-        }
-
-        [DllImport("Shell32.dll")] private static extern int SHDefExtractIconW([MarshalAs(UnmanagedType.LPWStr)] string pszIconFile, int iIndex, int uFlags, out IntPtr phiconLarge, /*out*/ IntPtr phiconSmall, int nIconSize);
-        /// <summary>Returns an icon of the specified size that is contained in the specified file.</summary>
-        /// <param name="filePath">The path to the file that contains the icon.</param>
-        /// <param name="size">Size of icon to retrieve.</param>
-        /// <returns>The Icon representation of the image that is contained in the specified file. Must be disposed after use.</returns>
-        /// <exception cref="System.ArgumentException">The parameter filePath does not indicate a valid file.-or- indicates a Universal Naming Convention (UNC) path.</exception>
-        /// <remarks>
-        /// Icons files contain multiple sizes and bit-depths of an image ranging from 16x16 to 256x256 in multiples of 8. Example: 16x16, 24x24, 32x32, 48x48, 64x64, 96x96, 128*128, 256*256.
-        /// Icon.ExtractAssociatedIcon(filePath), retrieves only the 32x32 icon, period. This method will use the icon image that most closely matches the specified size and then resizes it to fit the specified size.
-        /// </remarks>
-        /// <see cref="https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw"/>
-        /// <see cref="https://devblogs.microsoft.com/oldnewthing/20140501-00/?p=1103"/>
-        public static Icon ExtractAssociatedIcon(string filePath, int size)
-        {
-            const int SUCCESS = 0;
-            IntPtr hIcon;
-
-            if (SHDefExtractIconW(filePath, 0, 0, out hIcon, IntPtr.Zero, size) == SUCCESS)
-            {
-                return Icon.FromHandle(hIcon);
-            }
-
-            return null;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MARGINS
-        {
-            public int leftWidth;
-            public int rightWidth;
-            public int topHeight;
-            public int bottomHeight;
-        }
-        [DllImport("dwmapi.dll")] private static extern int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
-        [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
-        /// <summary>
-        /// Enable dropshadow to a borderless form. Unlike forms with borders, forms with FormBorderStyle.None have no dropshadow. 
-        /// </summary>
-        /// <param name="form">Borderless form to add dropshadow to. Must be called AFTER form handle has been created. see Form.Created or Form.Shown events.</param>
-        /// <exception cref="InvalidOperationException">Must be called AFTER the form handle has been created.</exception>
-        /// <see cref="https://stackoverflow.com/questions/60913399/border-less-winform-form-shadow/60916421#60916421"/>
-        /// <remarks>
-        /// This method does nothing if the form does not have FormBorderStyle.None.
-        /// </remarks>
-        public static void ApplyShadows(Form form)
-        {
-            if (form.FormBorderStyle != FormBorderStyle.None) return;
-            if (Environment.OSVersion.Version.Major < 6) return;
-            if (!form.IsHandleCreated) throw new InvalidOperationException("Must be called AFTER the form handle has been created.");
-
-            var v = 2;
-            DwmSetWindowAttribute(form.Handle, 2, ref v, 4);
-
-            MARGINS margins = new MARGINS()
-            {
-                bottomHeight = 1,
-                leftWidth = 0,
-                rightWidth = 1,
-                topHeight = 0
-            };
-
-            DwmExtendFrameIntoClientArea(form.Handle, ref margins);
         }
     }
 
@@ -931,7 +867,7 @@ namespace ChuckHill2.Extensions
         }
     }
 
-    public static class MathEx
+    public static class IntExtensions
     {
         /// <summary>
         /// Convert a byte count numeric value into a formatted string with units. 
@@ -953,40 +889,6 @@ namespace ChuckHill2.Extensions
             if (v < (1024 * 1024 * 1024 * 1024m * 1024m)) return (d / (1024.0m * 1024.0m * 1024.0m * 1024.0m)).ToString(szPrecision + " TB"); //terabyte
             if (v < (1024 * 1024 * 1024 * 1024m * 1024m * 1024m)) return (d / (1024.0m * 1024.0m * 1024.0m * 1024.0m * 1024.0m)).ToString(szPrecision + " PB"); //petabyte
             return (d / (1024.0m * 1024.0m * 1024.0m * 1024.0m * 1024.0m * 1024.0m)).ToString(szPrecision + " EB"); //exabyte -- max 64bit int == 18.4 exabytes.
-        }
-
-        /// <summary>
-        /// Get the minimum value of 2 or more values
-        /// </summary>
-        /// <typeparam name="T">Type of objects to compare</typeparam>
-        /// <param name="vals">2 or more values</param>
-        /// <returns>Minimum value.</returns>
-        public static T Min<T>(params T[] vals)
-        {
-            T v = vals[0];
-            for (int i = 1; i < vals.Length; i++)
-            {
-                if (Comparer<T>.Default.Compare(vals[i], v) < 0) v = vals[i];
-            }
-
-            return v;
-        }
-
-        /// <summary>
-        /// Get the maximum value of 2 or more values
-        /// </summary>
-        /// <typeparam name="T">Type of objects to compare</typeparam>
-        /// <param name="vals">2 or more values</param>
-        /// <returns>Maximum value.</returns>
-        public static T Max<T>(params T[] vals)
-        {
-            T v = vals[0];
-            for (int i = 1; i < vals.Length; i++)
-            {
-                if (Comparer<T>.Default.Compare(vals[i], v) > 0) v = vals[i];
-            }
-
-            return v;
         }
     }
 

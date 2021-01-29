@@ -6,7 +6,6 @@ using System.Threading;
 using System.Windows.Forms;
 
 #pragma warning disable 618 //warning CS0618: 'System.Threading.Thread.Suspend()' is obsolete: 'Thread.Suspend has been deprecated.  Please use other classes in System.Threading, such as Monitor, Mutex, Event, and Semaphore, to synchronize Threads or protect resources.  http://go.microsoft.com/fwlink/?linkid=14202'
-#warning Logging needs repair
 
 namespace ChuckHill2
 #pragma warning restore CS1030 // #warning directive
@@ -17,7 +16,7 @@ namespace ChuckHill2
     /// </summary>
     public static class InactivityTimer //: IDisposable --but Dispose() exists anyway. This static object may be reused.
     {
-        private static Int32 _timeoutDuration = 30 * 60 * 1000; //milliseconds. default == 30 minutes. Same as PandoraSecurityProvider.SlidingSessionExpirationInMinutes
+        private static Int32 _timeoutDuration = 30 * 60 * 1000; //milliseconds. default == 30 minutes.
         private static Int32 _pollingPeriod = (Int32)(_timeoutDuration * 0.10); //10% of duration
         private static Thread _pollingThread = null;
         private static AutoResetEvent _exitEvent = null;
@@ -55,7 +54,7 @@ namespace ChuckHill2
             {
                 _timeoutDuration = value * 60000;
                 _pollingPeriod = (Int32)(_timeoutDuration * 0.10); //10% of duration
-                DebugWrite("Pandora: InactivityTimer.TimeoutDuration({0:00},{1:00}:{2:00})", value, _pollingPeriod / 60000, (_pollingPeriod/1000)%60);
+                DebugWrite("InactivityTimer.TimeoutDuration({0:00},{1:00}:{2:00})", value, _pollingPeriod / 60000, (_pollingPeriod/1000)%60);
             }
         }
 
@@ -79,7 +78,7 @@ namespace ChuckHill2
         public static void Start()
         {
             if (_pollingThread != null) return;
-            DebugWrite("Pandora: InactivityTimer.Start()");
+            DebugWrite("InactivityTimer.Start()");
             _suspended = false;
             InitIdleReset(true); //enable low-level mouse polling
             _exitEvent = new AutoResetEvent(false);
@@ -98,7 +97,7 @@ namespace ChuckHill2
         {
             InitIdleReset(false); //disables and deallocates low-level mouse polling
             if (_pollingThread == null) return;
-            DebugWrite("Pandora: InactivityTimer.Stop()");
+            DebugWrite("InactivityTimer.Stop()");
             _exitEvent.Set();
             _pollingThread.Join(3000);
             if (_pollingThread.IsAlive) _pollingThread.Abort();
@@ -113,7 +112,7 @@ namespace ChuckHill2
         /// </summary>
         public static void Suspend()
         {
-            DebugWrite("Pandora: InactivityTimer.Suspend()");
+            DebugWrite("InactivityTimer.Suspend()");
 
             //Thread.Suspend() actually freezes the thread, including any callbacks. 
             //This is problematic if this is called within the callback because 
@@ -125,7 +124,7 @@ namespace ChuckHill2
         /// </summary>
         public static void Resume()
         {
-            DebugWrite("Pandora: InactivityTimer.Resume()");
+            DebugWrite("InactivityTimer.Resume()");
             InactivityTimer.Start();
             _suspended = false;
         }
@@ -135,7 +134,7 @@ namespace ChuckHill2
         /// </summary>
         public static void Dispose()
         {
-            DebugWrite("Pandora: InactivityTimer.Dispose()");
+            DebugWrite("InactivityTimer.Dispose()");
             Stop();
             if (Heartbeat != null)
             {
@@ -169,18 +168,18 @@ namespace ChuckHill2
                     if (Heartbeat != null)
                         try 
                         { 
-                            DebugWrite("Pandora: InactivityTimer.Heartbeat({0},{1},{2})", idleDuration, hasBeatActivity, timedOut);
+                            DebugWrite("InactivityTimer.Heartbeat({0},{1},{2})", idleDuration, hasBeatActivity, timedOut);
                             Heartbeat(idleDuration, hasBeatActivity, timedOut);
                         }
-                        catch(Exception ex)
+                        catch(Exception)
                         {
-//                            LOG.Warning(ex,"Pandora: InactivityTimer.Heartbeat handler threw an error. Ignoring.");
+                            DebugWrite("Warning: InactivityTimer.Heartbeat handler threw an error. Ignoring.");
                         }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-//                LOG.Error(ex,"Pandora: InactivityTimer polling thread terminated unexpectedly.");
+                DebugWrite("Error: InactivityTimer polling thread terminated unexpectedly.");
             }
         }
 
@@ -279,16 +278,16 @@ namespace ChuckHill2
             {
                 case WM_SETFOCUS:
                     _focused = true;
-                    DebugWrite("Pandora: WM_SETFOCUS(0x{0:X8}) Activitated={1} Focused={2}",m.wParam, _active, _focused);
+                    DebugWrite("WM_SETFOCUS(0x{0:X8}) Activitated={1} Focused={2}",m.wParam, _active, _focused);
                     break;
                 case WM_KILLFOCUS:
                     _focused = false;
-                    DebugWrite("Pandora: WM_KILLFOCUS(0x{0:X8}) Activitated={1} Focused={2}", m.wParam, _active, _focused);
+                    DebugWrite("WM_KILLFOCUS(0x{0:X8}) Activitated={1} Focused={2}", m.wParam, _active, _focused);
                     break;
                 case WM_ACTIVATEAPP:
                 case WM_ACTIVATE:
                     _active = ((m.wParam.ToInt32()&0xFFFF) != 0);
-                    DebugWrite("Pandora: WM_ACTIVATE Activitated={0} Focused={1}", _active, _focused);
+                    DebugWrite("WM_ACTIVATE Activitated={0} Focused={1}", _active, _focused);
                     break;
             }
             return CallNextHookEx(_hActiveHook, nCode, wParam, lParam);
@@ -304,7 +303,7 @@ namespace ChuckHill2
                     if (_active && _focused)
                     {
                         IdleTime = GetTickCount();
-                        DebugWrite("Pandora: InactivityTimer.InputHookProc(WM_MOUSEMOVE)");
+                        DebugWrite("InactivityTimer.InputHookProc(WM_MOUSEMOVE)");
                     }
                     break;
                 //Cannot use WM_KEYUP because when running in a remote RDP client, this routine recieves 
@@ -313,7 +312,7 @@ namespace ChuckHill2
                 //    if (_active && _focused)
                 //    {
                 //        IdleTime = GetTickCount();
-                //        DebugWrite("Pandora: InactivityTimer.InputHookProc(WM_KEYUP={0})", TranslateVK_KEY(m.wParam.ToInt32()));
+                //        DebugWrite("InactivityTimer.InputHookProc(WM_KEYUP={0})", TranslateVK_KEY(m.wParam.ToInt32()));
                 //    }
                 //    break;
             }
@@ -332,9 +331,9 @@ namespace ChuckHill2
                 if (_hActiveHook != IntPtr.Zero) return;
                 #pragma warning disable 0618  //we need the REAL threadID for Win32, not the bogus one .NET generates
                 _hActiveHook = SetWindowsHookEx(WH_CALLWNDPROCRET, _activeHookProc, IntPtr.Zero, AppDomain.GetCurrentThreadId());
-//                if (_hActiveHook == IntPtr.Zero) LOG.Error("Pandora: InactivityTimer.SetWindowsHookEx(WH_CALLWNDPROCRET) failed.\n{0}", GetHResultMessage());
+                if (_hActiveHook == IntPtr.Zero) DebugWrite("Error: InactivityTimer.SetWindowsHookEx(WH_CALLWNDPROCRET) failed.\n{0}", GetHResultMessage());
                 _hInputHook = SetWindowsHookEx(WH_GETMESSAGE, _inputHookProc, IntPtr.Zero, AppDomain.GetCurrentThreadId());
-//                if (_hInputHook == IntPtr.Zero) LOG.Error("Pandora: InactivityTimer.SetWindowsHookEx(WH_GETMESSAGE) failed.\n{0}", GetHResultMessage());
+                if (_hInputHook == IntPtr.Zero) DebugWrite("Error: InactivityTimer.SetWindowsHookEx(WH_GETMESSAGE) failed.\n{0}", GetHResultMessage());
                 #pragma warning restore 0618
             }
             else

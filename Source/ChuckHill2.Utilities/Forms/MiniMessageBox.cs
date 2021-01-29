@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using ChuckHill2.Extensions;  //needed for GDI.ExtractAssociatedIcon() and GDI.ApplyShadows()
+using ChuckHill2;  //needed for GDI.ExtractAssociatedIcon() and GDI.ApplyShadows()
 
 namespace ChuckHill2.Forms
 {

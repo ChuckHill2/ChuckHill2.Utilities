@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ChuckHill2
 {
@@ -365,6 +366,24 @@ namespace ChuckHill2
             int heightInPixels = bitmapData.Height;
             int widthInBytes = bitmapData.Width * bytesPerPixel;
             processedBitmap.UnlockBits(bitmapData);
+
+            //var sb = new StringBuilder();
+            //for(int i=3,w=0; i<pixels.Length; i += 4,w++)
+            //{
+            //    if ((w % bitmapData.Width) == 0) sb.AppendLine();
+            //    sb.Append(pixels[i] == 0 ? "0" : "1");
+            //    w++;
+            //}
+            //var result1 = sb.ToString();
+            //sb.Length = 0;
+            //for (int i = 0, w = 0; i < pixels.Length; i += 4, w++)
+            //{
+            //    if ((w % bitmapData.Width) == 0) sb.AppendLine();
+            //    var m = MathEx.Max(pixels[i+0], pixels[i+1], pixels[i + 2], pixels[i + 3]);
+            //    sb.Append(m == 0 ? "0" : "1");
+            //    w++;
+            //}
+            //var result2 = sb.ToString();
 
             int top = -1, bottom = -1, left = -1, right = -1;
 

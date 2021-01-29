@@ -107,8 +107,8 @@ namespace ChuckHill2.UnitTests
         {
             using (TextReader tr = new StringReader(TestData.Json))
             {
-                var page1 = Cast.JsonToModels<DataModel>(tr);
-                var page2 = Cast.JsonToModels<DataModel2>(tr);
+                var page1 = tr.JsonToModels<DataModel>();
+                var page2 = tr.JsonToModels<DataModel2>();
 
                 Assert.IsTrue(TestData.ArrayOfModels[0].OfType<DataModel>().ToArray().SequenceEqual(page1));
                 Assert.IsTrue(TestData.ArrayOfModels[1].OfType<DataModel2>().ToArray().SequenceEqual(page2));
@@ -120,8 +120,8 @@ namespace ChuckHill2.UnitTests
         {
             using (TextReader tr = new StringReader(TestData.JsonIndented))
             {
-                var page1 = Cast.JsonToModels<DataModel>(tr);
-                var page2 = Cast.JsonToModels<DataModel2>(tr);
+                var page1 = tr.JsonToModels<DataModel>();
+                var page2 = tr.JsonToModels<DataModel2>();
 
                 Assert.IsTrue(TestData.ArrayOfModels[0].OfType<DataModel>().ToArray().SequenceEqual(page1));
                 Assert.IsTrue(TestData.ArrayOfModels[1].OfType<DataModel2>().ToArray().SequenceEqual(page2));
@@ -280,6 +280,5 @@ namespace ChuckHill2.UnitTests
             if (e2.MoveNext()) return false;
             return true;
         }
-
     }
 }
