@@ -66,6 +66,8 @@ namespace ChuckHill2.LoggerEditor
                 var sb = new StringBuilder();
                 foreach (var prop in m_lvSources.Items.Cast<ListViewItem>().Select(m=>(SourceItem)m.Tag))
                 {
+                    prop.XmlComments.ForEach((c) => sb.Append(c.OuterXml));
+
                     var attrName = Enum.TryParse<SourceLevels>(prop.SourceLevel, out var dummy) ? "switchValue" : "switchName";
                     sb.Append($"<source name=\"{prop.Name}\" {attrName}=\"{prop.SourceLevel}\"><listeners>");
                     if (prop.Listeners.Count > 0) sb.Append("<clear/>");
@@ -88,6 +90,15 @@ namespace ChuckHill2.LoggerEditor
                 foreach (XmlElement source in value.SelectNodes("source"))
                 {
                     var item = new SourceItem();
+
+                    //Save xml comments in order to restore them
+                    XmlNode n = source.PreviousSibling;
+                    while (n is XmlComment)
+                    {
+                        item.XmlComments.Insert(0, (XmlComment)n);
+                        n = n.PreviousSibling;
+                    }
+
                     item.Name = source.Attributes["name"]?.Value ?? "UNKNOWN";
                     item.SourceLevel = source.Attributes["switchValue"]?.Value ?? source.Attributes["switchName"]?.Value ?? SourceLevels.Off.ToString();
 
@@ -294,6 +305,8 @@ namespace ChuckHill2.LoggerEditor
         public class SourceItem
         {
             public event PropertyChangingEventHandler<string> NamePropertyChanging;
+
+            public List<XmlComment> XmlComments { get; } = new List<XmlComment>(); //preserve XML comments
 
             private string __name = "";
             public string Name

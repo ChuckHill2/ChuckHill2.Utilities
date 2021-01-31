@@ -49,9 +49,10 @@ namespace ChuckHill2.LoggerEditor
                 if (PrevNode == null) return null;
 
                 var sb = new StringBuilder();
-                foreach (Data kv in m_gridBindingSource.List)
+                foreach (Data item in m_gridBindingSource.List)
                 {
-                    sb.AppendFormat($"<add name=\"{kv.Name}\" value=\"{kv.SourceLevel}\"/>");
+                    item.XmlComments.ForEach((c) => sb.Append(c.OuterXml));
+                    sb.AppendFormat($"<add name=\"{item.Name}\" value=\"{item.SourceLevel}\"/>");
                 }
 
                 var node = xdoc.CreateElement("switches");
@@ -71,7 +72,17 @@ namespace ChuckHill2.LoggerEditor
                     var val = node.Attributes["value"]?.Value;
                     if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(val)) continue;
                     if (!Enum.TryParse<SourceLevels>(val, true, out var e)) continue;
-                    SwitchList.Add(new Data(name, e));
+
+                    var item = new Data(name, e);
+                    //Save xml comments in order to restore them
+                    XmlNode n = node.PreviousSibling;
+                    while (n is XmlComment)
+                    {
+                        item.XmlComments.Insert(0, (XmlComment)n);
+                        n = n.PreviousSibling;
+                    }
+
+                    SwitchList.Add(item);
                 }
 
                 //re-initialize grid with data.
@@ -164,6 +175,8 @@ namespace ChuckHill2.LoggerEditor
 
         public class Data //m_grid Item-Row. Each property represents Columns
         {
+            public List<XmlComment> XmlComments { get; } = new List<XmlComment>(); //preserve XML comments
+
             private string __name = ""; //see m_grid_DefaultValuesNeeded() for defult value.
             public string Name
             {

@@ -83,8 +83,8 @@ namespace ChuckHill2
 
             return resultExpr.Compile(); //(cache) => System.String.Format(formatString, args.ToArray());
         }
-        private static Regex InterpolationParser = new Regex(@"\{([^\{\}:]+)[:\}]", RegexOptions.Compiled);
-        private static MethodInfo StringFormatMethod = typeof(string).GetMethod("Format", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(object[]) }, null);
+        private static readonly Regex InterpolationParser = new Regex(@"\{([^\{\}:]+)[:\}]", RegexOptions.Compiled);
+        private static readonly MethodInfo StringFormatMethod = typeof(string).GetMethod("Format", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(object[]) }, null);
 
         /// <summary>
         /// Recursivly compare 2 XML elements for equality.
@@ -113,38 +113,43 @@ namespace ChuckHill2
             {
                 var e1 = primary.ChildNodes.OfType<XmlNode>().GetEnumerator();
                 var e2 = secondary.ChildNodes.OfType<XmlNode>().GetEnumerator();
+                XmlNode e1Current;
+                XmlNode e2Current;
 
-                while (e1.MoveNext())
+                //Note: When e1.MoveNext()==false, e1.Current still contains the last value. We need it to be a non-value, aka null.
+
+                while ((e1Current = e1.MoveNext() ? e1.Current : null) != null)
                 {
-                    if (e1.Current.NodeType != XmlNodeType.Text && e1.Current.NodeType != XmlNodeType.Element) continue;
-                    if (e1.Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e1.Current.Value)) continue; //ignore empty whitespace text elements.
-                    while (e2.MoveNext())
+                    if (e1Current.NodeType != XmlNodeType.Text && e1Current.NodeType != XmlNodeType.Element) continue;
+                    if (e1Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e1Current.Value)) continue; //ignore empty whitespace text elements.
+                    while ((e2Current = e2.MoveNext() ? e2.Current : null) != null)
                     {
-                        if (e2.Current.NodeType != XmlNodeType.Text && e2.Current.NodeType != XmlNodeType.Element) continue;
-                        if (e2.Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2.Current.Value)) continue; //ignore empty whitespace text elements.
+                        if (e2Current.NodeType != XmlNodeType.Text && e2Current.NodeType != XmlNodeType.Element) continue;
+                        if (e2Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2Current.Value)) continue; //ignore empty whitespace text elements.
                         break;
                     }
-                    if (e2.Current == null) return false; //secondary node tree too short.
+                    if (e2Current == null) return false; //secondary node tree too short.
 
-                    if (e1.Current.NodeType == XmlNodeType.Text && e2.Current.NodeType != XmlNodeType.Text) return false;
-                    if (e1.Current.NodeType != XmlNodeType.Text && e2.Current.NodeType == XmlNodeType.Text) return false;
-                    if (e1.Current.NodeType == XmlNodeType.Text && e2.Current.NodeType == XmlNodeType.Text)
+                    if (e1Current.NodeType == XmlNodeType.Text && e2Current.NodeType != XmlNodeType.Text) return false;
+                    if (e1Current.NodeType != XmlNodeType.Text && e2Current.NodeType == XmlNodeType.Text) return false;
+                    if (e1Current.NodeType == XmlNodeType.Text && e2Current.NodeType == XmlNodeType.Text)
                     {
-                        if (!e1.Current.Value.Squeeze().EqualsI(e2.Current.Value.Squeeze())) return false;
+                        if (!e1Current.Value.Squeeze().EqualsI(e2Current.Value.Squeeze())) return false;
                     }
 
-                    if (e1.Current.Name != e2.Current.Name) return false;
+                    if (e1Current.Name != e2Current.Name) return false;
 
-                    if (!XmlEquals((XmlElement)e1.Current, (XmlElement)e2.Current)) return false;
+                    if (!XmlEquals((XmlElement)e1Current, (XmlElement)e2Current)) return false;
                 }
 
-                while (e2.MoveNext())
+                while ((e2Current = e2.MoveNext() ? e2.Current : null) != null)
                 {
-                    if (e2.Current.NodeType != XmlNodeType.Text && e2.Current.NodeType != XmlNodeType.Element) continue;
-                    if (e2.Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2.Current.Value)) continue;
+                    if (e2Current.NodeType != XmlNodeType.Text && e2Current.NodeType != XmlNodeType.Element) continue;
+                    if (e2Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2Current.Value)) continue;
                     break;
                 }
-                if (e2.Current != null) return false; //still more elements in secondary node tree.
+
+                if (e2Current != null) return false; //still more elements in secondary node tree.
             }
 
             return true;

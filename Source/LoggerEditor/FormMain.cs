@@ -171,6 +171,8 @@ namespace ChuckHill2.LoggerEditor
                     XDoc.Save(writer);
 
                 IsDirty = false;
+
+                MessageBoxEx.Show(this, $"System.Diagnostics logging properties saved to:\r\n{filename}", "Save application config", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             //this.Close();  //User must click exit

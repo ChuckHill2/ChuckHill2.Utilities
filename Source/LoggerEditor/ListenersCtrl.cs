@@ -71,8 +71,9 @@ namespace ChuckHill2.LoggerEditor
                 var sb = new StringBuilder();
                 foreach (var item in m_lvListeners.Items.OfType<ListViewItem>())
                 {
-                    var n = ((IListener)item.Tag).Node.OuterXml;
-                    sb.Append(n);
+                    var prop = (IListener)item.Tag;
+                    prop.XmlComments.ForEach((c) => sb.Append(c.OuterXml));
+                    sb.Append(prop.Node.OuterXml);
                 }
 
                 var e = PrevNode.OwnerDocument.CreateElement("sharedListeners");
@@ -182,6 +183,8 @@ namespace ChuckHill2.LoggerEditor
 
         Type Type { get; }
         string Name { get; set; }
+
+        List<XmlComment> XmlComments { get; }
         XmlElement Node { get; set; }
     }
 
@@ -192,6 +195,9 @@ namespace ChuckHill2.LoggerEditor
         protected Dictionary<string, string> InitializeData;
 
         public event PropertyChangedEventHandler NamePropertyChanged;
+
+        [Browsable(false), XmlIgnore]
+        public List<XmlComment> XmlComments { get; } = new List<XmlComment>(); //preserve XML comments
 
         [Browsable(false), XmlIgnore]
         public virtual XmlElement Node
@@ -220,6 +226,14 @@ namespace ChuckHill2.LoggerEditor
             {
                 if (value.Name != "add") throw new ArgumentException("Node is not an <add> node.");
                 PrevNode = value;
+
+                //Save xml comments in order to restore them
+                XmlNode n = value.PreviousSibling;
+                while (n is XmlComment)
+                {
+                    XmlComments.Insert(0, (XmlComment)n);
+                    n = n.PreviousSibling;
+                }
 
                 Name = value.Attributes["name"]?.Value ?? "UNKNOWN";
 
@@ -551,6 +565,9 @@ namespace ChuckHill2.LoggerEditor
         public event PropertyChangedEventHandler NamePropertyChanged;
 
         [Browsable(false), XmlIgnore]
+        public List<XmlComment> XmlComments { get; } = new List<XmlComment>(); //preserve XML comments
+
+        [Browsable(false), XmlIgnore]
         public virtual XmlElement Node
         {
             get
@@ -575,6 +592,14 @@ namespace ChuckHill2.LoggerEditor
             {
                 if (value.Name != "add") throw new ArgumentException("Node is not an <add> node.");
                 PrevNode = value;
+
+                //Save xml comments in order to restore them
+                XmlNode n = value.PreviousSibling;
+                while (n is XmlComment)
+                {
+                    XmlComments.Insert(0, (XmlComment)n);
+                    n = value.PreviousSibling;
+                }
 
                 SetSysListenerProperties(value.Attributes, this);
 
