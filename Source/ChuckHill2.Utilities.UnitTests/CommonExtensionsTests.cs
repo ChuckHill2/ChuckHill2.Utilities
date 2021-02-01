@@ -193,6 +193,15 @@ namespace ChuckHill2.UnitTests
             Assert.AreEqual(-1, list.IndexOf(m => m == "Z"), "list.IndexOf()");
             Assert.AreEqual(4, list.LastIndexOf(m => m == "E"), "list.LastIndexOf()");
             Assert.AreEqual(-1, list.LastIndexOf(m => m == "Z"), "list.LastIndexOf()");
+
+            list.MoveToIndex("E", 2);
+            Assert.IsTrue((new string[] { "A","E","B","C","D","F","G" }).SequenceEqual(list), "MoveToIndex()");
+
+            string[] list2 = list.ToArray(); //ForEach is builtin to List<> but not in array[]. 
+            list2.ForEach(m => m.ToLower());
+            Assert.IsTrue((new string[] { "a", "e", "b", "c", "d", "f", "g" }).SequenceEqual(list2), "ForEach()");
+            list.ForEachReverse(m => m.ToUpper());
+            Assert.IsTrue((new string[] { "A", "E", "B", "C", "D", "F", "G" }).SequenceEqual(list2), "ForEachReverse()");
         }
 
         [Test]

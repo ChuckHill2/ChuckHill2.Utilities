@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
 using System.Reflection;
@@ -62,6 +63,7 @@ namespace ChuckHill2
         /// Initialize static components of Log within the context of the main thread.
         /// Log will automatically dispose all its resources upon main thread exit.
         /// This should be called as one of the first lines in the startup thread.
+        /// Failure to do so will not initialize the basic functionality until the first log instance is created.
         /// </summary>
         public static void LogInitialize()
         {
@@ -84,9 +86,9 @@ namespace ChuckHill2
 
         /// <summary>
         /// Add/Remove a delegate to capture ALL log events enabled by severity for 
-        /// custom handling. Maybe to write events to a gui status window?
-        /// This will capture ALL event categories. It is the responsibility of the 
-        /// delegate to handle event categories as it sees fit. Since the output is 
+        /// custom handling. May be used to write events to a gui status window or other alternate destination.
+        /// This will capture ALL event category/sources. It is the responsibility of the 
+        /// delegate to handle the event category/sources as it sees fit. Since the output is 
         /// lazily written to the event handler, care must be taken 
         /// since we never know which thread we are running on. Use 
         /// Control.InvokeRequired flag and Control.BeginInvoke() as necessary.
@@ -133,7 +135,7 @@ namespace ChuckHill2
                         {
                             if (wr == null || wr.Target == null || !wr.IsAlive) continue;
                             var ts = (TraceSource)wr.Target;
-                            if (ts.Listeners.Contains<TraceListener>(m => m is TraceRedirectorListener)) continue;
+                            if (ts.Listeners.Cast<TraceListener>().Any(m => m is TraceRedirectorListener)) continue;
                             ts.Listeners.Add(redirectorListener);
                         }
                     }
@@ -183,7 +185,7 @@ namespace ChuckHill2
                         {
                             if (wr == null || wr.Target == null || !wr.IsAlive) continue;
                             var ts = (TraceSource)wr.Target;
-                            int index = ts.Listeners.IndexOf<TraceListener>(m => m is TraceRedirectorListener);
+                            int index = ts.Listeners.Cast<TraceListener>().IndexOf(m => m is TraceRedirectorListener);
                             if (index == -1) continue;
                             ts.Listeners.RemoveAt(index);
                         }
@@ -196,8 +198,8 @@ namespace ChuckHill2
         /// <summary>
         /// Set the severity level for a specific source or switch
         /// </summary>
-        /// <param name="sourceName"></param>
-        /// <param name="severity"></param>
+        /// <param name="sourceName">Name of source or switch.</param>
+        /// <param name="severity">New severity level to set.</param>
         /// <returns>Previous severity level</returns>
         public static SourceLevels SetSeverity(string sourceName, SourceLevels severity)
         {
@@ -244,8 +246,9 @@ namespace ChuckHill2
 
         /// <summary>
         /// Set ALL sources and switches to the specified severity level.
+        /// Handy way to just disable all logging.
         /// </summary>
-        /// <param name="severity"></param>
+        /// <param name="severity">New severity level to set.</param>
         public static void SetAllSeverities(SourceLevels severity)
         {
             var fi = typeof(System.Configuration.ConfigurationElement).GetField("_bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -292,9 +295,9 @@ namespace ChuckHill2
         /// <summary>
         /// Handy SIMPLE developer debugging utility for writing a message to an external debug 
         /// viewer such as Microsoft's Dbgview.exe or VisualStudio debugger output window (not both).
-        /// see: https://technet.microsoft.com/en-us/sysinternals/bb896647 
         /// This method is NOT disabled in release mode, you must remove these calls from the code.
         /// </summary>
+        /// <see cref="https://technet.microsoft.com/en-us/sysinternals/bb896647"/>
         /// <param name="format">string format specifier as used in string.Format()</param>
         /// <param name="args">format args</param>
         public static void Debug(string format, params object[] args)
@@ -357,8 +360,8 @@ namespace ChuckHill2
         /// <summary>
         /// Constructor: Create log instance to write to the specified source.
         /// </summary>
-        /// <param name="sourceName">source category name. if does not exist in app.config, uses app.config node Trace listeners.</param>
-        /// <param name="severity">default value to use if category source is not defined in App.config</param>
+        /// <param name="sourceName">Source category name. If the source does not exist in app.config, this new source uses the listener(s) as defined by the app.config Trace node.</param>
+        /// <param name="severity">The value to use if category source is not defined in App.config</param>
         public Log(string sourceName, SourceLevels severity = SourceLevels.Off)
         {
             LogInit(); //in case logging has already been closed
@@ -369,46 +372,212 @@ namespace ChuckHill2
         /// <summary>
         /// Constructor: Create log instance to write to the specified source.
         /// </summary>
-        /// <param name="sourceName">source source name. if does not exist in app.config, uses app.config node "trace" listeners.</param>
-        /// <param name="severity">value to use if source source is not defined in App.config</param>
+        /// <param name="sourceName">Source category name. If the source does not exist in app.config, this new source uses the listener(s) as defined by the app.config Trace node.</param>
+        /// <param name="severity">The value to use if category source is not defined in App.config. If this is an invalid name, the default is SourceLevels.Off</param>
         public Log(string sourceName, string severity) : this(sourceName, ToSeverity(severity)) { }
 
-        // Detect if logging is enabled for this TraceSource.
-        public bool IsCriticalEnabled { get { return (((int)m_traceSource.Switch.Level & (int)TraceEventType.Critical) != 0); } }
-        public bool IsErrorEnabled { get { return (((int)m_traceSource.Switch.Level & (int)TraceEventType.Error) != 0); } }
-        public bool IsWarningEnabled { get { return (((int)m_traceSource.Switch.Level & (int)TraceEventType.Warning) != 0); } }
-        public bool IsInformationEnabled { get { return (((int)m_traceSource.Switch.Level & (int)TraceEventType.Information) != 0); } }
-        public bool IsVerboseEnabled { get { return (((int)m_traceSource.Switch.Level & (int)TraceEventType.Verbose) != 0); } }
-        public bool IsActivityTracingEnabled { get { return (((int)m_traceSource.Switch.Level & (int)SourceLevels.ActivityTracing) != 0); } } 
+        #region IsSeverityEnabled?
+        /// <summary>
+        /// Determine if this severity level is allowed to be written.
+        /// </summary>
+        public bool IsCriticalEnabled => (((int)m_traceSource.Switch.Level & (int)TraceEventType.Critical) != 0);
+        /// <summary>
+        /// Determine if this severity level is allowed to be written.
+        /// </summary>
+        public bool IsErrorEnabled => (((int)m_traceSource.Switch.Level & (int)TraceEventType.Error) != 0);
+        /// <summary>
+        /// Determine if this severity level is allowed to be written.
+        /// </summary>
+        public bool IsWarningEnabled => (((int)m_traceSource.Switch.Level & (int)TraceEventType.Warning) != 0);
+        /// <summary>
+        /// Determine if this severity level is allowed to be written.
+        /// </summary>
+        public bool IsInformationEnabled => (((int)m_traceSource.Switch.Level & (int)TraceEventType.Information) != 0);
+        /// <summary>
+        /// Determine if this severity level is allowed to be written.
+        /// </summary>
+        public bool IsVerboseEnabled => (((int)m_traceSource.Switch.Level & (int)TraceEventType.Verbose) != 0);
+        /// <summary>
+        /// Determine if this severity level is allowed to be written.
+        /// </summary>
+        public bool IsActivityTracingEnabled => (((int)m_traceSource.Switch.Level & (int)SourceLevels.ActivityTracing) != 0);
         // Note: SourceLevels.ActivityTracing == 0xFF00 == TraceEventType.Start + Stop + Suspend + Resume + Transfer
+        #endregion // Is serverity level enabled?
 
-        public void Critical(string format, params object[] args) { Write(null, TraceEventType.Critical, format, args); }
-        public void Error(string format, params object[] args) { Write(null, TraceEventType.Error, format, args); }
-        public void Warning(string format, params object[] args) { Write(null, TraceEventType.Warning, format, args); }
-        public void Information(string format, params object[] args) { Write(null, TraceEventType.Information, format, args); }
-        public void Verbose(string format, params object[] args) { Write(null, TraceEventType.Verbose, format, args); }
+        #region Log write methods
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Critical(string format, params object[] args) => Write(null, TraceEventType.Critical, format, args);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Error(string format, params object[] args) => Write(null, TraceEventType.Error, format, args);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Warning(string format, params object[] args) => Write(null, TraceEventType.Warning, format, args);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Information(string format, params object[] args) => Write(null, TraceEventType.Information, format, args);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Verbose(string format, params object[] args) => Write(null, TraceEventType.Verbose, format, args);
 
-        public void Critical(Exception ex, string format, params object[] args) { Write(ex, TraceEventType.Critical, format, args); }
-        public void Error(Exception ex, string format, params object[] args) { Write(ex, TraceEventType.Error, format, args); }
-        public void Warning(Exception ex, string format, params object[] args) { Write(ex, TraceEventType.Warning, format, args); }
-        public void Information(Exception ex, string format, params object[] args) { Write(ex, TraceEventType.Information, format, args); }
-        public void Verbose(Exception ex, string format, params object[] args) { Write(ex, TraceEventType.Verbose, format, args); }
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Critical(Exception ex, string format, params object[] args) => Write(ex, TraceEventType.Critical, format, args);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Error(Exception ex, string format, params object[] args) => Write(ex, TraceEventType.Error, format, args);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Warning(Exception ex, string format, params object[] args) => Write(ex, TraceEventType.Warning, format, args);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Information(Exception ex, string format, params object[] args) => Write(ex, TraceEventType.Information, format, args);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Verbose(Exception ex, string format, params object[] args) => Write(ex, TraceEventType.Verbose, format, args);
 
-        public void Critical(Func<string> formatter) { Write(null, TraceEventType.Critical, formatter); }
-        public void Error(Func<string> formatter) { Write(null, TraceEventType.Error, formatter); }
-        public void Warning(Func<string> formatter) { Write(null, TraceEventType.Warning, formatter); }
-        public void Information(Func<string> formatter) { Write(null, TraceEventType.Information, formatter); }
-        public void Verbose(Func<string> formatter) { Write(null, TraceEventType.Verbose, formatter); }
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Critical(Func<string> formatter) => Write(null, TraceEventType.Critical, formatter);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Error(Func<string> formatter) => Write(null, TraceEventType.Error, formatter);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Warning(Func<string> formatter) => Write(null, TraceEventType.Warning, formatter);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Information(Func<string> formatter) => Write(null, TraceEventType.Information, formatter);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Verbose(Func<string> formatter) => Write(null, TraceEventType.Verbose, formatter);
 
-        public void Critical(Exception ex, Func<string> formatter) { Write(ex, TraceEventType.Critical, formatter); }
-        public void Error(Exception ex, Func<string> formatter) { Write(ex, TraceEventType.Error, formatter); }
-        public void Warning(Exception ex, Func<string> formatter) { Write(ex, TraceEventType.Warning, formatter); }
-        public void Information(Exception ex, Func<string> formatter) { Write(ex, TraceEventType.Information, formatter); }
-        public void Verbose(Exception ex, Func<string> formatter) { Write(ex, TraceEventType.Verbose, formatter); }
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Critical(Exception ex, Func<string> formatter) => Write(ex, TraceEventType.Critical, formatter);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Error(Exception ex, Func<string> formatter) => Write(ex, TraceEventType.Error, formatter);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Warning(Exception ex, Func<string> formatter) => Write(ex, TraceEventType.Warning, formatter);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Information(Exception ex, Func<string> formatter) => Write(ex, TraceEventType.Information, formatter);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Verbose(Exception ex, Func<string> formatter) => Write(ex, TraceEventType.Verbose, formatter);
 
-        public void Write(TraceLevel severity, Func<string> formatter) { Write(null, ConvertToTraceEventType(severity), formatter); }
-        public void Write(Exception ex, TraceLevel severity, Func<string> formatter) { Write(ex, ConvertToTraceEventType(severity), formatter); }
-        public void Write(TraceEventType severity, Func<string> formatter) { Write(null, severity, formatter); }
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Write(TraceLevel severity, Func<string> formatter) => Write(null, ConvertToTraceEventType(severity), formatter);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Write(Exception ex, TraceLevel severity, Func<string> formatter) => Write(ex, ConvertToTraceEventType(severity), formatter);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
+        public void Write(TraceEventType severity, Func<string> formatter) => Write(null, severity, formatter);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="formatter">A method that returns a formatted message string</param>
         public void Write(Exception ex, TraceEventType severity, Func<string> formatter)
         {
             if (m_traceSource == null) return;
@@ -425,9 +594,39 @@ namespace ChuckHill2
             catch (Exception ex2) { Log.InternalError("log.Write({0},{1},delegate): {2}", ex == null ? "null" : "exception", severity, ex2.Message); }
         }
 
-        public void Write(TraceLevel severity, string format, params object[] args) { Write(null, ConvertToTraceEventType(severity), format, args); }
-        public void Write(Exception ex, TraceLevel severity, string format, params object[] args) { Write(ex, ConvertToTraceEventType(severity), format, args); }
-        public void Write(TraceEventType severity, string format, params object[] args) { Write(null, severity, format, args); }
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Write(TraceLevel severity, string format, params object[] args) => Write(null, ConvertToTraceEventType(severity), format, args);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Write(Exception ex, TraceLevel severity, string format, params object[] args) => Write(ex, ConvertToTraceEventType(severity), format, args);
+        /// <summary>
+        /// Log an event with the specified severity.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+        public void Write(TraceEventType severity, string format, params object[] args) => Write(null, severity, format, args);
+        /// <summary>
+        /// Log an event with the specified severity with an exception.
+        /// The message string is not formatted until AFTER it is determined that the message will be written.
+        /// </summary>
+        /// <param name="ex">The exception to include in the logging message.</param>
+        /// <param name="severity">The severity level to associate with this log event.</param>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
         public void Write(Exception ex, TraceEventType severity, string format, params object[] args)
         {
             if (m_traceSource == null) return;
@@ -442,11 +641,12 @@ namespace ChuckHill2
             }
             catch (Exception ex2) { Log.InternalError("log.Write({0},{1},\"{2}\"): {3}", ex == null ? "null" : "exception", severity, emsg, ex2.Message); }
         }
-        #endregion
-        
+        #endregion //Log write methods
+        #endregion //public Instance Logging
+
         #region private helper functions
         //Maybe need to share the same locking object to avoid deadlocks.
-        internal static readonly object critSec = Type.GetType("System.Diagnostics.TraceInternal, " + typeof(Trace).Assembly.FullName, false, false).GetField("critSec", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+        private static readonly object critSec = Type.GetType("System.Diagnostics.TraceInternal, " + typeof(Trace).Assembly.FullName, false, false).GetField("critSec", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         private static readonly ConfigurationElementCollection ConfigurationSources = Type.GetType("System.Diagnostics.DiagnosticsConfiguration, " + typeof(Trace).Assembly.FullName, false, false).GetProperty("Sources", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null, null) as ConfigurationElementCollection;
         private static readonly ConfigurationElementCollection ConfigurationSwitches = Type.GetType("System.Diagnostics.DiagnosticsConfiguration, " + typeof(Trace).Assembly.FullName, false, false).GetProperty("SwitchSettings", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null, null) as ConfigurationElementCollection;
 
@@ -571,7 +771,7 @@ namespace ChuckHill2
             }
         }
 
-        private static List<string> KnownSources = ConfigurationSources.ToList(m => ((ConfigurationElement)m).ElementInformation.Properties["name"].Value as string);
+        private static List<string> KnownSources = ConfigurationSources.Cast<ConfigurationElement>().Select(m => m.ElementInformation.Properties["name"].Value as string).ToList();
         private static ConWriter m_ConWriter;
         private static FileSystemWatcher m_AppConfigWatcher;
         private static Guid m_AppConfigChangeKey;
@@ -582,7 +782,6 @@ namespace ChuckHill2
             LogInit();
         }
 
-        //[MethodImpl(MethodImplOptions.NoOptimization)] //do we need this??
         internal static void LogInit()
         {
             try
@@ -601,9 +800,9 @@ namespace ChuckHill2
                 var trace = new Log("TRACE", SourceLevels.Off);
                 if (new Log("CONSOLE", SourceLevels.Off).IsInformationEnabled) m_ConWriter = new ConWriter();  //Enable Log("CONSOLE")
                 if (new Log("FIRSTCHANCE", SourceLevels.Off).IsErrorEnabled) AppDomain.CurrentDomain.FirstChanceException += FirstChanceExceptionHandler;  //Enable Log("FIRSTCHANCE")
-                KnownSources.SetIndexOf("TRACE", 0); //TRACE must always be zero in order to detect listener TraceEvent() id==0.
-                KnownSources.SetIndexOf("CONSOLE", 1);
-                KnownSources.SetIndexOf("FIRSTCHANCE", 2);
+                KnownSources.MoveToIndex("TRACE", 0); //TRACE must always be zero in order to detect listener TraceEvent() id==0.
+                KnownSources.MoveToIndex("CONSOLE", 1);
+                KnownSources.MoveToIndex("FIRSTCHANCE", 2);
 
                 m_AppConfigWatcher = AppConfigWatcher();
             }
@@ -613,21 +812,21 @@ namespace ChuckHill2
             }
         }
 
-        //*** Detecting Application Exit ***
-        //Execution context consists of (1)Process, (2)AppDomains, and (3)Threads.
-        //Because of the global (e.g. static) nature of logging, when the appdomain shuts down,
-        //so must the logging. This logging needs to be closed gracefully because queued 
-        //asynchronous writes may not all yet be written to disk. Well, if the writer threads 
-        //are background threads and when the AppDomain.DomainUnload event fires, the writer 
-        //threads are already dead. All pending writes are lost.  If the writer threads are NOT
-        //background threads, AppDomain.DomainUnload event will never fire because .NET will 
-        //not automatically terminate the writer threads. In addition, the process will never 
-        //exit because all the appdomains have not yet been unloaded. Catch-22. How to detect 
-        //when the appdomain is really done? Well, the only other way is to detect when the 
-        //appdomain startup thread exits. This is not the ideal solution because there may be 
-        //other foreground threads running, but it is the only one. At least continued use of 
-        //the logging will not cause any problems, In fact, logging will automatically restart!
-        //good explanation: http://www.codeproject.com/Articles/16164/Managed-Application-Shutdown
+        // *** Detecting Application Exit ***
+        // Execution context consists of (1)Process, (2)AppDomains, and (3)Threads.
+        // Because of the global (e.g. static) nature of logging, when the appdomain shuts down,
+        // so must the logging. This logging needs to be closed gracefully because queued 
+        // asynchronous writes may not all yet be written to disk. Well, if the writer threads 
+        // are background threads and when the AppDomain.DomainUnload event fires, the writer 
+        // threads are already dead. All pending writes are lost.  If the writer threads are NOT
+        // background threads, AppDomain.DomainUnload event will never fire because .NET will 
+        // not automatically terminate the writer threads. In addition, the process will never 
+        // exit because all the appdomains have not yet been unloaded. Catch-22. How to detect 
+        // when the appdomain is really done? Well, the only other way is to detect when the 
+        // appdomain startup thread exits. This is not the ideal solution because there may be 
+        // other foreground threads running, but it is the only one. At least continued use of 
+        // the logging will not cause any problems, In fact, logging will automatically restart!
+        // good explanation: http://www.codeproject.com/Articles/16164/Managed-Application-Shutdown
 
         private static void AppDomainUnload(object sender, EventArgs ev)
         {
@@ -1272,14 +1471,7 @@ namespace ChuckHill2
         private string m_initializeData = string.Empty; //string from app.config: configuration/system.diagnostics/sharedListeners/add[name='listenername']/@initializeData
 
         //Values that need to be initialized when there is a custom format string in 'initializeData'. Used by MsgFormatter();
-        private string m_format = null;
-        private List<Func<FormatTraceEventCache, object[], object>> m_argFuncs;
-
-        /// <summary>
-        /// Test if listener property 'Format' has been defined. Useful when 
-        /// actions need to be taken BEFORE there are any message events.
-        /// </summary>
-        protected bool HasFormat { get { return m_format != null; } }
+        private Func<FormatTraceEventCache,string> m_formatter = null;
 
         /// <summary>
         /// True to squeeze string message arguments with duplicate 
@@ -1303,7 +1495,9 @@ namespace ChuckHill2
         /// <summary>
         /// Only true if derived type is FileTraceListener and 'Format' property == "{0},\"{1}\",{2}, ..."
         /// </summary>
-        protected bool IsCSV { get; private set; } 
+        protected bool IsCSV { get; set; }
+
+        protected bool FormatDeclared { get; set; }
 
         public TraceListenerBase() : base() { }
         /// <summary>
@@ -1327,78 +1521,25 @@ namespace ChuckHill2
                 Log.LogInit(); //Restart, in case logging has been closed.
 
                 var data = m_initializeData.ToDictionary(';', '=');
-                SqueezeMsg = data.GetValue("SqueezeMsg").CastTo(false);
+                SqueezeMsg = data.GetValue("SqueezeMsg").CastTo<bool>();
                 AsyncWrite = data.GetValue("Async").CastTo(true);
-                m_format = data.GetValue("Format").CastTo(string.Empty);
+                var format = data.GetValue("Format");
                 int indentSize = data.GetValue("IndentSize").CastTo(base.IndentSize < 1 ? 0 : base.IndentSize);
                 IndentPadding = indentSize < 1 ? string.Empty : "\n".PadRight(indentSize + 1); //for string.Replace("\n",m_indentPadding);
 
-                data.Remove("SqueezeMsg");
+
+                data.Remove("SqueezeMsg");   //This is relevant to this base class only.
                 data.Remove("Async");
                 data.Remove("Format");
                 data.Remove("IndentSize");
 
-                #region Parse custom message format string
-                if (!string.IsNullOrWhiteSpace(m_format)) //Parse format string
+                if (!format.IsNullOrEmpty())
                 {
-                    //Possible format arguments are:
-                    //LogicalOperationStack, DateTime, Timestamp, ProcessId, ProcessName, ThreadId, ThreadName, DomainName, EntryAssemblyName, CallStack, Severity, SourceName, SourceId, ExceptionMessage, UserMessage, Message
-                    //"{0:yyyy-MM-ddTHH:mm:ss.fff},{1},{2},\"{3}\"",DateTime,Severity,SourceName,UserMessage
-                    int i = 0;
-                    char prev_ch = '\0';
-                    bool quoted = false;
-                    StringBuilder sb = new StringBuilder();
-                    for (i = 0; i < m_format.Length; i++)
-                    {
-                        char ch = m_format[i];
-                        if (ch == '"' && prev_ch == '\\') { prev_ch = ch; sb.Length -= 1; sb.Append(ch); continue; }
-                        if (ch == 'r' && prev_ch == '\\') { ch = '\r'; prev_ch = ch; sb.Length -= 1; sb.Append(ch); continue; }
-                        if (ch == 'n' && prev_ch == '\\') { ch = '\n'; prev_ch = ch; sb.Length -= 1; sb.Append(ch); continue; }
-                        if (ch == 't' && prev_ch == '\\') { ch = '\t'; prev_ch = ch; sb.Length -= 1; sb.Append(ch); continue; }
-                        if (ch == '\\' && prev_ch == '\\') { prev_ch = '\0'; sb.Length -= 1; sb.Append(ch); continue; }
-                        if (ch == '"' && !quoted) { prev_ch = ch; quoted = true; continue; }
-                        if (ch == '"' && quoted) break;
-                        prev_ch = ch;
-                        sb.Append(ch);
-                    }
-
-                    var args = m_format.Substring(i + 1).Strip(m => !((m >= 'A' && m <= 'Z') || (m >= 'a' && m <= 'z') || m == ',')).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    m_format = sb.ToString().Trim();
-
-                    IsCSV = false;
-                    if (this.GetType() == typeof(FileTraceListener)) //OK. This is a hack to support CSV formatting for text files.
-                    {
-                        string[] formatitems = m_format.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        for (int j = 0; j < formatitems.Length; j++)
-                        {
-                            string item = formatitems[j].Trim(new char[] { ' ', '\t', '\r', '\n', '"' });
-                            if (item[0] != '{' || item[item.Length - 1] != '}') { IsCSV = false; break; }
-                            IsCSV = true;
-                            formatitems[j] = item;
-                        }
-                        if (IsCSV) m_format = string.Join(",", formatitems); //Excel does not like whitespace around the field delimiters
-                    }
-
-                    m_argFuncs = new List<Func<FormatTraceEventCache, object[], object>>(args.Length);
-                    foreach (var arg in args)
-                    {
-                        var v = FormatTraceEventCache.Properties.GetValue(arg);
-                        if (v == null)
-                        {
-                            Log.InternalError("Warning: \"{0}\" Unknown event property. Replacing with empty string.", arg);
-                            m_argFuncs.Add(FormatTraceEventCache.Properties["Null"]);
-                            continue;
-                        }
-                        else if (IsCSV && FormatTraceEventCache.CSVFormattingRequired.Contains(arg, StringComparer.InvariantCultureIgnoreCase))
-                        {
-                            m_argFuncs.Add(delegate(FormatTraceEventCache cache, object[] index) { return MaybeQuoteCSV(v(cache, index)); });
-                            continue;
-                        }
-                        m_argFuncs.Add(v);
-                    }
+                    FormatDeclared = true;
+                    IsCSV = this is FileTraceListener && !format.Contains('\n') && !format.Contains("\\n");
+                    m_formatter = Tool.GetFormatter<FormatTraceEventCache>(format);
                 }
-                else m_format = null;
-                #endregion
+                else FormatDeclared = false;
 
                 Initialize(data); //call the parent's Initialize() abstract method.
             }
@@ -1406,29 +1547,6 @@ namespace ChuckHill2
             {
                 Log.InternalError("Failure Initializing {0} message writer. initializeData=\"{1}\"\nException={2}", this.Name, m_initializeData, ex);
             }
-        }
-
-        private object MaybeQuoteCSV(object msg)
-        {
-            if (!(msg is string)) return msg;
-            string field = (string)msg;
-
-            var sb = new StringBuilder();
-            bool needsQuote = false;
-            foreach(char ch in field)
-            {
-                if (ch == '\r') continue; //Excel understands multi-line fields that contain '\n' but not '\r\n'! Go figure....
-                if (ch == '\n' || ch == ',') { needsQuote = true; }
-                else if (ch == '"') { needsQuote = true; sb.Append('"'); } 
-                sb.Append(ch);
-            }
-            if (needsQuote)
-            {
-                sb.Insert(0, '"');
-                sb.Append('"');
-            }
-
-            return sb.ToString();
         }
 
         public override bool IsThreadSafe { get { return true; } }  //flag to base class that these api are thread-safe
@@ -1593,14 +1711,13 @@ namespace ChuckHill2
         /// <returns>formatted message or null if "Format" element in initializeData is undefined.</returns>
         protected string MsgFormatter(TraceEventCache cache, TraceEventType severity, string sourceName, ushort sourceId, string message)
         {
-            if (m_format==null) return null;
-            var args = new object[m_argFuncs.Count];
+            if (m_formatter == null) return null;
             Log.EventCache.SqueezeMsg = this.SqueezeMsg;
             Log.EventCache.IndentPadding = this.IndentPadding;
-            for (int i = 0; i < m_argFuncs.Count; i++) args[i] = m_argFuncs[i](Log.EventCache, null);
+            string result = m_formatter(Log.EventCache);
             Log.EventCache.SqueezeMsg = false;
             Log.EventCache.IndentPadding = string.Empty;
-            return Log.SafeFormat(m_format, args);
+            return result;
         }
          
         /// <summary>
@@ -1962,7 +2079,7 @@ namespace ChuckHill2
             m_maxfiles = initializeData.GetValue("MaxFiles").CastTo(-1); //-1 == infinity
             m_fileheader = initializeData.GetValue("FileHeader").CastTo(String.Empty).Trim();
             m_filefooter = initializeData.GetValue("FileFooter").CastTo(String.Empty).Trim();
-            if (m_fileheader.Length == 0 && !base.HasFormat) m_fileheader = "DateTime,Severity,SourceName,Message"; //default header if no format
+            if (m_fileheader.Length == 0 && !base.FormatDeclared) m_fileheader = "DateTime,Severity,SourceName,Message"; //default header if no format
 
             bool createdNew;
             try { m_mutex = new Mutex(false, m_filename.ToIdentifier(), out createdNew); } catch { }
@@ -2156,6 +2273,7 @@ namespace ChuckHill2
             string result = base.MsgFormatter(cache, severity, sourceName, sourceId, message);
             if (result != null) return result;
 
+            IsCSV = true;
             Log.EventCache.SqueezeMsg = this.SqueezeMsg;
             Log.EventCache.IndentPadding = this.IndentPadding;
             result = string.Format("{0:yyyy-MM-dd HH:mm:ss.fff},{1},{2},\"{3}\"", Log.EventCache.LocalDateTime, Log.EventCache.Severity, Log.EventCache.SourceName, Log.EventCache.UserMessage.Replace("\"","\"\""));
@@ -2739,7 +2857,7 @@ GO
         }
         private static readonly string FullLogTypeName = typeof(Log).FullName; //required for stripping our internals from the callstack string;
         //List all string properties that may possibly contain newlines or doublequote chars;
-        internal static readonly string[] CSVFormattingRequired = new string[]{ "UserMessage", "Exception", "ExceptionMessage", "CallStack", "LogicalOperationStack", "UserData" };
+        //internal static readonly string[] CSVFormattingRequired = new string[]{ "UserMessage", "Exception", "ExceptionMessage", "CallStack", "LogicalOperationStack", "UserData" };
 
         #region Constructor Values
         private TraceEventCache cache = null;
@@ -3302,334 +3420,6 @@ GO
                 toString = string.Format("FormatTraceEventCache({0},\"{1}\",{2},\"{3}\")",Severity,SourceName,SourceId,UserMessage.Squeeze());
             return toString;
         }
-    }
-    #endregion
-
-    #region Handy Object Extensions
-    /// <summary>
-    /// Scope is this file ONLY.
-    /// </summary>
-    internal static class MyExtensions
-    {
-    //    /// <summary>
-    //    /// Returns a value indicating whether the specified case-insensitive System.String object occurs within this string. Safely handles null values
-    //    /// </summary>
-    //    /// <remarks>Cannot override built-in System.Object.Equals(object objA, object objB) with Equals(this string s, string value, bool ignoreCase). Thus renamed to EqualsI().</remarks>
-    //    /// <param name="s">System.String object to search.</param>
-    //    /// <param name="value">The case-insensitive System.String object to seek.</param>
-    //    /// <returns>true if the value parameter equals this string or if both the string to search and the value to seek are both null.</returns>
-    //    public static bool EqualsI(this string s, string value)
-    //    {
-    //        if (s == null && value == null) return true;
-    //        return (s != null && value != null && s.Equals(value, StringComparison.InvariantCultureIgnoreCase));
-    //    }
-    //    /// <summary>
-    //    /// Convert a string into a C# identifier.
-    //    /// </summary>
-    //    /// <param name="s">String to convert</param>
-    //    /// <returns>String that conforms to the C# identifier rules using camel-case. Null or empty strings are converted to "__".</returns>
-    //    public static string ToIdentifier(this string s)
-    //    {
-    //        if (string.IsNullOrWhiteSpace(s)) return "__";
-    //        //Compliant with item 2.4.2 of the C# specification
-    //        //squeeze out illegal chars and convert to camel-case
-    //        s = Regex.Replace(s, @"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]+.?",
-    //            delegate(Match m) { return m.Index + m.Value.Length == s.Length ? string.Empty : char.ToUpperInvariant(m.Value[m.Value.Length - 1]).ToString(); });
-    //        if (!char.IsLetter(s, 0)) //identifier must start with a letter or underscore.
-    //            s = string.Concat("_", s);
-    //        if (!Microsoft.CSharp.CSharpCodeProvider.CreateProvider("C#").IsValidIdentifier(s)) //identifier must not be a C# keyword
-    //            s = string.Concat("@", s);
-    //        if (s.Length > 511) s = s.Substring(0, 511); //error CS0645: Identifier too long
-    //        return s;
-    //    }
-    //    /// <summary>
-    //    /// Strip one or more whitspace chars (including newlines) and replace with a single space char.
-    //    /// </summary>
-    //    /// <param name="s">String to operate upon</param>
-    //    /// <returns>fixed up single-line string</returns>
-    //    public static string Squeeze(this string s)
-    //    {
-    //        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
-    //        //This is 2.6x faster than ""return Regex.Replace(s.Trim(), "[\r\n \t]+", " ");""
-    //        StringBuilder sb = new StringBuilder(s.Length);
-    //        char prev = ' ';
-    //        for (int i = 0; i < s.Length; i++)
-    //        {
-    //            char c = s[i];
-    //            if (c > 0 && c < 32) c = ' ';
-    //            if (prev == ' ' && prev == c) continue;
-    //            if (prev == '-' && prev == c) continue; //long lines of dashes in exceptions
-    //            prev = c;
-    //            sb.Append(c);
-    //        }
-    //        if (prev == ' ') sb.Length = sb.Length - 1;
-    //        if (prev == ' ') sb.Length = sb.Length - 1;
-    //        return sb.ToString();
-    //    }
-
-        /// <summary>
-        /// Remove all characters from string specified by delegate and return the new string.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="matcher"></param>
-        /// <returns></returns>
-        public static string Strip(this string s, Func<char,bool> matcher)
-        {
-            var sb = new StringBuilder(s.Length,s.Length);
-            foreach(char c in s)
-            {
-                if (matcher(c)) continue;
-                sb.Append(c);
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Retrieve a list of values from an IEnumerable object.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="valueSelector"></param>
-        /// <returns></returns>
-        public static List<T> ToList<T>(this IEnumerable source, Func<object, T> valueSelector)
-        {
-            List<T> list;
-            if (source is IList) list = new List<T>(((IList)source).Count);
-            else list = new List<T>();
-            foreach (object o in source)
-            {
-                list.Add(valueSelector(o));
-            }
-            return list;
-        }
-
-        /// <summary>
-        /// Determines whether an element is in the IEnumerable list as determined by the specified delegate.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="matcher"></param>
-        /// <returns>True if found</returns>
-        public static bool Contains<T>(this IEnumerable source,Func<T, bool> matcher)
-        {
-            foreach (var v in source)
-            {
-                if (matcher((T)v)) return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Determines the index of an element in the IEnumerable list as determined by the specified delegate.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="matcher"></param>
-        /// <returns>The index or -1 if not found.</returns>
-        public static int IndexOf<T>(this IEnumerable source, Func<T, bool> matcher)
-        {
-            int index = -1;
-            foreach (var v in source)
-            {
-                index++;
-                if (matcher((T)v)) return index;
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Set the value at a particular index in the array. Assumes that the value exists no more than 0 or 1 times in the array.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="value"></param>
-        /// <param name="index"></param>
-        public static void SetIndexOf<T>(this IList<T> source, T value, int index)
-        {
-            IComparer comparer = (source is IList<string> ? (IComparer)StringComparer.CurrentCultureIgnoreCase : (IComparer)Comparer.Default);
-            int oldIndex = ((IEnumerable)source).IndexOf<T>((m=>comparer.Compare(m,value)==0));
-            if (oldIndex != -1) source.RemoveAt(oldIndex);
-            source.Insert(index, value);
-        }
-
-    //    /// <summary>
-    //    /// Deserialize a formatted string into a string dictionary.
-    //    /// Note that the string keys are case-insensitive.
-    //    /// Warning: If a key or value contains one of the delimiters, the results are undefined.
-    //    /// </summary>
-    //    /// <param name="s"></param>
-    //    /// <param name="elementDelimiter">character used between each keyvalue element.</param>
-    //    /// <param name="kvDelimiter">character used between the key and value pairs.</param>
-    //    /// <returns></returns>
-    //    public static Dictionary<string, string> ToDictionary(this string s, char elementDelimiter, char kvDelimiter)
-    //    {
-    //        return ToDictionary<string, string>(s, elementDelimiter, kvDelimiter, k => k, v => v, StringComparer.InvariantCultureIgnoreCase);
-    //    }
-    //    /// <summary>
-    //    /// Deserialize a formatted string into a typed dictionary.
-    //    /// Warning: If a key or value contains an element delimiter, then it must be escaped by quoting with '"' or 
-    //    /// by entering the element delimiter twice or by escaping with '\'.
-    //    /// The key/value pair is not an issue as the first occurence of the keyvalue delimiter will determine the split.
-    //    /// </summary>
-    //    /// <typeparam name="TKey"></typeparam>
-    //    /// <typeparam name="TValue"></typeparam>
-    //    /// <param name="s"></param>
-    //    /// <param name="elementDelimiter">character used between each keyvalue element.</param>
-    //    /// <param name="kvDelimiter">character used between the key and value pairs.</param>
-    //    /// <param name="keyConverter">delegate used to deserialize key string into the TKey type</param>
-    //    /// <param name="valueConverter">delegate used to deserialize value string into the TValue type</param>
-    //    /// <param name="comparer">Key equality comparer</param>
-    //    /// <returns></returns>
-    //    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this string s, char elementDelimiter, char kvDelimiter, Func<string, TKey> keyConverter, Func<string, TValue> valueConverter, IEqualityComparer<TKey> comparer)
-    //    {
-    //        if (s == null || s.Length == 0) return new Dictionary<TKey, TValue>(0, comparer);
-
-    //        //TODO: Need to handle nested stringized dictionaries
-
-    //        string[] array = s.EscapedSplit(new Char[] { elementDelimiter }, StringSplitOptions.RemoveEmptyEntries);
-    //        Dictionary<TKey, TValue> d = new Dictionary<TKey, TValue>(array.Length, comparer);
-    //        TValue defalt = default(TValue);
-
-    //        foreach (string item in array)
-    //        {
-    //            int index = item.IndexOf(kvDelimiter);
-    //            if (index == -1) continue;
-    //            string key = item.Substring(0, index).Trim();
-    //            string value = item.Substring(index+1).Trim();
-    //            d[keyConverter(key)] = value.Length > 1 ? valueConverter(value) : defalt;
-    //        }
-    //        return d;
-    //    }
-
-    //    public static string[] EscapedSplit(this string s, char[] delimiters, StringSplitOptions options)
-    //    {
-    //        var list = new List<string>();
-    //        var sb = new StringBuilder();
-    //        char prev_c = '\0';
-    //        foreach(char c in s)
-    //        {
-    //            if (delimiters.Any(m => m == c))
-    //            {
-    //                if (prev_c == '\\')
-    //                {
-    //                    sb.Length--;
-    //                    sb.Append(c);
-    //                    prev_c = '\0';
-    //                    continue;
-    //                }
-
-    //                string value = sb.ToString().Trim();
-    //                if (options == StringSplitOptions.RemoveEmptyEntries && value.Length > 0) list.Add(value);
-    //                sb.Length = 0;
-    //                prev_c = '\0';
-    //                continue;
-    //            }
-    //            prev_c = c; 
-    //            sb.Append(c);
-    //        }
-    //        if (sb.Length > 0) list.Add(sb.ToString());
-
-    //        return list.ToArray();
-    //    }
-
-    //    /// <summary>
-    //    /// Safely gets the value associated with the specified key. 
-    //    /// </summary>
-    //    /// <typeparam name="TKey"></typeparam>
-    //    /// <typeparam name="TValue"></typeparam>
-    //    /// <param name="dict"></param>
-    //    /// <param name="key">The key whose value to get.</param>
-    //    /// <returns>the value for the associated key or the default value if it doesn't exist (null for reference types, the default for value types)</returns>
-    //    public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
-    //    {
-    //        lock (dict)
-    //        {
-    //            TValue value;
-    //            if (dict == null || key == null) return default(TValue); //to avoid exception when key==null
-    //            if (dict.TryGetValue(key, out value)) return value;
-    //            return default(TValue);
-    //        }
-    //    }
-
-    //    #region static T Cast<T>(this object value, T defalt = default(T))
-    //    //in case of different languages;
-    //    private static readonly string szTrue = true.ToString().ToLower();
-    //    private static readonly string szFalse = false.ToString().ToLower();
-    //    //Epoch == 1900-01-01 because that is the beginning of time for SQL Server DB's.
-    //    public static readonly System.DateTime DtEpoch = new System.DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
-
-    //    /// <summary>
-    //    /// Safely handle ANY object type conversion including null or DBNull values.
-    //    /// Converting to reference types upon conversion failure returns null.
-    //    /// Converting to value types upon conversion failure returns the default value. Typically zero, or an empty structs.
-    //    /// </summary>
-    //    /// <typeparam name="T">type to cast to</typeparam>
-    //    /// <param name="value">value to cast</param>
-    //    /// <param name="defalt">value to use if conversion fails</param>
-    //    /// <returns>Converted value</returns>
-    //    public static T Cast<T>(this object value, T defalt = default(T))
-    //    {
-    //        if (value is T) return (T)value;
-    //        Type outType = typeof(T);
-    //        if (defalt is DateTime && ((DateTime)(object)defalt) < DtEpoch) defalt = (T)(object)DtEpoch;
-    //        if (value == null || value is DBNull) return defalt;
-    //        if (value is string && string.IsNullOrWhiteSpace((string)value) && outType != typeof(string)) return defalt;
-
-    //        try
-    //        {
-    //            if (outType == typeof(Boolean)) //boolean conversion is messy and not handled very well by default.
-    //            {
-    //                double d = 0.0;
-    //                //The primitive types are Boolean, Byte, SByte, Int16, UInt16, Int32, UInt32, Int64, UInt64, IntPtr, UIntPtr, Char, Double, and Single.
-    //                if (value.GetType().IsPrimitive && Double.TryParse(value.ToString(), out d))
-    //                {
-    //                    return (T)(object)((d == 1.0 || d == 0.0) && d != 0.0);
-    //                }
-    //                if (value is string)
-    //                {
-    //                    string s = value.ToString().ToLower();
-    //                    if (s.Length == 0) return defalt;
-    //                    char c = ((string)value)[0];
-    //                    return (T)(object)(s.Equals("true") || s.Equals(szTrue));
-    //                }
-    //                if (value is Guid) return (T)(object)(((Guid)value) != Guid.Empty);
-    //            }
-
-    //            if (outType.IsEnum) return (T)Enum.Parse(outType, value.ToString(), true);
-
-    //            if (outType == typeof(DateTime) && value is string)
-    //            {
-    //                string s = (string)value;
-    //                DateTime dt;
-    //                if (DateTime.TryParse(s, CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal | DateTimeStyles.AllowWhiteSpaces, out dt)) return (T)(object)dt;
-    //                if (CultureInfo.CurrentCulture.LCID != 0x0409 && DateTime.TryParse(s, CultureInfo.GetCultureInfo(0x0409), DateTimeStyles.AssumeLocal | DateTimeStyles.AllowWhiteSpaces, out dt)) return (T)(object)dt;
-    //                if (s.Length >= 8 && s.All(c => (c >= '0' && c <= '9'))) //special case: \"20050204224530110\" == \"2005-02-04 22:45:30.110\" with optional time, seconds, milliseconds
-    //                {
-    //                    int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0, millisecond = 0;
-    //                    year = int.Parse(s.Substring(0, 4));
-    //                    month = int.Parse(s.Substring(4, 2));
-    //                    day = int.Parse(s.Substring(6, 2));
-    //                    if (s.Length >= 12) hour = int.Parse(s.Substring(8, 2));
-    //                    if (s.Length >= 12) minute = int.Parse(s.Substring(10, 2));
-    //                    if (s.Length >= 14) second = int.Parse(s.Substring(12, 2));
-    //                    if (s.Length >= 16 && s.Length < 17) millisecond = int.Parse(s.Substring(14, 1)) * 100;
-    //                    if (s.Length >= 16 && s.Length < 18) millisecond = int.Parse(s.Substring(14, 2)) * 10;
-    //                    if (s.Length >= 16 && s.Length < 19) millisecond = int.Parse(s.Substring(14, 3));
-    //                    if (year < 1900 || year > 3000) return defalt;
-    //                    if (month < 1 || month > 12) return defalt;
-    //                    if (day < 1 || day > DateTime.DaysInMonth(year, month)) return defalt;
-    //                    return (T)(object)new DateTime(year, month, day, hour, minute, second, millisecond);
-    //                }
-    //            }
-
-    //            return (T)Convert.ChangeType(value, outType);
-    //        }
-    //        catch
-    //        {
-    //            return defalt;
-    //        }
-    //    }
-    //    #endregion
     }
     #endregion
 }

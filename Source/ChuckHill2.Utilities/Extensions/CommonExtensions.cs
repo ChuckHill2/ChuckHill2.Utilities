@@ -841,11 +841,13 @@ namespace ChuckHill2.Extensions
         /// <param name="list">List to search</param>
         /// <param name="match">Delegate to determine if there is a match</param>
         /// <returns>Index of matched element or -1 if not found</returns>
-        public static int IndexOf<T>(this IList<T> list, Func<T, bool> match) where T : class
+        public static int IndexOf<T>(this IEnumerable<T> list, Func<T, bool> match)
         {
-            for (int i = 0; i < list.Count; i++)
+            int index = -1;
+            foreach (var v in list)
             {
-                if (match(list[i])) return i;
+                index++;
+                if (match(v)) return index;
             }
             return -1;
         }
@@ -864,6 +866,54 @@ namespace ChuckHill2.Extensions
                 if (match(list[i])) return i;
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Move a value in the list to a new index. Assumes that the value is unique in the array..
+        /// If value doesn't exist in array, it is just inserted at index.
+        /// </summary>
+        /// <typeparam name="T">Array element type</typeparam>
+        /// <param name="list">Array to manipulate</param>
+        /// <param name="value">Value to move</param>
+        /// <param name="index">Index to move the value to.</param>
+        public static void MoveToIndex<T>(this IList<T> list, T value, int index)
+        {
+            IComparer comparer = list is IList<string> ? (IComparer)StringComparer.CurrentCultureIgnoreCase : (IComparer)Comparer.Default; // for efficiency
+            int oldIndex = list.IndexOf<T>(m => comparer.Compare(m, value) == 0);
+            if (index == oldIndex) return;
+            if (oldIndex != -1) list.RemoveAt(oldIndex);
+            list.Insert(index, value);
+        }
+
+        /// <summary>
+        /// Perform some action on each element in array
+        /// </summary>
+        /// <typeparam name="T">The type of the element.</typeparam>
+        /// <param name="array">Array to perform action upon. Null or zero-length array returns immeditely</param>
+        /// <param name="action">Method that perform an action on the element</param>
+        public static void ForEach<T>(this IList<T> array, Action<T> action)
+        {
+            if (array == null || array.Count == 0) return;
+            for (int i = 0; i < array.Count; i++)
+            {
+                action(array[i]);
+            }
+        }
+
+        /// <summary>
+        /// Perform some action on each element in array starting with the last element.
+        /// Important if you are adding or removing elements from the array.
+        /// </summary>
+        /// <typeparam name="T">The type of the element.</typeparam>
+        /// <param name="array">Array to perform action upon. Null or zero-length array returns immeditely</param>
+        /// <param name="action">Method that perform an action on the element</param>
+        public static void ForEachReverse<T>(this IList<T> array, Action<T> action)
+        {
+            if (array == null || array.Count == 0) return;
+            for (int i = array.Count-1; i >= 0; i--)
+            {
+                action(array[i]);
+            }
         }
     }
 

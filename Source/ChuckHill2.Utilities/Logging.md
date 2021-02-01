@@ -44,10 +44,10 @@ All of all the basic logging listener features, plus…
 
 - Output file name may include any pre-existing environment variables.
 - File will create a new file (aka 'roll over') after a max file size has been set, default=100MB
-- Rollover file count exceeding a maximum limit will be deleted, oldest first. Default=-1 (e.g. never deleted).
+- Rollover file count exceeding a maximum limit will be deleted, oldest first. Default=0 (e.g. never deleted).
 - Files may optionally have a header and/or footer. Important for XML-like files. Nice for CSV.
 - Same file may be safely written to by multiple processes.
-- CSV-like format strings (e.g. {0:s},{1},"{2}", …) will be reformatted and results written out as formal CSV readable by Excel, including multi-line fields.
+- CSV-like format strings (e.g. {0:G},{1},"{2}", …) will be reformatted and results written out as formal CSV readable by Excel, including multi-line fields.
 
 ### DebugTraceListener
 

@@ -1,3 +1,6 @@
+#define TRACE
+#define DEBUG
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ChuckHill2;
 using ChuckHill2.Extensions.Reflection;
+using ChuckHill2.Extensions;
 
 namespace LoggerDemo
 {
@@ -20,6 +24,8 @@ namespace LoggerDemo
         [STAThread]
         static void Main(string[] args)
         {
+            Log.LogInitialize(); //This must be first line so Log will be inialized and recognize and process Debug/Trace API before using the first use.
+
             Thread.CurrentThread.Name = "MainThread";
 
             if (args.Length > 0)
@@ -33,10 +39,33 @@ namespace LoggerDemo
 Review the debugger output window for 'TRACE' messages and TestCase #3 messages.
 Review CSV output in {Path.ChangeExtension(Process.GetCurrentProcess().MainModule.FileName, ".log")} for 'General' logging messages.");
 
+            //Debug.Fail("Debug.Fail message");   //This will create an assert popup message
+            Debug.WriteLine("Debug.WriteLine");
+            Debug.WriteLine("Debug.WriteLine-MySource", "MySource");
+            Debug.Indent();
+            Debug.WriteLine("Indent;Debug.WriteLine;Unindent");
+            Debug.Unindent();
+
+            foreach (TraceListener tl in Trace.Listeners)  Console.WriteLine($"TraceListener=\"{tl.Name}\" ({tl.GetType().Name})");
+            //Trace.Fail("Trace.Fail");   //This will create an assert popup message
+            Trace.TraceError("Trace.TraceError");
+            Trace.TraceWarning("Trace.TraceWarning");
+            Trace.TraceInformation("Trace.TraceInformation");
+            Trace.Write("Trace.Write");  //these will run together as there is no newline
+            Trace.Write("Trace.Write");
+            Trace.WriteLine("Trace.WriteLine");
+            Trace.WriteLine("Trace.WriteLine-MySource", "A message prefix");
+
+            //Create an exception so we can capture the first chance exception.
+            int d = 1234;
+            try { d /= 0; }
+            catch { }
+
+
             Log log = new Log("General");
-            log.Information("log.Information to CSV");
+            log.Error("log.Information-General");
             Log.SetAllSeverities(SourceLevels.All);
-            log.Information("log.Information to CSV");
+            log.Information("log.Information-General-All");
 
             Trace.WriteLine(string.Format("[Instance#{0}, Thread#{1}] ({2:000000}) log.Information(\"This is an Information message\")", 1, 2, 3));
             Trace.WriteLine(string.Format("[Instance#{0}, Thread#{1}] ({2:000000}) log.Information(\"This is an Information message\")", 1, 2, 3));

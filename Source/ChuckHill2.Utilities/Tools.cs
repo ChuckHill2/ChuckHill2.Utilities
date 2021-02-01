@@ -83,8 +83,17 @@ namespace ChuckHill2
 
             return resultExpr.Compile(); //(cache) => System.String.Format(formatString, args.ToArray());
         }
+
         private static readonly Regex InterpolationParser = new Regex(@"\{([^\{\}:]+)[:\}]", RegexOptions.Compiled);
         private static readonly MethodInfo StringFormatMethod = typeof(string).GetMethod("Format", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(object[]) }, null);
+
+        //FOR DEBUGGING
+        //private static readonly MethodInfo StringFormatMethod = typeof(Tool).GetMethod("MyStringFormatDebug", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(string), typeof(object[]) }, null);
+        //private static string MyStringFormatDebug(string format, object[] args)
+        //{
+        //    string result = string.Format((IFormatProvider)null, format, args);
+        //    return result;
+        //}
 
         /// <summary>
         /// Recursivly compare 2 XML elements for equality.
