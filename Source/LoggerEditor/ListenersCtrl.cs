@@ -474,9 +474,9 @@ namespace ChuckHill2.LoggerEditor
         [DefaultValue(".")]
         public string Machine { get; set; } = ".";
 
-        [Category("Output"), Description("EventLog log to write to. If undefined EventLog logging disabled.")]
-        [DefaultValue("")]
-        public string Log { get; set; } = "";
+        [Category("Output"), Description("EventLog log to write to.")]
+        [DefaultValue("Application")]
+        public string Log { get; set; } = "Application";
 
         [Category("Output"), Description("EventLog source to write to. If undefined EventLog logging disabled.")]
         [DefaultValue("")]

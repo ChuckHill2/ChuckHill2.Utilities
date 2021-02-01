@@ -25,8 +25,8 @@ namespace LoggerDemo
         static void Main(string[] args)
         {
             Log.LogInitialize(); //This must be first line so Log will be inialized and recognize and process Debug/Trace API before using the first use.
-
             Thread.CurrentThread.Name = "MainThread";
+            Log log;
 
             if (args.Length > 0)
             {
@@ -56,13 +56,16 @@ Review CSV output in {Path.ChangeExtension(Process.GetCurrentProcess().MainModul
             Trace.WriteLine("Trace.WriteLine");
             Trace.WriteLine("Trace.WriteLine-MySource", "A message prefix");
 
+            log = new Log("MyEvSource");
+            log.Information("LoggerDemo Test");
+
             //Create an exception so we can capture the first chance exception.
             int d = 1234;
             try { d /= 0; }
             catch { }
 
 
-            Log log = new Log("General");
+            log = new Log("General");
             log.Error("log.Information-General");
             Log.SetAllSeverities(SourceLevels.All);
             log.Information("log.Information-General-All");

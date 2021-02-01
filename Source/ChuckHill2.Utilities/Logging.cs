@@ -1469,8 +1469,7 @@ namespace ChuckHill2
         protected IWriterBase<MSG> m_writer; //object that actually performs the write to the output destination.
         private bool m_initialized = false; //initialize listener properties only upon demand.
         private string m_initializeData = string.Empty; //string from app.config: configuration/system.diagnostics/sharedListeners/add[name='listenername']/@initializeData
-
-        //Values that need to be initialized when there is a custom format string in 'initializeData'. Used by MsgFormatter();
+        //Log message formatter delegate that is initialized when there is a custom format string in 'initializeData'. Used by MsgFormatter();
         private Func<FormatTraceEventCache,string> m_formatter = null;
 
         /// <summary>
@@ -1527,7 +1526,6 @@ namespace ChuckHill2
                 int indentSize = data.GetValue("IndentSize").CastTo(base.IndentSize < 1 ? 0 : base.IndentSize);
                 IndentPadding = indentSize < 1 ? string.Empty : "\n".PadRight(indentSize + 1); //for string.Replace("\n",m_indentPadding);
 
-
                 data.Remove("SqueezeMsg");   //This is relevant to this base class only.
                 data.Remove("Async");
                 data.Remove("Format");
@@ -1536,7 +1534,7 @@ namespace ChuckHill2
                 if (!format.IsNullOrEmpty())
                 {
                     FormatDeclared = true;
-                    IsCSV = this is FileTraceListener && !format.Contains('\n') && !format.Contains("\\n");
+                    IsCSV = this is FileTraceListener && IsFormatCsv(format);
                     m_formatter = Tool.GetFormatter<FormatTraceEventCache>(format);
                 }
                 else FormatDeclared = false;
@@ -1549,7 +1547,20 @@ namespace ChuckHill2
             }
         }
 
-        public override bool IsThreadSafe { get { return true; } }  //flag to base class that these api are thread-safe
+        private bool IsFormatCsv(string format)
+        {
+            int commas = 0;
+            char prevC = '\0';
+            foreach(var c in format)
+            {
+                if (prevC=='\\' && (c == 'r' || c == 'n')) return false; //handle newline substrings
+                if (c == '\r' || c == '\n') return false;
+                if (c == ',') commas++;
+                prevC = c;
+            }
+            return (commas > 1);
+        }
+
         public override void Close()
         {
             if (m_writer == null) return;
@@ -1855,11 +1866,11 @@ namespace ChuckHill2
         protected override void Initialize(Dictionary<string,string> initializeData)
         {
             string machine = initializeData.GetValue("Machine").CastTo(".");
-            string log = initializeData.GetValue("Log").CastTo("");
-            string source = initializeData.GetValue("Source").CastTo("");
-            if (log.Length == 0 || source.Length == 0)
+            string log = initializeData.GetValue("Log").CastTo("Application");
+            string source = initializeData.GetValue("Source") ?? "";
+            if (source.Length == 0)
             {
-                Log.InternalError("AppConfig missing EventLog listener data. 'Log' and/or 'Source' undefined. EventLog logging disabled.");
+                Log.InternalError("AppConfig missing EventLog listener initialization data. 'Source' is undefined. EventLog logging disabled.");
                 return;
             }
             if (CreateEventLog(ref machine, ref log, ref source))
@@ -1878,10 +1889,12 @@ namespace ChuckHill2
         /// <param name="log">Event log to use or create. Upon error, it reverts to "Application".</param>
         /// <param name="source">Event source to use or create. Upon error, it reverts to executable name</param>
         /// <returns>
-        /// True if event log and/or event source was created. It also means that the OS needs to be 
-        /// rebooted for the changes to take effect. The EventLog Service cannot be restarted. Until 
-        /// the reboot occurs, the message destination is undefined. It may be the new location, old 
-        /// location, both, or none.
+        /// There can only be one Event Source in the entire Event Service. It does not recognize Logs as distinctive namespaces.
+        /// Thus when moving an event source from one log to another, The event service needs to be restarted to re-read its configuration.
+        /// However the the event service cannot be stopped. The entire OS must be rebooted for the event source move to be recognized.
+        /// Unless dependent services are stopped first...
+        /// <see cref="https://stackoverflow.com/questions/19169529/reinitialize-windows-event-log-service-without-reboot"/>
+        /// Therefore this method returns true if reboot is required.
         /// </returns>
         public static bool CreateEventLog(ref string machine, ref string log, ref string source)
         {
@@ -2845,6 +2858,7 @@ GO
     /// </summary>
     public class FormatTraceEventCache
     {
+        //Dictionary of property reader methods - Used only by DataBaseTraceListener
         public static readonly Dictionary<string, Func<FormatTraceEventCache, object[], object>> Properties = GetProperties();
         private static Dictionary<string, Func<FormatTraceEventCache, object[], object>> GetProperties()
         {
@@ -2855,9 +2869,11 @@ GO
             }
             return properties;
         }
+
         private static readonly string FullLogTypeName = typeof(Log).FullName; //required for stripping our internals from the callstack string;
-        //List all string properties that may possibly contain newlines or doublequote chars;
-        //internal static readonly string[] CSVFormattingRequired = new string[]{ "UserMessage", "Exception", "ExceptionMessage", "CallStack", "LogicalOperationStack", "UserData" };
+
+        // List all string properties that may possibly contain newlines or doublequote chars;
+        // internal static readonly string[] CSVFormattingRequired = new string[]{ "UserMessage", "Exception", "ExceptionMessage", "CallStack", "LogicalOperationStack", "UserData" };
 
         #region Constructor Values
         private TraceEventCache cache = null;
