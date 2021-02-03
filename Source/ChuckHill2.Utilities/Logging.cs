@@ -2087,11 +2087,11 @@ namespace ChuckHill2
 
         protected override void Initialize(Dictionary<string, string> initializeData)
         {
-            m_filename = ExpandFileName(initializeData.GetValue("Filename").CastTo("DEFAULT"));
+            m_filename = ExpandFileName(initializeData.GetValue("Filename"));
             m_maxsize = initializeData.GetValue("MaxSize").CastTo(100 * 1048576); //100MB is the default
-            m_maxfiles = initializeData.GetValue("MaxFiles").CastTo(-1); //-1 == infinity
-            m_fileheader = initializeData.GetValue("FileHeader").CastTo(String.Empty).Trim();
-            m_filefooter = initializeData.GetValue("FileFooter").CastTo(String.Empty).Trim();
+            m_maxfiles = initializeData.GetValue("MaxFiles").CastTo<int>(); //-1 == infinity
+            m_fileheader = initializeData.GetValue("FileHeader")?.Trim() ?? "";
+            m_filefooter = initializeData.GetValue("FileFooter")?.Trim() ?? "";
             if (m_fileheader.Length == 0 && !base.FormatDeclared) m_fileheader = "DateTime,Severity,SourceName,Message"; //default header if no format
 
             bool createdNew;
@@ -2105,11 +2105,12 @@ namespace ChuckHill2
 
         private string ExpandFileName(string basename)
         {
-            if (string.IsNullOrEmpty(basename)) return null;
             string appName = Process.GetCurrentProcess().MainModule.FileName;
 
-            if (string.Equals(basename, "DEFAULT", StringComparison.InvariantCultureIgnoreCase))
-                return Path.Combine(Path.GetDirectoryName(appName), Path.GetFileNameWithoutExtension(appName)).Replace(".vshost", "") + m_extension;
+            if (string.IsNullOrEmpty(basename))
+            {
+                 return Path.Combine(Path.GetDirectoryName(appName), Path.GetFileNameWithoutExtension(appName)).Replace(".vshost", "") + m_extension;
+            }
 
             if (basename.Contains('%'))
             {
@@ -2467,8 +2468,8 @@ namespace ChuckHill2
             System.Net.Configuration.SmtpSection smtp = null;
             try { smtp = System.Configuration.ConfigurationManager.GetSection("system.net/mailSettings/smtp") as System.Net.Configuration.SmtpSection; }
             catch { }
-            
-            m_subject = initializeData.GetValue("Subject").CastTo(string.Empty);
+
+            m_subject = initializeData.GetValue("Subject") ?? "";
 
             string sentFrom = initializeData.GetValue("SentFrom").CastTo(smtp != null ? smtp.From : string.Empty);
             if (sentFrom.Length == 0) { Log.InternalError("AppConfig missing MailTraceListener data. Both 'system.net/mailSettings/smtp/@from' and initializeData 'SentFrom' undefined. Mail logging disabled."); return; }

@@ -20,7 +20,7 @@ namespace ChuckHill2.LoggerEditor
             InitializeComponent();
 
             //Associate Enum column datasource with array of enum names.
-            m_gridcolSourceLevel.DataSource = Enum.GetNames(typeof(SourceLevels));
+            m_gridcolTraceLevel.DataSource = Enum.GetNames(typeof(TraceLevel));
 
             //replace fake newlines for real ones in column tooltips
             foreach (DataGridViewColumn c in m_grid.Columns)
@@ -52,7 +52,7 @@ namespace ChuckHill2.LoggerEditor
                 foreach (Data item in m_gridBindingSource.List)
                 {
                     item.XmlComments.ForEach((c) => sb.Append(c.OuterXml));
-                    sb.AppendFormat($"<add name=\"{item.Name}\" value=\"{item.SourceLevel}\"/>");
+                    sb.AppendFormat($"<add name=\"{item.Name}\" value=\"{item.TraceLevel}\"/>");
                 }
 
                 var node = xdoc.CreateElement("switches");
@@ -71,7 +71,7 @@ namespace ChuckHill2.LoggerEditor
                     var name = node.Attributes["name"]?.Value;
                     var val = node.Attributes["value"]?.Value;
                     if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(val)) continue;
-                    if (!Enum.TryParse<SourceLevels>(val, true, out var e)) continue;
+                    if (!Enum.TryParse<TraceLevel>(val, true, out var e)) continue;
 
                     var item = new Data(name, e);
                     //Save xml comments in order to restore them
@@ -143,7 +143,7 @@ namespace ChuckHill2.LoggerEditor
             e.Row.Cells[nameof(m_gridcolName)].Value = $"{namePrefix}{++index}";
         }
 
-        private static readonly string[] KnownSeverities = Enum.GetNames(typeof(SourceLevels));
+        private static readonly string[] KnownSeverities = Enum.GetNames(typeof(TraceLevel));
         private void m_grid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
             if (m_grid.Columns[nameof(m_gridcolName)].Index != e.ColumnIndex) return;
@@ -185,20 +185,20 @@ namespace ChuckHill2.LoggerEditor
             }
 
             //This is not used in the grid column as the grid does not understand enums. Tnis is not used/hidden in the griid
-            public SourceLevels SourceLevel { get; set; } = SourceLevels.Off;
+            public TraceLevel TraceLevel { get; set; } = TraceLevel.Off;
             //Grid does not understand Enums, so we have to convert to a string.
-            public string SourceLevelString
+            public string TraceLevelString
             {
-                get => SourceLevel.ToString();
-                set => SourceLevel = Enum.TryParse<SourceLevels>(value, true, out var sl) ? sl : SourceLevels.Off;
+                get => TraceLevel.ToString();
+                set => TraceLevel = Enum.TryParse<TraceLevel>(value, true, out var sl) ? sl : TraceLevel.Off;
             }
 
             public Data() { } //Used by grid 'Add'
-            public Data(string n, string sl) { Name = n; SourceLevelString = sl; } //used by grid update
-            public Data(string n, SourceLevels sl) { Name = n; SourceLevel = sl; } //used by us
+            public Data(string n, string tl) { Name = n; TraceLevelString = tl; } //used by grid update
+            public Data(string n, TraceLevel tl) { Name = n; TraceLevel = tl; } //used by us
 
-            public Data(Data d) : this(d.Name, d.SourceLevel) { } //Clone. Dont know where this is used.
-            public override string ToString() => $"\"{Name}\" = {SourceLevel}"; //for debugging.
+            public Data(Data d) : this(d.Name, d.TraceLevel) { } //Clone. Dont know where this is used.
+            public override string ToString() => $"\"{Name}\" = {TraceLevel}"; //for debugging.
         }
     }
 }

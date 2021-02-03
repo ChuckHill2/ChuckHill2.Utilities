@@ -36,7 +36,7 @@ namespace ChuckHill2.LoggerEditor
             this.m_gridBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.m_lblTrace = new ChuckHill2.Forms.GradientLabel();
             this.m_gridcolName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.m_gridcolSourceLevel = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.m_gridcolTraceLevel = new System.Windows.Forms.DataGridViewComboBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.m_grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_gridBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -62,7 +62,7 @@ namespace ChuckHill2.LoggerEditor
             this.m_grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.m_grid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.m_gridcolName,
-            this.m_gridcolSourceLevel});
+            this.m_gridcolTraceLevel});
             this.m_grid.DataSource = this.m_gridBindingSource;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.AliceBlue;
@@ -127,16 +127,16 @@ namespace ChuckHill2.LoggerEditor
             // 
             // m_gridcolSourceLevel
             // 
-            this.m_gridcolSourceLevel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.m_gridcolSourceLevel.DataPropertyName = "SourceLevelString";
-            this.m_gridcolSourceLevel.DisplayStyleForCurrentCellOnly = true;
-            this.m_gridcolSourceLevel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.m_gridcolSourceLevel.HeaderText = "Severity Level";
-            this.m_gridcolSourceLevel.MinimumWidth = 100;
-            this.m_gridcolSourceLevel.Name = "m_gridcolSourceLevel";
-            this.m_gridcolSourceLevel.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.m_gridcolSourceLevel.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.m_gridcolSourceLevel.ToolTipText = "Select a severity level. Note severity levels are cumulative\\n(e.g. Error=Errors " +
+            this.m_gridcolTraceLevel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.m_gridcolTraceLevel.DataPropertyName = "SourceLevelString";
+            this.m_gridcolTraceLevel.DisplayStyleForCurrentCellOnly = true;
+            this.m_gridcolTraceLevel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.m_gridcolTraceLevel.HeaderText = "Severity Level";
+            this.m_gridcolTraceLevel.MinimumWidth = 100;
+            this.m_gridcolTraceLevel.Name = "m_gridcolSourceLevel";
+            this.m_gridcolTraceLevel.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.m_gridcolTraceLevel.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.m_gridcolTraceLevel.ToolTipText = "Select a severity level. Note severity levels are cumulative\\n(e.g. Error=Errors " +
     "only, Warning=Errors+Warnings, etc).";
             // 
             // SwitchesCtrl
@@ -159,6 +159,6 @@ namespace ChuckHill2.LoggerEditor
         private System.Windows.Forms.BindingSource m_gridBindingSource;
         private Forms.GradientLabel m_lblTrace;
         private System.Windows.Forms.DataGridViewTextBoxColumn m_gridcolName;
-        private System.Windows.Forms.DataGridViewComboBoxColumn m_gridcolSourceLevel;
+        private System.Windows.Forms.DataGridViewComboBoxColumn m_gridcolTraceLevel;
     }
 }
