@@ -1,27 +1,26 @@
-# ChuckHill2.Log: Yet Another Logging API
-A thin wrapper around System.Diagnostics.Trace that extends its functionality.
-This minimizes the usage learning curve.
+\page LoggingMD Yet Another Logging API
+A thin wrapper around System.Diagnostics.Trace that extends its functionality and minimizes the usage learning curve.
 
-# Purpose
+## Purpose
 Write logging events to an output destination for purposes of support AFTER the product has been released to customers.
 
-# What is logging?
+## What is logging?
 In a clear way, logging is just a fancy word to define a process of writing down everything an application does.
 
-# Terminology
+## Terminology
 * **Log Event** - The message to be sent to one or more listeners. It contains a user-message plus other event properties.
 * **Severity Level** - Log events are partitioned by how bad (aka severe) the action is.
 * **Listener** - A listener is an output destination for the log event.
 * **Event/Trace Source** - The identifier for a code module or service.
 
-# Severity Levels
+## Severity Levels
 * **Critical** - The action failed badly and the application/service will be terminated.
 * **Error** - The action failed and the operation will not continue.
 * **Warning** - The action failed but recovered and will continue.
 * **Information** - The action status. Should be used for high level actions only.
 * **Verbose** - Detailed action status. For low-level action details. Should be enabled for debugging only as it will be a performance hit.
 
-## SourceLevels vs TraceLevel vs TraceEventType enums
+### SourceLevels vs TraceLevel vs TraceEventType enums
 * SourceLevels - The bit-wise filter of logging events that are allowed to be written where:
     - Off - Writing to this source is disabled.
     - Critical - Only critical events are written. All others are thrown out.
@@ -34,7 +33,7 @@ In a clear way, logging is just a fancy word to define a process of writing down
 * TraceEventType - The severity of specific event that is being logged. 
 * TraceLevel - Legacy. Subset of SourceLevels (Off,Error,Warning,Info,Verbose)
 
-# Features
+## Features
 - Thin wrapper around built-in .NET System.Diagnostics Trace and TraceSource logging. This allows transparent use of ALL pre-existing Trace and TraceSource API _including_ what is already built-in to WPF,WCF, System.Net, etc.
 - No changes or extensions to the App/Web config configuration.
 - Simple logging API that avoid any message processing/formatting unless message is actually going to be written.
@@ -47,16 +46,17 @@ In a clear way, logging is just a fancy word to define a process of writing down
 - Programmatically set/reset trace source severity as needed.
 - Upon exit, queued messages are flushed before exit. None are lost.
 
-# Built-in Trace Sources
+### Built-in Trace Sources
 The following create copies of the messages before they are routed to their normal destinations. By default, these trace sources are disabled (e.g. SeverityLevel.Off)
 * **TRACE** - Captures all System.Diagnostics.Debug and System.Diagnostics.Trace messages.
 * **CONSOLE** - Captures all System.Console messages even if there is no console attached to the application.
 * **FIRSTCHANCE** - Captures exceptions before they are passed to the application code. This cannot be blocked by try/catch blocks.
 
-# App.config Editor
+## App.config Editor
 LoggerEditor.exe is an editing application provided to add and configure all the System.Diagnostics logging properties. This application includes all the logic, constraints, and help to simplify the editing process. It does not touch the other App.config nodes. It also maintains any user comments that may exist among the System.Diagnostics logging properties.
 
 ## Logging Listeners / Appenders (NLog name!)
+
 ### .NET System.Diagnostics Listeners
 These listeners are provided as a part of .NET. However, all writing is synchronous.
 * System.Diagnostics.TextWriterTraceListener
@@ -72,7 +72,7 @@ These listeners are provided as a part of .NET. However, all writing is synchron
 
 These listeners may be used but the following listeners are much better.
 
-### .NET ChuckHill2 Listeners
+### .NET ChuckHill2.Logging Listeners
 These logging features are available to all the following listeners.
 - Optionally lazily write messages to their output destinations in a low-priority worker thread.
 - Optionally handle custom message formatting with many more parameters than that provided by System.Diagnostics.
@@ -124,7 +124,7 @@ In addition, a listener may have 0 or more filter child nodes. A filter allows o
 ## Performance Test
 The LoggerDemo app tests different features of the logger. In particular, the performance test writes all messages to a single file. 3 threads each writing 100,000 messages * 3 processes (900,000 messages total) asynchronously took 6 seconds to complete. It took an additional 4 seconds to for all three processes to flush their message queues upon exit. This result is ideal, as more resource-intensive properties (like retrieving the callstack) and/or more resource-intensive logging will cause the duration to increase. Your mileage may vary.
 
-# Example App.Config
+## Example App.Config
 The following example shows, with comments, all the possible permutations of the system.diagnostics section of the app/web.config.
 
 ```xml
@@ -225,7 +225,7 @@ The following example shows, with comments, all the possible permutations of the
       | If 'Format' is undefined, the default is: 
       |    "Category: {SourceName}\r\n{UserMessage}{Exception}"
       -->
-      <add name="EventLogListener" type="ChuckHill2.EventLogTraceListener, ChuckHill2.Utilities" initializeData="Source=LoggerDemo">
+      <add name="EventLogListener" type="ChuckHill2.Logging.EventLogTraceListener, ChuckHill2.Utilities" initializeData="Source=LoggerDemo">
         <!--Optional MultiSourceFilter initializeData attribute contains a comma-delimited list of sources (case-insensitive) to ignore -->
         <filter type="ChuckHill2.MultiSourceFilter, ChuckHill2.Utilities" initializeData="DisallowedSource1,DisallowedSource2,DisallowedSource3" />
       </add>
@@ -239,7 +239,7 @@ The following example shows, with comments, all the possible permutations of the
       | If 'Format' is undefined, the default is:
       |   "Debug: {LocalDateTime:yyyy/MM/dd HH:mm:ss.fff} : {Severity} : {SourceName} : {UserMessage}"
       -->
-      <add name="DebugListener" type="ChuckHill2.DebugTraceListener, ChuckHill2.Utilities" />
+      <add name="DebugListener" type="ChuckHill2.Logging.DebugTraceListener, ChuckHill2.Utilities" />
       
       <!-- FileTraceListener
       | Write log messages to the specified file.
@@ -259,8 +259,8 @@ The following example shows, with comments, all the possible permutations of the
       | If 'Format' is undefined, the default is: "{LocalDateTime:yyyy-MM-dd HH:mm:ss.fff},{Severity},{SourceName},"{UserMessage}"
       | and FileHeader="DateTime,Severity,SourceName,Message"
       -->
-      <add name="CsvFileListener" type="ChuckHill2.FileTraceListener, ChuckHill2.Utilities" />
-      <add name="FormattedFileListener" type="ChuckHill2.FileTraceListener, ChuckHill2.Utilities"
+      <add name="CsvFileListener" type="ChuckHill2.Logging.FileTraceListener, ChuckHill2.Utilities" />
+      <add name="FormattedFileListener" type="ChuckHill2.Logging.FileTraceListener, ChuckHill2.Utilities"
            initializeData="Filename=%ProcessName%-%ProcessId%.log;
            Format={LocalDateTime:yyyy-MM-ddTHH:mm:ss.fff} Severity: {Severity}, Source: {SourceName}\r\nMessage: {UserMessage}\r\n{ExceptionOrCallStack}" />
         
@@ -286,7 +286,7 @@ The following example shows, with comments, all the possible permutations of the
       | If 'Format' is undefined, the default is:
       |   "DateTime : {LocalDateTime:yyyy/MM/dd HH:mm:ss.fff}\r\nSeverity : {Severity}\r\nSource   : {SourceName}\r\nMessage  : {UserMessage}"
       -->
-      <add name="EmailListener" type="ChuckHill2.EmailTraceListener, ChuckHill2.Utilities" initializeData="
+      <add name="EmailListener" type="ChuckHill2.Logging.EmailTraceListener, ChuckHill2.Utilities" initializeData="
            SentFrom=System Admin &amp;lt;charlesh@mycompany.com&amp;gt;;
            SendTo=ChuckHill2 &amp;lt;chuckhill2@gmail.com&amp;gt;" />
            
@@ -304,7 +304,7 @@ The following example shows, with comments, all the possible permutations of the
       |      "INSERT INTO MyTable ([Date],Severity,Source,Message) VALUES ({0}, {1}, {2}, {3})", LocalDateTime, Severity, SourceName, UserMessage
       | The 'Format' and 'IndentSize' properties are not used.
       -->
-      <add name="DbListener" type="ChuckHill2.DatabaseListener, ChuckHill2.Utilities" initializeData="
+      <add name="DbListener" type="ChuckHill2.Logging.DatabaseListener, ChuckHill2.Utilities" initializeData="
            ConnectionString=Data Source=(local)\;Initial Catalog=VIA\_Security\;Integrated Security=SSPI;
            SqlStatement=INSERT INTO MyTable ([Date],Severity,Source,Message) VALUES (@LocalDateTime, @SeverityString, @SourceName, @UserMessage)"/>
            

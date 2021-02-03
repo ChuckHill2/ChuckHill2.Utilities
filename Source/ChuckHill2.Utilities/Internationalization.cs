@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using ChuckHill2.Extensions;
 using ChuckHill2.Extensions.Reflection;
+using ChuckHill2.Logging;
 
 namespace ChuckHill2
 {

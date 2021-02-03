@@ -18,6 +18,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Windows.Forms.Design;
 using System.ComponentModel.Design;
 using System.Drawing.Design;
+using ChuckHill2.Logging;
 
 namespace ChuckHill2.LoggerEditor
 {
@@ -35,7 +36,7 @@ namespace ChuckHill2.LoggerEditor
             { typeof(DatabaseTraceListener), new vx(typeof(DatabaseTraceListenerProps), "Asynchronously write formatted log\r\nmessages to a relational database table.") },
             { typeof(DebugTraceListener), new vx(typeof(DebugTraceListenerProps), "Asynchronously write formatted log messages to the\r\ndebugger output. Output is viewable via an external\r\ndebug viewer such as Microsoft's Dbgview.exe or the\r\nVisualStudio debugger output window, but not both.") },
             { typeof(EmailTraceListener), new vx(typeof(EmailTraceListenerProps), "Asynchronously write formatted log messages\r\nas email messages to through a mail server.") },
-            { typeof(EventLogTraceListener), new vx(typeof(EventLogTraceListenerProps), "Asynchronously write formatted log messages\r\nto the Windows Event Log. Creates Event log\r\nand/or source if it does not already exist.") },
+            { typeof(ChuckHill2.Logging.EventLogTraceListener), new vx(typeof(EventLogTraceListenerProps), "Asynchronously write formatted log messages\r\nto the Windows Event Log. Creates Event log\r\nand/or source if it does not already exist.") },
             { typeof(FileTraceListener), new vx(typeof(FileTraceListenerProps), "Asynchronously write formatted log\r\nmessages to a rolling plain text file.") },
             { typeof(ConsoleTraceListener), new vx(typeof(SysConsoleTraceListenerProps), "Built-in .Net write tracing or debugging\r\noutput to the current console window. Does\r\nnot create/allocate a new console window.") },
             { typeof(DefaultTraceListener), new vx(typeof(SysDefaultTraceListenerProps), "Built-in .Net write tracing or debugging\r\noutput to the Visual Studio Output window\r\nsimilar to DebugTraceListener.") },
@@ -455,7 +456,7 @@ namespace ChuckHill2.LoggerEditor
     public class EventLogTraceListenerProps : ListenerPropBase
     {
         [Browsable(false), XmlIgnore]
-        public override Type Type => typeof(ChuckHill2.EventLogTraceListener);
+        public override Type Type => typeof(ChuckHill2.Logging.EventLogTraceListener);
 
         [Browsable(false), XmlIgnore]
         public override XmlElement Node
@@ -486,7 +487,7 @@ namespace ChuckHill2.LoggerEditor
     public class FileTraceListenerProps : ListenerPropBase
     {
         [Browsable(false), XmlIgnore]
-        public override Type Type => typeof(ChuckHill2.FileTraceListener);
+        public override Type Type => typeof(ChuckHill2.Logging.FileTraceListener);
 
         [Browsable(false), XmlIgnore]
         public override XmlElement Node

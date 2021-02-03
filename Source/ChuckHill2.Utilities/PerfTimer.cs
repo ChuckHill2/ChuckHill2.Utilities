@@ -1,4 +1,5 @@
 using System;
+using ChuckHill2.Logging;
 
 namespace ChuckHill2
 {

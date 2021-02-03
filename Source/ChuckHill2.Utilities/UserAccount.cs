@@ -8,6 +8,7 @@ using System.Security.Principal;
 using System.Text;
 using ChuckHill2.Extensions;
 using Microsoft.Win32;
+using ChuckHill2.Logging;
 
 namespace ChuckHill2
 {

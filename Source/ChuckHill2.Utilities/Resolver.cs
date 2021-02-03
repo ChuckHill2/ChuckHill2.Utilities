@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using ChuckHill2.Extensions;
 using Microsoft.Win32;
+using ChuckHill2.Logging;
 
 namespace ChuckHill2
 {

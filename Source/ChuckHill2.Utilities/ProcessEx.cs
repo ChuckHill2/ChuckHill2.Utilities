@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using ChuckHill2.Extensions;
+using ChuckHill2.Logging;
 
 namespace ChuckHill2
 {

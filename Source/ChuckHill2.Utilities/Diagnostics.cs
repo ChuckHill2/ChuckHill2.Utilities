@@ -3,21 +3,21 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-#pragma warning disable 1591 //warning CS1591: Missing XML comment for publicly visible type or member
-
 namespace ChuckHill2
 {
     /// <summary>
-    /// Primitive Developer one-off debugging utilities. 
-    /// For more comprehensive usage, use: var log = new ChuckHill2.Log("General",SourceLevels.All);
+    /// A simple lightweight developer debugging utility.
+    /// 
+    /// For more comprehensive usage, use: var log = new ChuckHill2.Logging.Log("General",SourceLevels.All);
     /// </summary>
     public static class DBG
     {
         /// <summary>
-        /// True to enable built-in developer debug trace logging. Useful for release debugging. 
-        /// "ChuckHill2.DBG.DevLoggingEnabled" App.config entry determines the default enable
-        /// state. If the entry is missing or the App.config does not exist, the default is false.
-        /// This flag may be enabled or disabled at any time.
+        /// True to enable built-in developer debug trace logging at runtime. 
+        /// Useful for release debugging. "DevLoggingEnabled" App.config entry 
+        /// or "DevLoggingEnabled" environment variable determines the default 
+        /// enable state. The default is false. This flag may be enabled or 
+        /// disabled at any time.
         /// </summary>
         public static bool Enabled { get; set; }
 
@@ -30,7 +30,7 @@ namespace ChuckHill2
         /// (by virtue of OutputDebugString somewhere deep inside), BUT it also is can be redirected
         /// to other destination(s) in the app config. This API Delegate is a compromise.
         /// </summary>
-        private static readonly WriteDelegate _rawWrite;  //also directly used by class ChuckHill2.FormattedDebugTraceListener.
+        private static readonly WriteDelegate _rawWrite;  //also directly used by class ChuckHill2.Logging.FormattedDebugTraceListener.
         private delegate void WriteDelegate(string msg);
         [DllImport("Kernel32.dll")]
         private static extern void OutputDebugString(string errmsg);
@@ -42,9 +42,9 @@ namespace ChuckHill2
         }
         #endregion
 
-        static DBG() //Retrieve defaults upon assembly load.
+        static DBG() //Retrieve defaults upon first usage.
         {
-            DBG.Enabled = ConfigEnabled("ChuckHill2.DBG.DevLoggingEnabled");
+            DBG.Enabled = ConfigEnabled("DevLoggingEnabled");
             string enabled = Environment.GetEnvironmentVariable("DevLoggingEnabled");
             if (!string.IsNullOrWhiteSpace(enabled))
             {
@@ -63,6 +63,7 @@ namespace ChuckHill2
             else _rawWrite = OutputDebugString;
             #endregion
         }
+
         //Set default startup state from app config file.
         private static bool ConfigEnabled(string appSetting)
         {
@@ -80,7 +81,7 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Add/remove custom trace log writer. NewLine's are automatically appended.
+        /// Add/remove custom debug log writer.
         /// Handy for capturing this loggging output for further processing 
         /// (e.g. writing to a status window).
         /// </summary>
@@ -88,7 +89,7 @@ namespace ChuckHill2
 
         /// <summary>
         /// Sends a string to the debugger output window only if DBG.Enabled==true
-        /// See event DBG.LogWriter for adding custom loggers.
+        /// See event DBG.LogWriter for adding custom logging output destinations.
         /// </summary>
         /// <param name="format">string format. see String.Format()</param>
         /// <param name="args">variable argument list</param>
@@ -100,9 +101,10 @@ namespace ChuckHill2
             if (LogWriter != null) try { LogWriter(s); }
                 catch { }
         }
+
         /// <summary>
         /// Sends a string to the debugger output window only if DBG.Enabled==true
-        /// See event DBG.LogWriter for adding custom loggers.
+        /// See event DBG.LogWriter for adding custom logging output destinations.
         /// </summary>
         /// <param name="message">message to write</param>
         public static void WriteLine(string message)

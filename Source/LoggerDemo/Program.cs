@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using ChuckHill2;
 using ChuckHill2.Extensions.Reflection;
 using ChuckHill2.Extensions;
+using ChuckHill2.Logging;
 
 namespace LoggerDemo
 {
