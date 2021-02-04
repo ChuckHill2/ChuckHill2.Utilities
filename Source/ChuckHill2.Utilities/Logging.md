@@ -1,4 +1,5 @@
 \page LoggingMD Yet Another Logging API
+
 A thin wrapper around System.Diagnostics.Trace that extends its functionality and minimizes the usage learning curve.
 
 ## Purpose
@@ -38,9 +39,9 @@ In a clear way, logging is just a fancy word to define a process of writing down
 - No changes or extensions to the App/Web config configuration.
 - Simple logging API that avoid any message processing/formatting unless message is actually going to be written.
 - Efficient TraceSource allocation. Unlike the TraceSource constructor which always creates a new trace source, this logging constructor reuses pre-existing open trace sources.
-- Redirect all Trace/Debug messages that do not contain a trace source name (some do!) to the built-in &#39;TRACE&#39; trace source.
-- Optionally duplicate all Console.WriteXXX() messages to the built-in &#39;CONSOLE&#39; trace source. Useful when there is no console window.
-- Optionally capture all first-chance exceptions (cannot be hidden by try/catch/swallow blocks) and write to the built-in &#39;FIRSTCHANCE&#39; trace source. Exceptions cannot hide.
+- Redirect all Trace/Debug messages that do not contain a trace source name (some do!) to the built-in **TRACE** trace source.
+- Optionally duplicate all Console.WriteXXX() messages to the built-in **CONSOLE** trace source. Useful when there is no console window.
+- Optionally capture all first-chance exceptions (cannot be hidden by try/catch/swallow blocks) and write to the built-in **FIRSTCHANCE** trace source. Exceptions cannot hide.
 - Detects changes to the <system.diagnostics> section of the application or web config. Changes to other parts of the config are ignored. Useful for changing the logging severity without rebooting the application.
 - Optionally capture and copy all logging events and post asynchronously to subscribed C# event handlers. Maybe show logging in a live UI status window?
 - Programmatically set/reset trace source severity as needed.

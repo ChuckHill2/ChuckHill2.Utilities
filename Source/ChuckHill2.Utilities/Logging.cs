@@ -35,28 +35,43 @@ namespace ChuckHill2.Logging
     /// performance of the application.  Use of the built-in Trace or TraceSource API is 
     /// transparent, however the provided log messaging API are more efficient. Since this 
     /// is a wrapper over the .NET logging, it also captures trace messages from .NET 
-    /// tracing internals such as WCF, WPF, System.Net, ASP.NET, etc.  
+    /// tracing internals such as WCF, WPF, System.Net, ASP.NET, etc.
+    /// 
     /// System.Diagnostics.Trace API that do not support sources, output is redirected to 
     /// the built-in "TRACE" source when severity is set to "Verbose".  Console.WriteXXX 
     /// messages are copied to the built-in "CONSOLE" source when severity is set to 
     /// "Information".  First-chance exceptions normally only visible within the Visual 
     /// Studio debugger are copied to the built-in "FIRSTCHANCE" source when severity is 
-    /// set to "Error".  All message events may also be captured and written to a .NET event 
-    /// handler. Useful for copying event/messages to an application status window. Events 
-    /// are lazily written to their output destination by default. The queued events are 
-    /// flushed to their output destinations automatically upon application exit.  Logging 
-    /// message/events is safe across thread, domain, and process boundries.  New trace 
-    /// sources not defined in the app.config are automatically assigned the [Trace] 
+    /// set to "Error".
+    ///
+    /// All message events may also be captured and written to a .NET event 
+    /// handler. Useful for copying event/messages to an application status window.
+    ///
+    /// Events are lazily written to their output destination by default. The queued events are 
+    /// flushed to their output destinations automatically upon application exit.
+    ///
+    /// Logging message/events is safe across thread, domain, and process boundries.
+    ///
+    /// New trace sources not defined in the app.config are automatically assigned the [Trace] 
     /// listener/output destinations.  New trace sources not defined in the app.config are 
     /// automatically assigned severity "Off" if not defined during trace source 
-    /// creation.  If the app/web.config [system.diagnostics] section is modified during 
+    /// creation.
+    ///
+    /// Severity levels for a single source or all sources may also be changed programmatically at any time.
+    ///
+    /// If the app/web.config [system.diagnostics] section is modified during 
     /// runtime, the changes are detected and updated immediately. The application does not
-    /// have to be restarted.  Computing certain logging parameters may be a severe performance 
-    /// hit. As such, the provided log messaging API include the properties 'Is(severity)
-    /// Enabled' to put the logging in an if() statement.  As an alternative, LinQ 
-    /// delegates may be used instead to compute/generate the message string and requisite 
-    /// parameters only upon demand.  Severity levels for a single source or all sources 
-    /// may be changed programmatically.
+    /// have to be restarted.
+    ///
+    /// Computing some logging parameters may be a severe performance 
+    /// hit. As such, the provided log messaging API include the properties _Is(severity)
+    /// Enabled_ to put the logging in an if() statement.  As an alternative, LinQ 
+    /// delegates may be used instead to compute/generate the message string and requisite
+    /// parameters only upon demand.
+    ///
+    /// For performance, do not use interpolated strings because the usermessage strings are
+    /// formatted before it passes through the severity filter. Use string.Format-style formatting
+    /// in order to evaluate the format _after_ the log event passes the severity filter.
     /// </summary>
     public class Log
     {
@@ -1457,9 +1472,60 @@ namespace ChuckHill2.Logging
     }
     #endregion
 
-    #region public abstract class TraceListenerBase<MSG> : TraceListener
+    #region public abstract class TraceListenerBase<T> : TraceListener
     /// <summary>
-    /// Our base trace listener class that handles 99% of the work.
+    /// The base trace listener class that handles 99% of the work.<br/>
+    /// The ChuckHill2.Logger listeners that are derived from this class:
+    /// 1. Handle custom message formatting.
+    /// 2. Handle redirection of Trace/Debug messages that do not contain a traceSource (some do!) to the "TRACE" traceSource.
+    /// 3. Safely cleanup upon close/dispose.
+    /// 4. Efficiently re-use pre-existing trace sources. System.Diagnostics by default does not!
+    /// 5. Thread-safe.
+    /// 6. Listeners are initialized only upon the first log message/event.
+    ///
+    /// The app.config listener attribute 'initializeData', contains a stringized, case-insensitive, dictionary of name=value pairs delimited by ';'
+    /// These dictionary keys and default values are listed below:
+    ///  * SqueezeMsg=false - squeeze multi-line FullMessage and duplicate whitespace into a single line.
+    ///  * Async=true - lazily write messages to output destination. False may incur performance penalties as messages are written immediately.
+    ///  * IndentSize=Trace.IndentSize (typically 4) - How many spaces to indent succeeding lines in a multi-line FullMessage.
+    ///  * Format=(default determined by derived class) - same as interpolated format string.<br/>
+    ///    Possible 'Format' argument values are (case-insensitive):
+    ///     -  Guid ActivityId - Gets the correlation activity id.
+    ///     -  String CallStack - Gets the call stack at the point of this event.
+    ///     -  DateTime DateTime - Gets the UTC datetime this event was posted. Use the datetime string formatting specifiers to get the format exactly as you want it.
+    ///     -  String DomainName - Gets the AppDomain friendly name for this event.
+    ///     -  String EntryAssemblyName - Gets the assembly name for this event.
+    ///     -  String Exception - Gets the current exception or empty if there is no exception.
+    ///     -  String ExceptionMessage - Gets the message part of exception or empty if there is no exception.
+    ///     -  String ExceptionOrCallStack -  Get the call stack or exception (if it exists) for Verbose log messages only. Returns empty if not verbose.
+    ///     -  DateTime LocalDateTime - Gets the local datetime this event was posted. Use the datetime string formatting specifiers to get the format exactly as you want it.
+    ///     -  String LogicalOperationStack - Gets the entire correlated logical call stack form the call context.
+    ///     -  Int32 ProcessId - Gets the unique identiier of the current process (PID)
+    ///     -  String ProcessName - Gets the name of this process.
+    ///     -  TraceEventType Severity - Gets the severity level for this log event.
+    ///     -  String SeverityString - Gets the severity level for this log event.
+    ///     -  UInt16 SourceId - Gets the integer source ID
+    ///     -  String SourceName - Gets the source name.
+    ///     -  Int32 ThreadId - Gets the current managed thread ID.
+    ///     -  String ThreadName -  Gets the current thread name or 'Thread ' + ThreadId if no thread name has been assigned.
+    ///     -  Int64 Timestamp - Gets the current number of ticks in the timer mechanism.
+    ///     -  String UserData - Custom data provided by the user. Object must have overridden ToString() else the string output will be just the class name.
+    ///     -  String UserMessage - The formatted user log message for this event.
+    ///     -  String Version - Gets the version of the assembly that called this event.
+    ///     -  String RequestBrowserType - Gets the name and major (integer) version number of the browser.
+    ///     -  String RequestData - Data associated with the Get or Post request.
+    ///     -  String RequestHttpMethod - Gets the HTTP data transfer method (such as GET, POST, or HEAD) used by the client.
+    ///     -  String RequestUrl - Gets the request Url.
+    ///     -  String RequestUrlLocalPath - Gets the request url local file name.
+    ///     -  String RequestUserAgent - Gets the raw user agent string of the client browser.
+    ///     -  String UserHostAddress - Gets IP address of remote client.
+    ///     -  String UserName - Gets the current user name associated with this HttpContext.<br/><br/>
+    ///    _Format_ example:<br/>
+    ///    FORMAT={LocalDateTime:yyyy-MM-ddTHH:mm:ss.fff} Severity: {Severity}, Source: {SourceName}\r\nMessage: {UserMessage}\r\n{ExceptionMessage}
+    ///
+    /// Note: The System.Diagnostics trace source _traceOutputOptions_ attribute is ignored as the initializeData _Format_ property provides much more functionality.
+    ///
+    /// Additional dictionary/property items are handled by the derived class.
     /// <typeparam name="T">type of message to write</typeparam>
     [HostProtection(SecurityAction.LinkDemand, Synchronization = true)]
     public abstract class TraceListenerBase<T> : TraceListener
@@ -1490,7 +1556,7 @@ namespace ChuckHill2.Logging
         protected string IndentPadding { get; private set; }
 
         /// <summary>
-        /// Only true if derived type is FileTraceListener and 'Format' property == "{0},\"{1}\",{2}, ..."
+        /// Only true if derived type is FileTraceListener and _Format_ property == "{0},\"{1}\",{2}, ..."
         /// </summary>
         protected bool IsCSV { get; set; }
 
@@ -1505,12 +1571,10 @@ namespace ChuckHill2.Logging
         public TraceListenerBase() : base() { }
 
         /// <summary>
-        /// Constructor with data defined in App.Config "sharedListeners/add" node 
-        /// "initializeData" attribute.
-        /// This constructor gets called multiple times. Therefore we initialize 
-        /// only upon demand of first log message.
+        /// Constructor with property data defined in App.Config "sharedListeners/add" node _initializeData_ attribute.
+        /// This constructor gets called multiple times. Therefore we initialize only upon demand of first log message.
         /// </summary>
-        /// <param name="initializeData">stringized dictionary of key/value pairs of properties</param>
+        /// <param name="initializeData">stringized dictionary of key=value pairs of properties</param>
         public TraceListenerBase(string initializeData)
         {
             m_initializeData = initializeData;
@@ -1567,7 +1631,7 @@ namespace ChuckHill2.Logging
         }
 
         /// <summary>
-        /// Close/Dispose this listener and all it components.
+        /// Close/Dispose this listener and all its components.
         /// </summary>
         public override void Close()
         {
@@ -1578,7 +1642,7 @@ namespace ChuckHill2.Logging
         }
 
         /// <summary>
-        /// Close/Dispose this listener and all it components.
+        /// Close/Dispose this listener and all its components.
         /// </summary>
         protected override void Dispose(bool disposing) { if (disposing) this.Close(); }
 
@@ -1595,6 +1659,9 @@ namespace ChuckHill2.Logging
         /// * Debug.Write(msg);
         /// * Debug.WriteLine(msg);
         /// </summary>
+        /// <remarks>
+        /// Due to the asynchronous nature of these methods, a newline is _always_ appended.
+        /// </remarks>
         /// <param name="o">Stringized message to write</param>
         public override void Write(object o) { WriteLine(o, null); }
         public override void WriteLine(object o) { WriteLine(o, null); }
@@ -1608,12 +1675,15 @@ namespace ChuckHill2.Logging
         /// the listener as defined by the App.Config "trace" node.<br/>
         /// System.Diagnostics Methods that use these Write methods.
         /// * Trace.Write(msg,source);
-        /// *Trace.WriteLine(msg,source);
+        /// * Trace.WriteLine(msg,source);
         /// * Debug.Write(msg,source);
         /// * Debug.WriteLine(msg,source);
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="source"></param>
+        /// <remarks>
+        /// Due to the asynchronous nature of these methods, a newline is _always_ appended.
+        /// </remarks>
+        /// <param name="message">User message to write</param>
+        /// <param name="source">Identifier of source to write to.</param>
         public override void Write(object o, string source) { WriteLine(o, source); }
         public override void WriteLine(object o, string source) { WriteLine(o.ToString(), source); }
         public override void Write(string message, string source) { WriteLine(message, source); }
@@ -1725,15 +1795,15 @@ namespace ChuckHill2.Logging
         }
 
         /// <summary>
-        /// Utility to build custom message from format string specified in 'initializeData'.
-        /// Available for use by derived TraceMsgFormatter().
+        /// Utility to build custom message from format string specified in _initializeData_.
+        /// Helper method for abstract TraceMsgFormatter().
         /// </summary>
         /// <param name="cache"></param>
         /// <param name="severity"></param>
         /// <param name="sourceName"></param>
         /// <param name="sourceId"></param>
         /// <param name="message"></param>
-        /// <returns>formatted message or null if "Format" element in initializeData is undefined.</returns>
+        /// <returns>formatted message or null if _Format_ element in _initializeData_ is undefined.</returns>
         protected string MsgFormatter(TraceEventCache cache, TraceEventType severity, string sourceName, ushort sourceId, string message)
         {
             if (m_formatter == null) return null;
@@ -1840,14 +1910,14 @@ namespace ChuckHill2.Logging
     #region EventLogTraceListener
     /// <summary>
     /// Write log messages to the Windows Event Log.
-    /// Creates Event log and/or source if it does not already exist.
-    /// 'initializeData' is a dictionary of name/value pairs.
-    /// These are: 
-    ///   Machine="." - computer whos event log to write to. Requires write access.
-    ///   Log=(no default). EventLog log to write to. If undefined EventLog logging disabled.
-    ///   Source=(no default). EventLog source to write to. If undefined EventLog logging disabled.
-    /// If 'Format' is undefined, the default is: 
-    ///   string.Format("Category: {0}\r\n{1}{2}", SourceName, UserMessage, Exception);
+    /// Creates the Event log and/or source if it does not already exist.<br/>
+    /// _initializeData_ is a dictionary of name/value pairs. These are: 
+    ///   * Machine="." - computer whos event log to write to. Requires write access.
+    ///   * Log="Application". EventLog log to write to.
+    ///   * Source=(no default). EventLog source to write to. If undefined EventLog logging disabled.
+    ///   
+    /// If _Format_ is undefined, the default is:<br/>
+    ///   "Category: {SourceName}\r\n{UserMessage}{Exception}"
     /// </summary>
     [EventLogPermission(SecurityAction.Assert, PermissionAccess = EventLogPermissionAccess.Administer)]
     [HostProtection(SecurityAction.LinkDemand, Synchronization = true)]
@@ -1858,7 +1928,7 @@ namespace ChuckHill2.Logging
 
         #region  public class QMsg
         /// <summary>
-        /// For passing complex message to EventLogTraceListener.QWriter.Write().
+        /// For passing complex message to EventLogTraceListener.QWriter.Write().<br/>
         /// For internal use only by EventLogTraceListener and it's private IWriterBase class
         /// </summary>
         public class QMsg
@@ -1910,7 +1980,7 @@ namespace ChuckHill2.Logging
         /// <see cref="https://stackoverflow.com/questions/19169529/reinitialize-windows-event-log-service-without-reboot"/>
         /// Therefore this method returns true if reboot is required.
         /// </returns>
-        public static bool CreateEventLog(ref string machine, ref string log, ref string source)
+        private static bool CreateEventLog(ref string machine, ref string log, ref string source)
         {
             bool reboot = false; //True if created. Also means 'needs to reboot OS'
             try
@@ -2072,17 +2142,23 @@ namespace ChuckHill2.Logging
     #region FileTraceListener
     /// <summary>
     /// Write log messages to the specified file.
-    /// 'initializeData' is a dictionary of name/value pairs
-    /// These are 
-    ///   Filename=Same as appname with a ".log" extension - Relative or full filepath which 
-    ///       may contain environment variables including pseudo-environment variables: ProcessName, 
-    ///       ProcessId(as 4 hex digits)), AppDomainName, and BaseDir. DateTime in filename is not supported.
-    ///   MaxSize=104857600 (100MB) - max file size before starting over with a new file.
-    ///   MaxFiles=-1 (infinite) - Maximum number of log files before deleting the oldest.
-    ///   FileHeader=(no default) - String literal to insert as the first line(s) in a new file.
-    ///   FileFooter=(no default) - String literal to append as the last line(s) in a file being closed.
-    /// If 'Format' is undefined, the default is (CSV): 
-    ///   string.Format("{0:yyyy-MM-dd HH:mm:ss.fff},{1},{2},\"{3}\"", LocalDateTime, Severity, SourceName, UserMessage);
+    /// 
+    /// Additional initializeData dictionary name/value pairs:
+    ///   * Filename - If undefined, this is the same as the executable name with a ".log" extension. 
+    ///     This may be a Relative or full filepath (may or may not exist) which may
+    ///     contain any environment variables including pseudo-environment variables: 
+    ///      - ProcessName,
+    ///      - ProcessId(as 4 hex digits), 
+    ///      - AppDomainName, and 
+    ///      - BaseDir (the folder where the appdomain executable resides).
+    ///   * MaxSize=100 (MB) - max file size before starting over with a new file.
+    ///   * MaxFiles=-1 (infinite) - Maximum number of log files before deleting the oldest.
+    ///   * FileHeader=(no default) - String literal to insert as the first line(s) in a new file.
+    ///   * FileFooter=(no default) - String literal to append as the last line(s) in a file being closed.
+    ///   
+    ///  If _Format_ is undefined, the default is:<br/>
+    ///  "{LocalDateTime:yyyy-MM-dd HH:mm:ss.fff},{Severity},{SourceName},"{UserMessage}"
+    ///  and FileHeader="DateTime,Severity,SourceName,Message"
     /// </summary>
     [HostProtection(SecurityAction.LinkDemand, Synchronization = true)]
     public sealed class FileTraceListener : TraceListenerBase<string>
@@ -2451,13 +2527,12 @@ namespace ChuckHill2.Logging
     #region EmailTraceListener
     /// <summary>
     /// Write log messages as email messages to the mail server.<br/>
-    /// 'initializeData' contains a stringized dictionary of name/value pairs.<br/>
-    /// These are: 
+    /// _initializeData_ contains is a dictionary of name/value pairs. These are: 
     ///   * Subject="Log: "+SourceName - email subject line.
-    ///   * SendTo=(no default) - comma-delimited list of email addresses to send to. Whitespace is ignored. Addresses may be in the form of "username@domain.com" or "UserName &lt;username@domain.com&gt;". If undefined, email logging is disabled.
+    ///   * SendTo=(no default) - comma-delimited list of email addresses to send to. Whitespace is ignored. Addresses may be in the form of "username@domain.com" or "UserName <username@domain.com></username>". If undefined, email logging is disabled.
     ///   
     ///   The following are explicitly defined here or defaulted from app.config configuration/system.net/mailSettings/smtp;<br/>
-    ///   * SentFrom=system.net/mailSettings/smtp/@from - the 'from' email address. Whitespace is ignored. Addresses may be in the form of "username@domain.com" or "UserName &lt;username@domain.com&gt;".
+    ///   * SentFrom=system.net/mailSettings/smtp/@from - the 'from' email address. Whitespace is ignored. Addresses may be in the form of "username@domain.com" or "UserName <username@domain.com>"</username>".
     ///   * ClientDomain=LocalHost - aka "www.gmail.com"
     ///   * DefaultCredentials=true - true to use windows authentication, false to use UserName and Password.
     ///   * UserName=(no default)
@@ -2585,8 +2660,7 @@ Message  : {3}", Log.EventCache.LocalDateTime, Log.EventCache.Severity, Log.Even
     /// <summary>
     /// Write log messages to database table. Database table and relevant columns must already 
     /// exist and have a large enough length to support all possible message strings.
-    /// 'initializeData' is a dictionary of name/value pairs.
-    /// These are: 
+    /// _initializeData_ is a dictionary of name/value pairs. These are: 
     ///   * ConnectionString=(no default) - a string key representing AppConfig ConfigurationManager.ConnectionStrings[] dictionary entry OR literal full SQL connection string.
     ///   * SqlStatement=(no default) - SQL statement to insert logging values into the database table.<br/>
     ///   Examples:
@@ -2598,7 +2672,7 @@ Message  : {3}", Log.EventCache.LocalDateTime, Log.EventCache.Severity, Log.Even
     ///      "INSERT INTO MyTable ([Date],Severity,Source,Message) VALUES ({0}, {1}, {2}, {3})", LocalDateTime, Severity, SourceName, UserMessage
     ///   @endcode
     ///   
-    /// The 'Format' and 'IndentSize' properties are not used.
+    /// The _Format_ and _IndentSize_ properties are not used.
     /// </summary>
     [HostProtection(SecurityAction.LinkDemand, Synchronization = true)]
     public sealed class DatabaseTraceListener : TraceListenerBase<object[]>
@@ -2828,7 +2902,7 @@ GO
 
     /// <summary>
     /// Listener filter to block writing messages from this list of sources.
-    /// The app.config attribute 'initializeData', contains a comma-delimited list of sources to ignore.
+    /// The app.config attribute _initializeData_, contains a comma-delimited list of sources to ignore.
     /// </summary>
     public class MultiSourceFilter : TraceFilter
     {
@@ -2878,7 +2952,9 @@ GO
     /// </summary>
     public class FormatTraceEventCache
     {
-        //Dictionary of property reader methods - Used only by DataBaseTraceListener
+        /// <summary>
+        /// Dictionary public properties with getter methods. Used only by DataBaseTraceListener.
+        /// </summary>
         public static readonly Dictionary<string, Func<FormatTraceEventCache, object[], object>> Properties = GetProperties();
         private static Dictionary<string, Func<FormatTraceEventCache, object[], object>> GetProperties()
         {
@@ -2921,7 +2997,7 @@ GO
 
         #region Internal Properties
         /// <summary>
-        /// Internally used in case of invalid format argument in TraceListenerBase constructor.
+        /// Internally used in case of invalid format argument in DatabaseTraceListener.
         /// </summary>
         public string Null { get { return string.Empty; } }
         /// <summary>
@@ -3040,6 +3116,7 @@ GO
                 return localdatetime; 
             } 
         }
+
         /// <summary>
         /// Gets the UTC datetime this event was posted.
         /// </summary>
@@ -3224,7 +3301,7 @@ GO
             } 
         }
 
-        public string version = null;
+        private string version = null;
         /// <summary>
         /// Gets the version of the assembly that called this event.
         /// </summary>
@@ -3453,7 +3530,7 @@ GO
         public override string ToString()
         {
             if (toString==null) 
-                toString = string.Format("FormatTraceEventCache({0},\"{1}\",{2},\"{3}\")",Severity,SourceName,SourceId,UserMessage.Squeeze());
+                toString = $"FormatTraceEventCache({Severity.ToString()},\"{SourceName}\",{SourceId.ToString()},\"{UserMessage.Squeeze()}\")";
             return toString;
         }
     }
