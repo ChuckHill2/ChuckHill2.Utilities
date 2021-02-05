@@ -178,31 +178,35 @@ namespace ChuckHill2
         private int _maxFields = 4; // upon the first add, capacity==4
 
         /// <summary>
-        /// <para>Split CSV formatted file, record by record.</para>
-        /// <para>Usage:</para>
-        /// <para>CSVReader csv = new CSVReader(filename);</para>
-        /// <para>while(!csv.EndOfFile) // foreach record</para>
-        /// <para>{</para>
-        /// <para>   IEnumerable&lt;string&gt; items = csv.ReadField();</para>
-        /// <para>   foreach (string cell in items) { do...something }</para>
-        /// <para>}</para>
-        /// <para>csv.Dispose();</para>
-        /// <para> </para>
-        /// <para>Features:</para>
-        /// <para>• A quote is defined as char(34) or '"'</para>
-        /// <para>• Leading and trailing whitespace and quotes from each field are removed</para>
-        /// <para>• Blank lines are ignored unless quoted or contain fields and/or delimiters</para>
-        /// <para>• When quoted, a double-quote (e.g. "") is treated as a literal field character</para>
-        /// <para>• A CSV record terminator is a newline '\n' unless quoted or has a trailing delimiter</para>
-        /// <para>• Quoted fields may span multiple lines</para>
-        /// <para>• Trailing delimiter (trailing whitespace is ignored) on end of text line assumes the CSV record continues on the next line</para>
-        /// <para> </para>
-        /// <para>Gotchas:</para> 
-        /// <para>• Trailing whitespace or illegal chars in file are ignored but EOF is not true until these chars are evaluated, thus the last instantiation of this enumerable object will cause a foreach loop to exit immediately because there are no fields to return.</para>
-        /// <para> </para>
-        /// <para>Quoting Concepts</para>
-        /// <para>A field only needs to be quoted if the field contains a field delimiter (e.g. a comma) or a quote char</para>
-        /// <para>Pyxis data was originally stored, fields may already be quoted thus the literal field string may contain leading and trailing literal quotes. When this data is exported, the result is quoted quotes (e.g. "my field" ==> """my field"""). To make things further confusing, the field may have been split into 2 fields creating fields containing a single leading or trailing quotes (e.g. field" ==> "field""").</para>
+        /// **Split CSV formatted file, record by record.**<br/>
+        /// Example Usage:
+        /// ```csharp
+        /// CSVReader csv = new CSVReader(filename);
+        /// while(!csv.EndOfFile) // foreach record
+        /// {
+        ///    IEnumerable<string> items = csv.ReadField();
+        ///    foreach (string cell in items) { do...something }
+        /// }
+        /// csv.Dispose();
+        /// ```
+        /// 
+        /// ##### Features
+        /// * A CSV delimiter is a comma.
+        /// * Leading and trailing whitespace and quotes from each field are removed.
+        /// * Blank lines are ignored unless quoted.
+        /// * When quoted, a double-double-quote (e.g. "") is treated as a literal field character.
+        /// * A CSV record terminator is a newline '\\n' unless quoted or ends with a delimiter.
+        /// * Quoted fields may span multiple lines.
+        /// * Trailing delimiter (trailing whitespace is ignored) on end of text line assumes the
+        ///    CSV record continues on the next line.
+        /// 
+        /// ##### Gotchas
+        /// * Trailing whitespace or illegal chars in file are ignored but EOF is not true until these
+        ///    chars are evaluated, thus the last instantiation of this enumerable object will cause
+        ///    a foreach loop to exit immediately because there are no fields to return.
+        /// 
+        /// ##### Quoting Concepts
+        /// A field only needs to be quoted if the field contains a field delimiter (e.g. a comma) or a quote char.
         /// </summary>
         /// <returns>Parsed string field</returns>
         public IEnumerable<string> ReadField()

@@ -56,7 +56,6 @@
     <Compile Include="ColorEx.cs" />
     <Compile Include="ComObject.cs" />
     <Compile Include="Compiler.cs" />
-    <Compile Include="ConfigurationManagerEx.cs" />
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="CsvReader.cs" />
     <Compile Include="CsvWriter.cs" />

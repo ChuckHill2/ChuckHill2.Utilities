@@ -750,7 +750,7 @@ namespace ChuckHill2.Logging
                     ts.Listeners.Clear();
                     try
                     {
-                        //This will throw an exception if the trace listeners in the appconfig do not exist or improperly configured!
+                        //This will throw an exception if the trace listeners in the app config do not exist or improperly configured!
                         //If it does throw an exception, we fix it by clearing the bad listeners and adding our own DebugTraceListener()
                         tlc = Trace.Listeners; 
                     }

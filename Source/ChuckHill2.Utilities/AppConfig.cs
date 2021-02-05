@@ -8,17 +8,18 @@ using System.Xml;
 
 namespace ChuckHill2
 {
-    //Useful notes.... Google: c# app.config include file
-    //http://stackoverflow.com/questions/480538/use-xml-includes-or-config-references-in-app-config-to-include-other-config-file
-    //http://stackoverflow.com/questions/6150644/change-default-app-config-at-runtime
-
     /// <summary>
-    /// Use an alternate application configuration file.
-    /// Similar to Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
-    /// except it becomes the default application configuration until Disposed().
-    /// Use Dispose() to restore the original application configuration file.
-    /// Useful when child assemblies reference the static System.Configuration.ConfigurationManager class.
+    /// Use an alternate application configuration file. Similar to:
+    /// @code{.cs}
+    /// Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+    /// @endcode
+    /// _Except_ it becomes the default application configuration for the entire application until it is Disposed().<br/>
+    /// Use Dispose() to restore the original application configuration file.<br/>
+    /// Useful when child assemblies also reference the static System.Configuration.ConfigurationManager class.<br/>
+    /// This is not a merge. It is an entire replacement. Any in-memory changes to ConfigurationManager will be lost.
     /// </summary>
+    /// <see cref="https://stackoverflow.com/questions/6150644/change-default-app-config-at-runtime"/>
+    /// <seealso cref="https://stackoverflow.com/questions/480538/use-xml-includes-or-config-references-in-app-config-to-include-other-config-file"/>
     public abstract class AppConfig : IDisposable
     {
         /// <summary>
@@ -39,7 +40,7 @@ namespace ChuckHill2
         /// Change App config to filename specified.
         /// </summary>
         /// <param name="path">
-        /// Full or relative path to appconfig file. 
+        /// Full or relative path to app config file. 
         /// If file does not end with ".config", it will be appended.
         /// If the app config is already being used, null is returned and the config is not changed.
         /// </param>
@@ -47,9 +48,10 @@ namespace ChuckHill2
         /// True if anything changed in the system.diagnostics node.
         /// </param>
         /// <returns>
-        /// Previous appconfig object or NULL if app config already in use
+        /// Previous app config object or NULL if app config already in use
         /// Call Dispose() to restore previous app config.
         /// </returns>
+        /// 
         /// <exception cref="System.ArgumentException">
         ///    path is a zero-length string, contains only white space, or contains one
         ///    or more of the invalid characters defined in System.IO.Path.GetInvalidPathChars().
@@ -70,7 +72,7 @@ namespace ChuckHill2
         ///    248 characters, and file names must be less than 260 characters.
         /// </exception>
         /// <exception cref="System.IO.FileNotFoundException">
-        ///    The appconfig file is not found.
+        ///    The app config file is not found.
         /// </exception>
         /// <exception cref="System.UnauthorizedAccessException">
         ///    path is read-only or is a directory.
@@ -104,12 +106,14 @@ namespace ChuckHill2
         /// Restores original app config to this instance object.
         /// </summary>
         public abstract void Dispose();
+
         /// <summary>
         /// Check if this appconfig instance is disposed/restored.
         /// </summary>
         public abstract bool IsDisposed { get; }
+
         /// <summary>
-        /// Appconfig filename associated with this appconfig instance object.
+        /// App config filename associated with this app config instance object.
         /// </summary>
         public abstract string Path { get; }
 
@@ -123,11 +127,16 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Modify preexisting WebConfig or AppConfig value
+        /// Modify a single preexisting Web config or App config value.
         /// </summary>
         /// <param name="xpath">Full xPath to value to change</param>
         /// <param name="value">string value to write</param>
         /// <returns>new AppConfig object. Dispose to revert. Will throw exception upon failure.</returns>
+        /// <remarks>
+        /// This creates a temporary copy of the current app.config with a random name in the TEMP directory, modifies the value as Xml and loads the new app.config.
+        /// If the purpose is to decrypt an encrypted value, THIS IS NOT SECURE.
+        /// See <see cref="Encryption.DecryptConfigurationManagerConnectionString(string key)"/> for a secure in-memory example.
+        /// </remarks>
         public static AppConfig SetConfigValue(string xpath, string value)
         {
             var xdoc = new XmlDocument();

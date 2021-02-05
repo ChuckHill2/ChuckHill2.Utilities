@@ -22,19 +22,20 @@ namespace ChuckHill2
         public static bool Enabled { get; set; }
 
         #region RawWrite() Initialization
+        private static readonly WriteDelegate _rawWrite;  //also directly used by class ChuckHill2.Logging.FormattedDebugTraceListener.
+        private delegate void WriteDelegate(string msg);
+        [DllImport("Kernel32.dll")]
+        private static extern void OutputDebugString(string errmsg);
+        private static readonly TraceListener trace;
+
         /// <summary>
         /// Write string to debug output. 
         /// Uses Win32 OutputDebugString() or System.Diagnostics.Trace.Write() if running under a debugger.
         /// The reason for all this trickery is due to the fact that OutputDebugString() output DOES NOT get
         /// written to VisualStudio output window. Trace.Write() does write to the VisualStudio output window
         /// (by virtue of OutputDebugString somewhere deep inside), BUT it also is can be redirected
-        /// to other destination(s) in the app config. This API Delegate is a compromise.
+        /// to other destination(s) in the app config. This API is a compromise.
         /// </summary>
-        private static readonly WriteDelegate _rawWrite;  //also directly used by class ChuckHill2.Logging.FormattedDebugTraceListener.
-        private delegate void WriteDelegate(string msg);
-        [DllImport("Kernel32.dll")]
-        private static extern void OutputDebugString(string errmsg);
-        private static readonly TraceListener trace;
         public static void RawWrite(string msg)
         {
             //Prefix diagnostic message with something unique that can be filtered upon by DebugView.exe

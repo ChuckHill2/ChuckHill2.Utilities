@@ -369,7 +369,7 @@ namespace ChuckHill2
         /// the in-memory representation of the ConfigurationManager. The source app.config is 
         /// not touched.
         /// </summary>
-        /// <param name="key">AppConfig ConnectionStrings key name</param>
+        /// <param name="key">App config ConnectionStrings key name</param>
         public static void DecryptConfigurationManagerConnectionString(string key)
         {
             //Fixup the security connection string, as necessary.

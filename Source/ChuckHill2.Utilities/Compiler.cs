@@ -12,13 +12,16 @@ using Microsoft.CSharp;
 namespace ChuckHill2
 {
     /// <summary>
-    /// Compile a source code file or source code string into a loaded assembly.
+    /// Compile a C# source code file or source code string into a loaded dynamic assembly.
     /// </summary>
     public class Compiler : IDisposable
     {
         private CompilerResults _results = null;
         private CSharpCodeProvider csCompiler = null;
 
+        /// <summary>
+        /// Returns the successfully compiled and loaded assembly
+        /// </summary>
         public Assembly CompiledAssembly
         {
             get
@@ -28,6 +31,9 @@ namespace ChuckHill2
             }
         }
 
+        /// <summary>
+        /// Gets the path of the compiled assembly or null if the assembly was generated in memory.
+        /// </summary>
         public string AssemblyPath
         {
             get
@@ -37,15 +43,21 @@ namespace ChuckHill2
             }
         }
 
-        public int CompilerStatus //zero==success
+        /// <summary>
+        /// Gets the compiler's exit/return value (e. g. zero==success)
+        /// </summary>
+        public int CompilerStatus
         {
             get
             {
-                if (_results == null) return -1; ;
+                if (_results == null) return -1;
                 return _results.NativeCompilerReturnValue;
             }
         }
 
+        /// <summary>
+        ///  Gets the collection of compiler errors and warnings, if any, as a multi-line string.
+        /// </summary>
         public string ErrorString
         {
             get
@@ -57,6 +69,9 @@ namespace ChuckHill2
             }
         }
 
+        /// <summary>
+        /// Gets the collection of compiler errors and warnings, if any, as an array.
+        /// </summary>
         public System.CodeDom.Compiler.CompilerError[] Errors
         {
             get
@@ -205,6 +220,9 @@ namespace ChuckHill2
             return this.CompiledAssembly;
         }
 
+        /// <summary>
+        /// Releases all the resources used by this object.
+        /// </summary>
         public void Dispose()
         {
             if (csCompiler != null)
