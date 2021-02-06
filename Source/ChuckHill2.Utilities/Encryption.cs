@@ -25,19 +25,20 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Get or set FIPS compliance flag.
-        /// A hacky way to allow non-FIPS compliant algorthms to run.
+        /// Get or set FIPS compliance flag.<br/>
+        /// A hacky way to allow non-FIPS compliant algorthms to run.<br/>
         /// Non-FIPS compliant algorthims are:
-        ///     MD5CryptoServiceProvider,
-        ///     RC2CryptoServiceProvider,
-        ///     RijndaelManaged,
-        ///     RIPEMD160Managed,
-        ///     SHA1Managed,
-        ///     SHA256Managed,
-        ///     SHA384Managed,
-        ///     SHA512Managed,
-        ///     AesManaged,
-        ///     MD5Cng. 
+        ///     * MD5CryptoServiceProvider
+        ///     * RC2CryptoServiceProvider
+        ///     * RijndaelManaged
+        ///     * RIPEMD160Managed
+        ///     * SHA1Managed
+        ///     * SHA256Managed
+        ///     * SHA384Managed
+        ///     * SHA512Managed
+        ///     * AesManaged
+        ///     * MD5Cng
+        ///     
         /// In particular, enables use of fast MD5 hash to create unique identifiers for internal use.
         /// </summary>
         public static bool FIPSCompliance
@@ -206,7 +207,7 @@ namespace ChuckHill2
         }
 
         #region Legacy AES Crypto to Base64
-        private const string legacyPassword = "\x50\x61\x6E\x64\x6F\x72\x61";
+        private const string legacyPassword = "legacyPassword";
         private static byte[] AesKEY = null;
         private static byte[] AesIV = null;
 
@@ -233,6 +234,7 @@ namespace ChuckHill2
                 if (sr != null) sr.Dispose();
             }
         }
+
         /// <summary>
         /// [Deprecated]
         /// Legacy 128-bit AES encryption to base64 string.
@@ -334,6 +336,7 @@ namespace ChuckHill2
                 return CreateUniqueHash(stream);
             }
         }
+
         /// <summary>
         /// Compute unique hash of byte array.
         /// Use System.LinQ 'hash1.SequenceEqual(hash2)' for equality test.
@@ -348,6 +351,7 @@ namespace ChuckHill2
                 return CreateUniqueHash(stream);
             }
         }
+
         /// <summary>
         /// Compute unique hash of byte stream.
         /// Use System.LinQ 'hash1.SequenceEqual(hash2)' for equality test.

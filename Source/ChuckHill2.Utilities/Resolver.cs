@@ -28,6 +28,7 @@ namespace ChuckHill2
         /// <param name="productBase">Returns the root directory path where the product principially resides.</param>
         /// <param name="additionalSearchDirs">Returns an array of fully qualified directory paths that will also be searched...if the directory exists.</param>
         public delegate void InitializeDelegate(out string productName, out string productBase, out string[] additionalSearchDirs);
+
         /// <summary>
         /// Property for getting/setting delegate for search and locate the product root 
         /// directory. This is the directory heirarchy root where all files are resolved from.

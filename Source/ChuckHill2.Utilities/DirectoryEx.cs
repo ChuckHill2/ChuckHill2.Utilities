@@ -10,8 +10,8 @@ namespace ChuckHill2
         /// <summary>
         /// Check if specified directory exists and is writable.
         /// </summary>
-        /// <param name="dir"></param>
-        /// <returns></returns>
+        /// <param name="dir">Directory/folder to test.</param>
+        /// <returns>True if directory writable.</returns>
         public static bool IsWritable(string dir)
         {
             try
