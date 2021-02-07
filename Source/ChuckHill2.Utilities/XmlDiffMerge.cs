@@ -142,7 +142,7 @@ namespace ChuckHill2
                         //else Adds.Add(new Diff(GetXPath(a.OwnerElement), null)); //don't need to create an empty element.
                         continue;
                     }
-                    if (!xa.Value.Equals(a.Value, StringComparison.InvariantCultureIgnoreCase) && !Identifiers.Contains(a.Name)) Changes.Add(new Diff(xp, a.Value, xa.Value));
+                    if (!xa.Value.EqualsI(a.Value) && !Identifiers.Contains(a.Name)) Changes.Add(new Diff(xp, a.Value, xa.Value));
                     MatchedNodes.Add(xa);
                 }
             }
@@ -153,7 +153,7 @@ namespace ChuckHill2
 
             if (xn == null) { if (!string.IsNullOrWhiteSpace(nodeValue)) Adds.Add(new Diff(xp, nodeValue)); return; }
             string xnValue = xn.GetValue();
-            if (!xnValue.Equals(nodeValue, StringComparison.InvariantCultureIgnoreCase)) Changes.Add(new Diff(xp, nodeValue, xnValue));
+            if (!xnValue.EqualsI(nodeValue)) Changes.Add(new Diff(xp, nodeValue, xnValue));
             MatchedNodes.Add(xn);
         }
 
@@ -612,6 +612,18 @@ namespace ChuckHill2
             }
             try { n = node.SelectSingleNode(path, nsmgr); } catch { }
             return n;
+        }
+
+        /// <summary>
+        /// Returns a value indicating whether the specified case-insensitive string is equal to this string. Safely handles null values
+        /// </summary>
+        /// <param name="s">String to operate upon</param>
+        /// <param name="value">The case-insensitive string to compare.</param>
+        /// <returns>true if the value parameter equals this string or if both the string to search and the value to seek are both null.</returns>
+        internal static bool EqualsI(this string s, string value)
+        {
+            if (s == null && value == null) return true;
+            return (s != null && value != null && s.Equals(value, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

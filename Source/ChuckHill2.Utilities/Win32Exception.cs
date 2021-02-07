@@ -5,9 +5,8 @@ using System.Runtime.InteropServices;
 namespace ChuckHill2
 {
     /// <summary>
-    /// Exception to throw when a p/Invoked API fails. This is better than 
-    /// System.ComponentModel.Win32Exception because it also translates the 
-    /// Win32 exception code into a formatted string.
+    /// Exception to throw when a p/Invoked API fails. This extends  
+    /// System.ComponentModel.Win32Exception to include the formatted Win32 exception string.
     /// </summary>
     public class Win32Exception : System.ComponentModel.Win32Exception
     {

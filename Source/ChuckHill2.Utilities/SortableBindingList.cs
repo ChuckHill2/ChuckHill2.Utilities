@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ChuckHill2
 {
     /// <summary>
-    /// Use this instead of List&gt;&lt; as a DataSource for DataGridView object. It provides built-in support for sorting columns in a DataGridView.
+    /// Use this instead of List<T> and BindingList<T>, as a DataSource for DataGridView object. It provides built-in support for sorting columns in a DataGridView.
     /// If there are any non-default column or row attributes (eg. font, color, etc) they will need to be reset within the DataGridView.Sorted event.
     /// </summary>
     /// <typeparam name="T">typeof array element</typeparam>
@@ -18,11 +18,28 @@ namespace ChuckHill2
         private ListSortDirection listSortDirection;
         private PropertyDescriptor propertyDescriptor;
 
+        /// <summary>
+        /// The dynamic current list of items in SortableBindingList.
+        /// </summary>
         public List<T> List { get { return base.Items as List<T>; } }
 
+        /// <summary>
+        /// Create a new empty SortableBindingList
+        /// </summary>
         public SortableBindingList() : base(new List<T>()) { }
+
+        /// <summary>
+        /// Create a new  SortableBindingList initialized with the specified list
+        /// </summary>
+        /// <param name="enumeration">List to of items to initialize SortableBindingList with.</param>
         public SortableBindingList(IEnumerable<T> enumeration) : base(new List<T>(enumeration)) { }
+
+        /// <summary>
+        /// Create a new empty SortableBindingList with an initial capacity
+        /// </summary>
+        /// <param name="capacity">SortableBindingList initial capacity.</param>
         public SortableBindingList(int capacity) : base(new List<T>(capacity)) { }
+
         protected override bool SupportsSortingCore { get { return true; } }
         protected override bool IsSortedCore { get { return this.isSorted; } }
         protected override PropertyDescriptor SortPropertyCore { get { return this.propertyDescriptor; } }

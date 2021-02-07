@@ -10,14 +10,33 @@ namespace ChuckHill2
 {
     /// <summary>
     /// Retrieve the column attributes for all the columns of all the tables 
-    /// in the SQL database. Because the schema is fixed for at least the duration of 
-    /// this process, this method should really be in the ImportManager class. This 
-    /// method only needs to be called once and is common to all system importers.
+    /// in the SQL database. 
     /// </summary>
     /// <returns>Read-only array of SQL column attributes</returns>
     public class SqlColumnAttributes
     {
-        public enum ConstraintType { NONE, PK, FK, UNIQUE }
+        /// <summary>
+        /// Type of constraints on a given column.
+        /// </summary>
+        public enum ConstraintType
+        {
+            /// <summary>
+            /// No constraints on this column
+            /// </summary>
+            NONE,
+            /// <summary>
+            /// Primary Key of this column.
+            /// </summary>
+            PK,
+            /// <summary>
+            /// Foreign Key reference to another table.
+            /// </summary>
+            FK,
+            /// <summary>
+            /// Unique column value.
+            /// </summary>
+            UNIQUE
+        }
 
         private string toStringName = ":";
 
@@ -34,23 +53,59 @@ namespace ChuckHill2
         private int precision = -1;
         private int scale = -1;
 
+        /// <summary>
+        /// Table name containing this column
+        /// </summary>
         public string TableName { get { return tableName; } }
+        /// <summary>
+        /// Name of this column
+        /// </summary>
         public string ColumnName { get { return columnName; } }
+        /// <summary>
+        /// Column index of this column.
+        /// </summary>
         public int Ordinal { get { return ordinal; } }
+        /// <summary>
+        /// Type of constraint on this column.
+        /// </summary>
         public ConstraintType Constraint { get { return constraint; } }
+        /// <summary>
+        /// Is this column a virtual view column?
+        /// </summary>
         public bool IsView { get { return isView; } }
+        /// <summary>
+        /// .NET column type
+        /// </summary>
         public Type ColumnType { get { return columnType; } }
+        /// <summary>
+        /// SQL column type
+        /// </summary>
         public SqlDbType DBColumnType { get { return dbColumnType; } }
+        /// <summary>
+        /// Column default value
+        /// </summary>
         public object DefaultValue { get { return defaultValue; } }
+        /// <summary>
+        /// Is column allowed to have null values?
+        /// </summary>
         public bool Nullable { get { return nullable; } }
+        /// <summary>
+        /// Maximum size of column.
+        /// </summary>
         public int MaxLength { get { return maxLength; } }
+        /// <summary>
+        /// Numeric/decimal field size of column.
+        /// </summary>
         public int Precision { get { return precision; } }
+        /// <summary>
+        /// Numeric/decimal digits after the decimal place.
+        /// </summary>
         public int Scale { get { return scale; } }
 
         /// <summary>
-        /// Get column attributes for all tables in the default database.
+        /// Get column attributes for all the tables in the specified database.
         /// </summary>
-        /// <param name="connectionString"></param>
+        /// <param name="connectionString">Sql connection string with an initial database specified.</param>
         /// <returns>2-dimensional dictionary of [tablenames][columnames]</returns>
         public static SqlColDictionary GetSqlColumns(string connectionString)
         {

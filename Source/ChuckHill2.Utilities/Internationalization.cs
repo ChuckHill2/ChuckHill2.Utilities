@@ -13,12 +13,19 @@ namespace ChuckHill2
     /// <summary>
     /// Automatic and Dynamic translation of all strings in an application into another language.
     /// </summary>
+    /// <remarks>
+    /// Unfortunately, the translator service needs to be updated. So much of this is disabled. :-(
+    /// </remarks>
     public static class Internationalization
     {
         private static readonly CultureInfo OriginalCulture = CultureInfo.CurrentCulture; //used by Dispose()
         private static readonly Log LOG = new Log("General");
 
         #region enum Calendars
+        /// <summary>
+        /// List of known System.Globalization calendars.
+        /// </summary>
+        /// <remarks>Constants copied from class System.Globalization.Calendar</remarks>
         public enum Calendars //Constants copied from class System.Globalization.Calendar
         {
             Gregorian = 1,
@@ -203,10 +210,10 @@ namespace ChuckHill2
             }
         }
         /// <summary>
-        /// Valid RDLC parameter name for the calendars. Not necessarily friendly.
+        /// Extension to retrieve the Microsoft Reporting Technology Report Definition Language (RDLC) calendar name from the calendar object.
         /// </summary>
-        /// <param name="cal"></param>
-        /// <returns></returns>
+        /// <param name="cal">Calendar object</param>
+        /// <returns>Valid RDLC parameter name for the calendar.</returns>
         public static string RdlcName(this Calendar cal) 
         { 
             switch(cal.ID())
@@ -244,7 +251,7 @@ namespace ChuckHill2
         /// Internationalization.Calendars enum value for specified calendar.
         /// </summary>
         /// <param name="cal"></param>
-        /// <returns></returns>
+        /// <returns>Calendar ID enum value</returns>
         public static Calendars ID(this Calendar cal)
         {
             if (cal==null) return (Calendars)0;
@@ -270,9 +277,9 @@ namespace ChuckHill2
         /// There is CultureInfo.Equals() always returns true, so we have
         /// to implement our own that compares at every public property.
         /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
+        /// <param name="a">First culture to compare</param>
+        /// <param name="b">Second culture to compare</param>
+        /// <returns>True if equal.</returns>
         public static bool CulturesEqual(CultureInfo a, CultureInfo b)
         {
             //Equality is not implemented properly because the pair will ALWAYS be equal!
@@ -332,6 +339,7 @@ namespace ChuckHill2
             CultureInfo.DefaultThreadCurrentUICulture = OriginalCulture;
         }
 
+        // This code performs automatic translation of all Winform text/labels in an application. However, the translator service needs to be updated.
         #region Language Translation (DISABLED)
         #if LANGUAGETRANSLATION
         #region Private Fields
@@ -434,7 +442,7 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Replace CultureInfo Calendars that will cause exceptions in our code.
+        /// Replace CultureInfo Calendars that will cause exceptions in Microsoft Report Viewer code.
         /// </summary>
         /// <param name="ci"></param>
         private static CultureInfo OverrideCulture(CultureInfo ci)
@@ -442,7 +450,7 @@ namespace ChuckHill2
             if (ci.Calendar.MinSupportedDateTime > new DateTime(1, 1, 1) || ci.Calendar.MaxSupportedDateTime < new DateTime(2100, 1, 1))
             {
                 //The following cultures are problemmatic. When the minimum supported date is greater than 01/01/0001 exceptions
-                //are thrown throughout the code. Many are deep within 3rd-party code and cannot be fixed. In our code we fix 
+                //are thrown throughout the code. Many are deep within 3rd-party code and cannot be fixed. In the code we fix 
                 //this by replacing the Calendar on-the-fly, so we do not have these problems. The following are currently not 
                 //supported for Microsoft Report Viewer Service...Ever. This can be remedied by by NOT passing any datetime objects to 
                 //the RDLC's but pre-format the datetime values into strings and passing the string result instead.
@@ -1741,7 +1749,7 @@ namespace ChuckHill2
             }
         }
         #endregion
-#endif
+        #endif
         #endregion
     }
 }
