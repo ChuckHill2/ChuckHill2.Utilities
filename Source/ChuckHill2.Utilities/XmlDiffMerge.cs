@@ -35,7 +35,10 @@ using System.Xml.Serialization;
 
 namespace ChuckHill2
 {
+
     /// <summary>
+    /// \ref XmlDiffMergeMD.
+    /// 
     /// Creates and contains the differences between 2 similar XML files. The results may
     /// be applied to a third similar XML file. Each element MUST be unique at its current
     /// depth/level. Repeating array elements at a given depth should have a unique identifier
@@ -52,12 +55,35 @@ namespace ChuckHill2
             "key"     //unique identifier used by app.config <appSettings>
         };
 
+        /// <summary>
+        /// The original XML filename
+        /// </summary>
         public string OriginalFile { get; set; }  //save for serialization
+
+        /// <summary>
+        /// The modified XML filename
+        /// </summary>
         public string ModifiedFile { get; set; }
+
+        /// <summary>
+        /// List of items added relative to the original xml file.
+        /// </summary>
         public List<Diff> Adds { get; } = new List<Diff>();
+
+        /// <summary>
+        /// List of items removed releative to the original xml file.
+        /// </summary>
         public List<Diff> Removes { get; } = new List<Diff>();
+
+        /// <summary>
+        /// List of values changed relative to the original xml file.
+        /// </summary>
         public List<Diff> Changes { get; } = new List<Diff>();
-        public bool IsDifferent => ((Adds.Count + Removes.Count + Changes.Count) > 0);
+
+        /// <summary>
+        /// True if the 'modified' XML has changes relative to the original xml file.
+        /// </summary>
+        public bool IsDifferent { get { return ((Adds.Count + Removes.Count + Changes.Count) > 0); } }
 
         private XmlDiffMerge() { } //need parameterless constructor for XmlSerialize deserialization
 
@@ -65,13 +91,18 @@ namespace ChuckHill2
         /// Find the differences between 2 similar XML files.
         /// </summary>
         /// <param name="originalFile">Original unmodified XML file</param>
-        /// <param name="modifiedFile">Modified XML file</param>
+        /// <param name="modifiedFile">The original XML file that has been modified</param>
         /// <param name="preProcess">
-        /// Change the original and modified open XmlDocuments to hide any known potential changes by removing the elements.
-        /// Or assign temporary attribute names (based upon unique content) to array elements that have no name id's for diff comparison.
-        /// These temporary attribute names are then removed within ApplyTo() pre and post merge steps.
-        /// Note: temporary attributes are unecessary if the element path is unique.
+        /// Temporarily modify the original and modified XML documents to:
+        /// 1. Hide any known potential changes by removing the elements, so they will not count as differences and be applied the the new XML file.
+        /// 2. Assign temporary attribute names (based upon unique content) to array elements that have no name id's for diff comparison.<br />
+        ///     These temporary attribute names are then removed within ApplyTo() pre and post merge steps.<br />
+        ///     Note: temporary attributes are unecessary if the element path is unique.
         /// </param>
+        /// <remarks>
+        /// * There are no protections from comparing wildly disimilar XML files. The result will be a huge number of differences.
+        /// * Whitespace is ignored but comments are not.
+        /// </remarks>
         public XmlDiffMerge(string originalFile, string modifiedFile, Action<XmlDocument, XmlDocument> preProcess = null)
         {
             this.OriginalFile = originalFile;
@@ -142,7 +173,7 @@ namespace ChuckHill2
                         //else Adds.Add(new Diff(GetXPath(a.OwnerElement), null)); //don't need to create an empty element.
                         continue;
                     }
-                    if (!xa.Value.EqualsI(a.Value) && !Identifiers.Contains(a.Name)) Changes.Add(new Diff(xp, a.Value, xa.Value));
+                    if (!EqualsI(xa.Value,a.Value) && !Identifiers.Contains(a.Name)) Changes.Add(new Diff(xp, a.Value, xa.Value));
                     MatchedNodes.Add(xa);
                 }
             }
@@ -153,8 +184,14 @@ namespace ChuckHill2
 
             if (xn == null) { if (!string.IsNullOrWhiteSpace(nodeValue)) Adds.Add(new Diff(xp, nodeValue)); return; }
             string xnValue = xn.GetValue();
-            if (!xnValue.EqualsI(nodeValue)) Changes.Add(new Diff(xp, nodeValue, xnValue));
+            if (!EqualsI(xnValue,nodeValue)) Changes.Add(new Diff(xp, nodeValue, xnValue));
             MatchedNodes.Add(xn);
+        }
+
+        private static bool EqualsI(string s, string value)
+        {
+            if (s == null && value == null) return true;
+            return (s != null && value != null && s.Equals(value, StringComparison.InvariantCultureIgnoreCase));
         }
 
         private void DeletedNodes(XmlNode node, XmlNamespaceManager nsmgr)
@@ -288,11 +325,14 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Merge the differences into new XML file.
+        /// Merge the differences into the new XML file.
         /// </summary>
-        /// <param name="filename">Destination XML file.</param>
-        /// <param name="preProcess">Make changes to XML document BEFORE the differences are applied. Only necessary if temporary attribute names were assigned in the constructor pre-processor step.</param>
-        /// <param name="postProcess">Make changes to XML document AFTER the differences are applied.</param>
+        /// <param name="filename">Destination/target XML file that needs to be updated with the changes found previously.</param>
+        /// <param name="preProcess">
+        ///   Make changes to the destination/target XML document to match those modifications 
+        ///   made to the original documents BEFORE the differences can be applied. Only necessary 
+        ///   if temporary attribute names were assigned in the constructor by a pre-processor.
+        /// <param name="postProcess">Cleanup the temporary changes to the destination/target XML document AFTER the differences are applied.</param>
         /// <returns>True if successful</returns>
         public bool ApplyTo(string filename, Action<XmlDocument> preProcess = null, Action<XmlDocument> postProcess = null)
         {
@@ -354,9 +394,9 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Serialize this (the differences) to an XML string.
+        /// Serialize this (the differences) to an XML string which may be subsequently written out to a files.
         /// </summary>
-        /// <param name="beautify">True to apply formatting and indenting to string.</param>
+        /// <param name="beautify">True to apply formatting and indenting to string. This is nice for human readability.</param>
         /// <returns>Serialized object as an xml string.</returns>
         public string Serialize(bool beautify = false)
         {
@@ -394,7 +434,7 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Deserialize XmlDiff xml string into new XmlDiff object. Then one can use ApplyTo().
+        /// Deserialize XmlDiff xml string into new XmlDiff object. Then one can then use ApplyTo()
         /// Will throw exception if not a valid XmlDiff xml string.
         /// </summary>
         /// <param name="xml">XmlDiff xml string</param>
@@ -438,9 +478,9 @@ namespace ChuckHill2
         }
     }
 
-    internal static class XmlExtensions
+    internal static class XmlDiffMergeExtensions
     {
-        //Also used by AppConfig.cs
+        //Note:  SetValue() and GetNode() are also used by AppConfig.cs
 
         /// <summary>
         /// Node values are stored/retrieved differently for different node types. We just make it the same here.
@@ -612,18 +652,6 @@ namespace ChuckHill2
             }
             try { n = node.SelectSingleNode(path, nsmgr); } catch { }
             return n;
-        }
-
-        /// <summary>
-        /// Returns a value indicating whether the specified case-insensitive string is equal to this string. Safely handles null values
-        /// </summary>
-        /// <param name="s">String to operate upon</param>
-        /// <param name="value">The case-insensitive string to compare.</param>
-        /// <returns>true if the value parameter equals this string or if both the string to search and the value to seek are both null.</returns>
-        internal static bool EqualsI(this string s, string value)
-        {
-            if (s == null && value == null) return true;
-            return (s != null && value != null && s.Equals(value, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

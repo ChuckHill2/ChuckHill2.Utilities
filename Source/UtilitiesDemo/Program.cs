@@ -13,7 +13,7 @@ namespace UtilitiesDemo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //ChuckHill2.MiniMessageBox.ShowDialog(null, "This is the message body.", "This is the caption",MessageBoxButtons.OKCancel,MessageBoxIcon.Question);
+            ChuckHill2.Forms.MiniMessageBox.ShowDialog(null, "This shows MiniMessageBox working without any other forms existing. Press OK to continue.", "MiniMessageBox Test", MessageBoxButtons.OK,MessageBoxIcon.Information);
             Application.Run(new FormMain());
         }
     }

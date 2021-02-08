@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Xml;
@@ -11,12 +12,17 @@ namespace XmlDiffMergeDemo
     {
         private static void Main(string[] args)
         {
+            bool appClicked = Console.CursorLeft == 0;
+
             if (args.Length != 3 || !File.Exists(args[0]) || !File.Exists(args[1]) || !File.Exists(args[2]))
             {
                 Console.WriteLine(@"
-The commandline must contain 3 files: (1) the original xml, (2) the modified original,
-and (3) the new XML to merge the differences into.
-Defaulting to built-in example.\r\n");
+The commandline must contain 3 files:
+(1) the original xml,
+(2) the modified original, and
+(3) the new XML to merge the differences into.
+However none are supplied so defaulting to built-in example...");
+                Console.WriteLine();
 
                 if (!Directory.Exists("Resources")) Directory.CreateDirectory("Resources");
 
@@ -59,7 +65,13 @@ Defaulting to built-in example.\r\n");
             bool success = xdiffmerge.ApplyTo(targetMerged, InsertNameAttributes, RemoveNameAttributes); //by key
             //bool success = xdiffmerge.ApplyTo(result); //by index
 
-            Console.WriteLine("[Done]");
+            Console.WriteLine($"[Done]\r\nGo to {Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName)} to see the results.\r\n");
+            if (appClicked)
+            {
+                Console.Write("Press any key...");
+                Console.Read();
+                Console.WriteLine();
+            }
         }
 
         /// In the example config files, there are 2 sibling elements ("system.webServer") with no uniquely identifying key.

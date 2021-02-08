@@ -1,6 +1,6 @@
-# XmlDiffMerge – A simple 3-way diff and merge
+\page XmlDiffMergeMD XmlDiffMerge – A simple 3-way diff and merge
 
-Supports 3-way merging of XML file settings. Class library and Console app
+Supports 3-way merging of XML file settings. An example demo console app is also
 provided.
 
 ## Introduction
@@ -69,7 +69,3 @@ Both of these scenarios are shown in the example console app.
 
 The differences may also be serialized/deserialized so one may review the
 changes before applying them to the target file.
-
-# License
-
-This article, along with any associated source code and files, is licensed under the [GNU Lesser General Public License (LGPLv3)](http://www.opensource.org/licenses/lgpl-3.0.html)
