@@ -1604,7 +1604,7 @@ namespace ChuckHill2.Logging
                 {
                     FormatDeclared = true;
                     IsCSV = this is FileTraceListener && IsFormatCsv(format);
-                    m_formatter = Tool.GetFormatter<FormatTraceEventCache>(format);
+                    m_formatter = StringEx.GetFormatter<FormatTraceEventCache>(format);
                 }
                 else FormatDeclared = false;
 

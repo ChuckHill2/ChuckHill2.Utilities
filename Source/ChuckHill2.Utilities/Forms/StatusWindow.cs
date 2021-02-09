@@ -32,20 +32,63 @@ namespace ChuckHill2.Forms
         }
 
         #region Hide Unused TextBox Properties from Designer
-        [Browsable(false)] public override bool Multiline { get { return base.Multiline; } set { } }
-        [Browsable(false)] public new System.Windows.Forms.ScrollBars ScrollBars { get { return base.ScrollBars; } set { } }
-        [Browsable(false)] public new bool AcceptsReturn { get { return base.AcceptsReturn; } set { } }
-        [Browsable(false)] public new AutoCompleteStringCollection AutoCompleteCustomSource { get { return base.AutoCompleteCustomSource; } set { } }
-        [Browsable(false)] public new AutoCompleteMode AutoCompleteMode { get { return base.AutoCompleteMode; } set { } }
-        [Browsable(false)] public new AutoCompleteSource AutoCompleteSource { get { return base.AutoCompleteSource; } set { } }
-        [Browsable(false)] public new CharacterCasing CharacterCasing { get { return base.CharacterCasing; } set { } }
-        [Browsable(false)] public new char PasswordChar { get { return base.PasswordChar; } set { } }
-        [Browsable(false)] public new bool UseSystemPasswordChar { get { return base.UseSystemPasswordChar; } set { } }
-        [Browsable(false)] public new bool HideSelection { get { return base.HideSelection; } set { } }
-        [Browsable(false)] public new string[] Lines  { get { return base.Lines; } set { } }
-        [Browsable(false)] public new ContextMenuStrip ContextMenuStrip  { get { return base.ContextMenuStrip; } set { } }
-        [Browsable(false)] public new bool AllowDrop { get { return base.AllowDrop; } set { } }
-        [Browsable(false)] public new ControlBindingsCollection DataBindings { get { return base.DataBindings; } }
+        //! @cond DOXYGENHIDE
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool Multiline { get { return base.Multiline; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new System.Windows.Forms.ScrollBars ScrollBars { get { return base.ScrollBars; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool AcceptsReturn { get { return base.AcceptsReturn; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new AutoCompleteStringCollection AutoCompleteCustomSource { get { return base.AutoCompleteCustomSource; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new AutoCompleteMode AutoCompleteMode { get { return base.AutoCompleteMode; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new AutoCompleteSource AutoCompleteSource { get { return base.AutoCompleteSource; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new CharacterCasing CharacterCasing { get { return base.CharacterCasing; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new char PasswordChar { get { return base.PasswordChar; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool UseSystemPasswordChar { get { return base.UseSystemPasswordChar; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool HideSelection { get { return base.HideSelection; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new string[] Lines  { get { return base.Lines; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new ContextMenuStrip ContextMenuStrip  { get { return base.ContextMenuStrip; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new bool AllowDrop { get { return base.AllowDrop; } set { } }
+
+        /// <summary> This is not used.</summary>
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public new ControlBindingsCollection DataBindings { get { return base.DataBindings; } }
+        //! @endcond
         #endregion
 
         private delegate void StatusWindowCallback(string format, params object[] args);

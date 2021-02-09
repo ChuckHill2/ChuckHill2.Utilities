@@ -58,7 +58,7 @@ namespace ChuckHill2.LoggerEditor
             get
             {
                 if (!__isDirty && SystemDiagnosticsWorkNode != null)
-                    __isDirty = !Tool.XmlEquals(SystemDiagnosticsWorkNode, (XmlElement)XDoc.SelectSingleNode("/configuration/system.diagnostics"));
+                    __isDirty = !Xml.Equals(SystemDiagnosticsWorkNode, (XmlElement)XDoc.SelectSingleNode("/configuration/system.diagnostics"));
 
                 return __isDirty;
             }

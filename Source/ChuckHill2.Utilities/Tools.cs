@@ -16,7 +16,7 @@ namespace ChuckHill2
     /// <summary>
     /// A collection of functions that are not extensions.
     /// </summary>
-    public static class Tool
+    public static class StringEx
     {
         /// <summary>
         /// Create a formatter func from an interpolated format string where all the variables come from a single class.
@@ -94,75 +94,6 @@ namespace ChuckHill2
         //    string result = string.Format((IFormatProvider)null, format, args);
         //    return result;
         //}
-
-        /// <summary>
-        /// Recursivly compare 2 XML elements for equality.
-        /// </summary>
-        /// <param name="primary">First XmlElement to compare.</param>
-        /// <param name="secondary">Second XmlElement to compare.</param>
-        /// <remarks>
-        ///   • Attributes are not order dependent, however child XmlElement nodes are.
-        ///   • Only XmlElement, XmlText, and XmlAttribute nodes are compared. Other XmlNode types are ignored.
-        ///   • Comparison of XmlAttribute and XmlText content is case-insensitive.
-        /// </remarks>
-        /// <returns>True if equal</returns>
-        public static bool XmlEquals(XmlElement primary, XmlElement secondary)
-        {
-            if (primary.HasAttributes)
-            {
-                if (primary.Attributes.Count != secondary.Attributes.Count) return false;
-                foreach (XmlAttribute attr in primary.Attributes)
-                {
-                    if (secondary.Attributes[attr.Name] == null) return false;
-                    if (!attr.Value.EqualsI(secondary.Attributes[attr.Name].Value)) return false;
-                }
-            }
-
-            if (primary.HasChildNodes)
-            {
-                var e1 = primary.ChildNodes.OfType<XmlNode>().GetEnumerator();
-                var e2 = secondary.ChildNodes.OfType<XmlNode>().GetEnumerator();
-                XmlNode e1Current;
-                XmlNode e2Current;
-
-                //Note: When e1.MoveNext()==false, e1.Current still contains the last value. We need it to be a non-value, aka null.
-
-                while ((e1Current = e1.MoveNext() ? e1.Current : null) != null)
-                {
-                    if (e1Current.NodeType != XmlNodeType.Text && e1Current.NodeType != XmlNodeType.Element) continue;
-                    if (e1Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e1Current.Value)) continue; //ignore empty whitespace text elements.
-                    while ((e2Current = e2.MoveNext() ? e2.Current : null) != null)
-                    {
-                        if (e2Current.NodeType != XmlNodeType.Text && e2Current.NodeType != XmlNodeType.Element) continue;
-                        if (e2Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2Current.Value)) continue; //ignore empty whitespace text elements.
-                        break;
-                    }
-                    if (e2Current == null) return false; //secondary node tree too short.
-
-                    if (e1Current.NodeType == XmlNodeType.Text && e2Current.NodeType != XmlNodeType.Text) return false;
-                    if (e1Current.NodeType != XmlNodeType.Text && e2Current.NodeType == XmlNodeType.Text) return false;
-                    if (e1Current.NodeType == XmlNodeType.Text && e2Current.NodeType == XmlNodeType.Text)
-                    {
-                        if (!e1Current.Value.Squeeze().EqualsI(e2Current.Value.Squeeze())) return false;
-                    }
-
-                    if (e1Current.Name != e2Current.Name) return false;
-
-                    if (!XmlEquals((XmlElement)e1Current, (XmlElement)e2Current)) return false;
-                }
-
-                while ((e2Current = e2.MoveNext() ? e2.Current : null) != null)
-                {
-                    if (e2Current.NodeType != XmlNodeType.Text && e2Current.NodeType != XmlNodeType.Element) continue;
-                    if (e2Current.NodeType == XmlNodeType.Text && string.IsNullOrWhiteSpace(e2Current.Value)) continue;
-                    break;
-                }
-
-                if (e2Current != null) return false; //still more elements in secondary node tree.
-            }
-
-            return true;
-        }
     }
 
     public static class GDI

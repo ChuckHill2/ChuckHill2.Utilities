@@ -137,7 +137,9 @@
     <Compile Include="Extensions\CommonExtensions.cs" />
     <Compile Include="Extensions\DrawRtfText.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
+    <Compile Include="FileEx.cs" />
     <Compile Include="FontMetrics.cs" />
+    <Compile Include="Forms\GlobalMouseHandler.cs" />
     <Compile Include="Forms\ColorPickerPanelHorz.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -236,6 +238,8 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="RECT.cs" />
+    <Compile Include="RectangleRef.cs" />
     <Compile Include="Resolver.cs" />
     <Compile Include="ServiceInstaller.cs" />
     <Compile Include="SortableBindingList.cs" />
@@ -247,7 +251,7 @@
     <Compile Include="Win32.cs" />
     <Compile Include="Win32Exception.cs" />
     <Compile Include="XmlDiffMerge.cs" />
-    <Compile Include="XmlIO.cs" />
+    <Compile Include="Xml.cs" />
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\ColorEditor.resx">
       <DependentUpon>ColorEditor.cs</DependentUpon>
     </EmbeddedResource>
