@@ -26,6 +26,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggerEditor", "LoggerEdito
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlDiffMergeDemo", "XMLDiffMergeDemo\XmlDiffMergeDemo.csproj", "{674417CB-1C60-4E0A-AED5-426B335E653C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolutionPostBuild", "SolutionPostBuild\SolutionPostBuild.csproj", "{43824569-2596-464E-878A-528949A914C4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{44CF5926-3002-4C81-B44F-9975EC7D18AC} = {44CF5926-3002-4C81-B44F-9975EC7D18AC}
+		{6E95AE63-5E9A-44CA-80DB-EAD1F5460694} = {6E95AE63-5E9A-44CA-80DB-EAD1F5460694}
+		{5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766} = {5FF3A3EC-27C1-44D9-AC99-EDFB70EE3766}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +63,10 @@ Global
 		{674417CB-1C60-4E0A-AED5-426B335E653C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{674417CB-1C60-4E0A-AED5-426B335E653C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{674417CB-1C60-4E0A-AED5-426B335E653C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43824569-2596-464E-878A-528949A914C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43824569-2596-464E-878A-528949A914C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43824569-2596-464E-878A-528949A914C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43824569-2596-464E-878A-528949A914C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

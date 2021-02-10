@@ -301,6 +301,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(ProjectDir)PostBuildEvent.bat $(Configuration) $(OutDir)</PostBuildEvent>
   </PropertyGroup>
 </Project>
