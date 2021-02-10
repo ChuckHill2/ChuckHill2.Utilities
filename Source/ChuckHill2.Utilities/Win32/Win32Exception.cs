@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace ChuckHill2
+namespace ChuckHill2.Win32
 {
     /// <summary>
     /// Exception to throw when a p/Invoked API fails. This extends  

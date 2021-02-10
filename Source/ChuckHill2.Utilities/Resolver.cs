@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using ChuckHill2.Extensions;
 using Microsoft.Win32;
 using ChuckHill2.Logging;
+using ChuckHill2.Win32;
 
 namespace ChuckHill2
 {
@@ -623,10 +624,10 @@ namespace ChuckHill2
         }
 
         //Used exclusivly by above GetFiles(string, string, SearchOption) for recursion.
-        private static void GetFiles(ref Win32.WIN32_FIND_DATA fd, ref List<FileItem> files, string dir, Regex mask, SearchOption searchOption)
+        private static void GetFiles(ref WIN32_FIND_DATA fd, ref List<FileItem> files, string dir, Regex mask, SearchOption searchOption)
         {
-            IntPtr hFind = Win32.FindFirstFile(Path.Combine(dir, "*"), out fd);
-            if (hFind != Win32.INVALID_HANDLE_VALUE)
+            IntPtr hFind = NativeMethods.FindFirstFile(Path.Combine(dir, "*"), out fd);
+            if (hFind != NativeMethods.INVALID_HANDLE_VALUE)
             {
                 do
                 {
@@ -641,8 +642,8 @@ namespace ChuckHill2
                     }
                     if (!mask.IsMatch(path)) continue;
                     files.Add(new FileItem(path,fd.cFileName,fd.ftLastWriteTime));
-                } while (Win32.FindNextFile(hFind, out fd));
-                Win32.FindClose(hFind);
+                } while (NativeMethods.FindNextFile(hFind, out fd));
+                NativeMethods.FindClose(hFind);
             }
         }
 

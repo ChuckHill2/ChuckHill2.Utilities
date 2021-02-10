@@ -8,24 +8,41 @@ using System.Xml.Serialization;
 namespace ChuckHill2
 {
     /// <summary>
-    /// Stores the location and size of a rectangular region. 
-    /// Based upon System.Drawing.Rectangle except unlike struct Rectangle (ByValue), 
-    /// class RectangleRef is ByRef.
-    /// Important when updating values that need to be passed elsewhere.
+    /// Stores the location and size of a rectangular region. Based upon 
+    /// System.Drawing.Rectangle except unlike struct Rectangle (ByValue), 
+    /// class RectangleEx is ByRef. Important when updating values that 
+    /// need to be passed elsewhere.<br />
     /// In addition:
-    ///   (X,Y,Width,Height) are XML Serializable as Attributes.
-    ///   (X,Y,Width,Height) setters support event handlers XxxxChanged.
-    ///   Implicitly castable between RectangleRef and:
-    ///      System.Drawing.Rectangle
-    ///      System.Drawing.RectangleF (values rounded).
+    ///   * (X,Y,Width,Height) are XML Serializable as Attributes.
+    ///   * (X,Y,Width,Height) setters support event handlers XxxxChanged.
+    ///   * Implicitly castable between RectangleRef and:
+    ///      + System.Drawing.Rectangle
+    ///      + System.Drawing.RectangleF (values rounded).
     /// </summary>
+    /// <remarks>
+    /// The problem is with properties that return rectangles.
+    /// example:
+    /// @code{.cs}
+    ///     Rectangle MyProperty { get; set; }
+    ///     MyProperty.X = 3;
+    /// @endcode
+    /// The value of MyProperty.X will _never_ be set. MyProperty returns a _copy_ of the 
+    /// Rectangle because MyProperty is really a method. Meaning setting MyProperty.X = 3, 
+    /// changes the value in the copy and the rectangle is promptly thrown away.<br />
+    /// The only thing that will work is:
+    /// @code{.cs}
+    ///     var rect =  MyProperty;
+    ///     rect.X = 3;
+    ///     MyProperty = rect;
+    /// @endcode
+    /// </remarks>
     [Serializable]
     [System.Runtime.InteropServices.ComVisible(true)]
     [XmlInclude(typeof(Rectangle))] //necessary when using implicit operators
     [XmlInclude(typeof(RectangleF))] //necessary when using implicit operators
-    public class RectangleRef : IEquatable<RectangleRef>, IEquatable<Rectangle>
+    public class RectangleEx : IEquatable<RectangleEx>, IEquatable<Rectangle>
     {
-        public static readonly RectangleRef Empty = new RectangleRef();
+        public static readonly RectangleEx Empty = new RectangleEx();
 
         private int x;
         private int y;
@@ -34,9 +51,9 @@ namespace ChuckHill2
         private object userData; //aka Tag -- custom user data
 
         #region Constructors
-        public RectangleRef() { }
+        public RectangleEx() { }
 
-        public RectangleRef(int x, int y, int width, int height)
+        public RectangleEx(int x, int y, int width, int height)
         {
             this.x = x;
             this.y = y;
@@ -44,7 +61,7 @@ namespace ChuckHill2
             this.height = height;
         }
 
-        public RectangleRef(Point location, Size size)
+        public RectangleEx(Point location, Size size)
         {
             this.x = location.X;
             this.y = location.Y;
@@ -52,7 +69,7 @@ namespace ChuckHill2
             this.height = size.Height;
         }
 
-        public RectangleRef(PointF location, SizeF size)
+        public RectangleEx(PointF location, SizeF size)
         {
             this.x = (int)Math.Round(location.X);
             this.y = (int)Math.Round(location.Y);
@@ -60,7 +77,7 @@ namespace ChuckHill2
             this.height = (int)Math.Round(size.Height);
         }
 
-        public RectangleRef(Rectangle rc)
+        public RectangleEx(Rectangle rc)
         {
             this.x = rc.X;
             this.y = rc.Y;
@@ -68,7 +85,7 @@ namespace ChuckHill2
             this.height = rc.Height;
         }
 
-        public RectangleRef(RectangleRef rc)
+        public RectangleEx(RectangleEx rc)
         {
             this.x = rc.X;
             this.y = rc.Y;
@@ -76,7 +93,7 @@ namespace ChuckHill2
             this.height = rc.Height;
         }
 
-        public RectangleRef(RectangleF rc)
+        public RectangleEx(RectangleF rc)
         {
             this.x = (int)Math.Round(rc.X);
             this.y = (int)Math.Round(rc.Y);
@@ -87,16 +104,16 @@ namespace ChuckHill2
 
         #region public events
         /// <summary>XChanged(RectangleRefM thisObject, int previousValue, int currentValue);</summary>
-        public event Action<RectangleRef, int, int> XChanged;
+        public event Action<RectangleEx, int, int> XChanged;
 
         /// <summary>YChanged(RectangleRefM thisObject, int previousValue, int currentValue);</summary>
-        public event Action<RectangleRef, int, int> YChanged;
+        public event Action<RectangleEx, int, int> YChanged;
 
         /// <summary>WidthChanged(RectangleRefM thisObject, int previousValue, int currentValue);</summary>
-        public event Action<RectangleRef, int, int> WidthChanged;
+        public event Action<RectangleEx, int, int> WidthChanged;
 
         /// <summary>HeightChanged(RectangleRefM thisObject, int previousValue, int currentValue);</summary>
-        public event Action<RectangleRef, int, int> HeightChanged;
+        public event Action<RectangleEx, int, int> HeightChanged;
         #endregion
 
         #region public properties
@@ -147,17 +164,17 @@ namespace ChuckHill2
         #region public bool Equals(...)
         public override bool Equals(object obj)
         {
-            if (!(obj is RectangleRef)) return false;
-            RectangleRef other = (RectangleRef)obj;
+            if (!(obj is RectangleEx)) return false;
+            RectangleEx other = (RectangleEx)obj;
             return (other.x == this.x) &&
                    (other.y == this.y) &&
                    (other.width == this.width) &&
                    (other.height == this.height);
         }
 
-        public bool Equals(RectangleRef other)
+        public bool Equals(RectangleEx other)
         {
-            if (RectangleRef.ReferenceEquals(other, null)) return false; //can't use '==' because it will be recursive!
+            if (RectangleEx.ReferenceEquals(other, null)) return false; //can't use '==' because it will be recursive!
             return (other.x == this.x) &&
                    (other.y == this.y) &&
                    (other.width == this.width) &&
@@ -174,12 +191,12 @@ namespace ChuckHill2
         #endregion
 
         #region Operator Overloads
-        public static bool operator ==(RectangleRef left, RectangleRef right)
+        public static bool operator ==(RectangleEx left, RectangleEx right)
         {
-            if (RectangleRef.ReferenceEquals(left, null) && 
-                RectangleRef.ReferenceEquals(right, null)) return true; //can't use '==' because it will be recursive!
-            if (RectangleRef.ReferenceEquals(left, null) ||
-                RectangleRef.ReferenceEquals(right, null)) return false;
+            if (RectangleEx.ReferenceEquals(left, null) && 
+                RectangleEx.ReferenceEquals(right, null)) return true; //can't use '==' because it will be recursive!
+            if (RectangleEx.ReferenceEquals(left, null) ||
+                RectangleEx.ReferenceEquals(right, null)) return false;
 
             return (left.x == right.x) &&
                    (left.y == right.y) &&
@@ -187,24 +204,24 @@ namespace ChuckHill2
                    (left.height == right.height);
         }
 
-        public static bool operator !=(RectangleRef left, RectangleRef right)
+        public static bool operator !=(RectangleEx left, RectangleEx right)
         {
             return !(left == right);
         }
 
-        public static implicit operator RectangleRef(Rectangle r) { return new RectangleRef(r.X, r.Y, r.Width, r.Height); }
+        public static implicit operator RectangleEx(Rectangle r) { return new RectangleEx(r.X, r.Y, r.Width, r.Height); }
 
-        public static implicit operator Rectangle(RectangleRef r) { return new Rectangle(r.X, r.Y, r.Width, r.Height); }
+        public static implicit operator Rectangle(RectangleEx r) { return new Rectangle(r.X, r.Y, r.Width, r.Height); }
 
-        public static implicit operator RectangleRef(RectangleF r) { return RectangleRef.Round(r); }
+        public static implicit operator RectangleEx(RectangleF r) { return RectangleEx.Round(r); }
 
-        public static implicit operator RectangleF(RectangleRef r) { return new RectangleF(r.X, r.Y, r.Width, r.Height); }
+        public static implicit operator RectangleF(RectangleEx r) { return new RectangleF(r.X, r.Y, r.Width, r.Height); }
         #endregion
 
         #region Public Methods
-        public static RectangleRef FromLTRB(int left, int top, int right, int bottom)
+        public static RectangleEx FromLTRB(int left, int top, int right, int bottom)
         {
-            return new RectangleRef(left, top, right - left, bottom - top);
+            return new RectangleEx(left, top, right - left, bottom - top);
         }
 
         public void SetValues(int x, int y, int width, int height)
@@ -215,33 +232,33 @@ namespace ChuckHill2
             this.Height = height;
         }
 
-        public static RectangleRef Ceiling(RectangleF value)
+        public static RectangleEx Ceiling(RectangleF value)
         {
-            return new RectangleRef((int)Math.Ceiling(value.X),
+            return new RectangleEx((int)Math.Ceiling(value.X),
                                  (int)Math.Ceiling(value.Y),
                                  (int)Math.Ceiling(value.Width),
                                  (int)Math.Ceiling(value.Height));
         }
 
-        public static RectangleRef Truncate(RectangleF value)
+        public static RectangleEx Truncate(RectangleF value)
         {
-            return new RectangleRef((int)value.X,
+            return new RectangleEx((int)value.X,
                                  (int)value.Y,
                                  (int)value.Width,
                                  (int)value.Height);
         }
 
-        public static RectangleRef Round(RectangleF value)
+        public static RectangleEx Round(RectangleF value)
         {
-            return new RectangleRef((int)Math.Round(value.X),
+            return new RectangleEx((int)Math.Round(value.X),
                                  (int)Math.Round(value.Y),
                                  (int)Math.Round(value.Width),
                                  (int)Math.Round(value.Height));
         }
 
-        public static RectangleRef Round(double x, double y, double width, double height)
+        public static RectangleEx Round(double x, double y, double width, double height)
         {
-            return new RectangleRef((int)Math.Round(x),
+            return new RectangleEx((int)Math.Round(x),
                                  (int)Math.Round(y),
                                  (int)Math.Round(width),
                                  (int)Math.Round(height));
@@ -263,7 +280,7 @@ namespace ChuckHill2
         }
 
         [Pure]
-        public bool Contains(RectangleRef rect)
+        public bool Contains(RectangleEx rect)
         {
             return (this.X <= rect.X) &&
                 ((rect.X + rect.Width) <= (this.X + this.Width)) &&
@@ -292,16 +309,16 @@ namespace ChuckHill2
             Inflate(size.Width, size.Height);
         }
 
-        public static RectangleRef Inflate(RectangleRef rect, int x, int y)
+        public static RectangleEx Inflate(RectangleEx rect, int x, int y)
         {
-            RectangleRef r = rect;
+            RectangleEx r = rect;
             r.Inflate(x, y);
             return r;
         }
 
-        public void Intersect(RectangleRef rect)
+        public void Intersect(RectangleEx rect)
         {
-            RectangleRef result = RectangleRef.Intersect(rect, this);
+            RectangleEx result = RectangleEx.Intersect(rect, this);
 
             this.X = result.X;
             this.Y = result.Y;
@@ -309,7 +326,7 @@ namespace ChuckHill2
             this.Height = result.Height;
         }
 
-        public static RectangleRef Intersect(RectangleRef a, RectangleRef b)
+        public static RectangleEx Intersect(RectangleEx a, RectangleEx b)
         {
             int x1 = Math.Max(a.X, b.X);
             int x2 = Math.Min(a.X + a.Width, b.X + b.Width);
@@ -318,14 +335,14 @@ namespace ChuckHill2
 
             if (x2 >= x1 && y2 >= y1)
             {
-                return new RectangleRef(x1, y1, x2 - x1, y2 - y1);
+                return new RectangleEx(x1, y1, x2 - x1, y2 - y1);
             }
 
-            return RectangleRef.Empty;
+            return RectangleEx.Empty;
         }
 
         [Pure]
-        public bool IntersectsWith(RectangleRef rect)
+        public bool IntersectsWith(RectangleEx rect)
         {
             return (rect.X < this.X + this.Width) &&
             (this.X < (rect.X + rect.Width)) &&
@@ -334,14 +351,14 @@ namespace ChuckHill2
         }
 
         [Pure]
-        public static RectangleRef Union(RectangleRef a, RectangleRef b)
+        public static RectangleEx Union(RectangleEx a, RectangleEx b)
         {
             int x1 = Math.Min(a.X, b.X);
             int x2 = Math.Max(a.X + a.Width, b.X + b.Width);
             int y1 = Math.Min(a.Y, b.Y);
             int y2 = Math.Max(a.Y + a.Height, b.Y + b.Height);
 
-            return new RectangleRef(x1, y1, x2 - x1, y2 - y1);
+            return new RectangleEx(x1, y1, x2 - x1, y2 - y1);
         }
 
         public void Offset(Point pos)

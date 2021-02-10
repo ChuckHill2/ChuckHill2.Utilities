@@ -9,6 +9,7 @@ using System.Text;
 using ChuckHill2.Extensions;
 using Microsoft.Win32;
 using ChuckHill2.Logging;
+using ChuckHill2.Win32;
 
 namespace ChuckHill2
 {

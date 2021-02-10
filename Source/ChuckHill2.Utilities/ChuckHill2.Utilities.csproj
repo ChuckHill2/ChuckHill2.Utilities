@@ -238,8 +238,9 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="RECT.cs" />
-    <Compile Include="RectangleRef.cs" />
+    <Compile Include="Win32\GDI.cs" />
+    <Compile Include="Win32\RECT.cs" />
+    <Compile Include="RectangleEx.cs" />
     <Compile Include="Resolver.cs" />
     <Compile Include="ServiceInstaller.cs" />
     <Compile Include="SortableBindingList.cs" />
@@ -248,8 +249,10 @@
     <Compile Include="SqlConnectionStringBuilderEx.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="UserAccount.cs" />
-    <Compile Include="Win32.cs" />
-    <Compile Include="Win32Exception.cs" />
+    <Compile Include="Win32\Forms.cs" />
+    <Compile Include="Win32\Win32Exception.cs" />
+    <Compile Include="Win32\FileIO.cs" />
+    <Compile Include="Win32\WINDOWPOS.cs" />
     <Compile Include="XmlDiffMerge.cs" />
     <Compile Include="Xml.cs" />
     <EmbeddedResource Include="Cyotek.Windows.Forms.ColorPicker\ColorEditor.resx">

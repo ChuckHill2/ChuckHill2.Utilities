@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms; //Control.Invoke() only
 using Microsoft.Win32;
+using ChuckHill2.Win32;
 
 namespace ChuckHill2.Forms
 {
