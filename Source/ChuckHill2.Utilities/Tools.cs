@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -8,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Xml;
 using ChuckHill2.Extensions;
 
 namespace ChuckHill2
@@ -197,6 +198,81 @@ namespace ChuckHill2
             }
 
             return v;
+        }
+    }
+
+    public static class Manifest
+    {
+        /// <summary>
+        /// Get manifest resource if it doesn't already exist in cache.
+        /// Used in load-on-demand readonly properties;
+        /// Example:
+        /// @code{.cs}
+        /// private Image _myImage = null;
+        /// public Image MyImage => Manifest.Resource(_myImage, this.GetType(), "MyImage.png");
+        /// @endcode
+        /// </summary>
+        /// <param name="cache">Cache containing resource</param>
+        /// <param name="resourceAssembly">Assembly containing resource.</param>
+        /// <param name="resourceName">Relative name of resource in assembly</param>
+        /// <returns>Resource object</returns>
+        public static Image Resource(ref Image cache, Type resourceAssembly, string resourceName)
+        {
+            if (cache == null || cache.PixelFormat == PixelFormat.DontCare)
+            {
+                using (var stream = resourceAssembly.GetManifestResourceStream(resourceName))
+                    cache = Image.FromStream(stream);
+            }
+
+            return cache;
+        }
+
+        /// <summary>
+        /// Get manifest resource if it doesn't already exist in cache.
+        /// Used in load-on-demand readonly properties;
+        /// Example:
+        /// @code{.cs}
+        /// private Image _myImage = null;
+        /// public Image MyImage => Manifest.Resource(_myImage, this.GetType(), "MyImage.png");
+        /// @endcode
+        /// </summary>
+        /// <param name="cache">Cache containing resource</param>
+        /// <param name="resourceAssembly">Assembly containing resource.</param>
+        /// <param name="resourceName">Relative name of resource in assembly</param>
+        /// <returns>Resource object</returns>
+        public static Cursor Resource(ref Cursor cache, Type resourceAssembly, string resourceName)
+        {
+            if (cache == null || cache.Handle==IntPtr.Zero)
+            {
+                using (var stream = resourceAssembly.GetManifestResourceStream(resourceName))
+                    cache = new Cursor(stream);
+            }
+
+            return cache;
+        }
+
+        /// <summary>
+        /// Get manifest resource if it doesn't already exist in cache.
+        /// Used in load-on-demand readonly properties;
+        /// Example:
+        /// @code{.cs}
+        /// private Image _myImage = null;
+        /// public Image MyImage => Manifest.Resource(_myImage, this.GetType(), "MyImage.png");
+        /// @endcode
+        /// </summary>
+        /// <param name="cache">Cache containing resource</param>
+        /// <param name="resourceAssembly">Assembly containing resource.</param>
+        /// <param name="resourceName">Relative name of resource in assembly</param>
+        /// <returns>Resource object</returns>
+        public static string Resource(ref string cache, Type resourceAssembly, string resourceName)
+        {
+            if (cache == null)
+            {
+                using (var stream = new StreamReader(resourceAssembly.GetManifestResourceStream(resourceName)))
+                    cache = stream.ReadToEnd();
+            }
+
+            return cache;
         }
     }
 }

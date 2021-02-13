@@ -299,6 +299,9 @@
     </None>
     <None Include="XmlDiffMerge.md" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wait24.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
   </PropertyGroup>
