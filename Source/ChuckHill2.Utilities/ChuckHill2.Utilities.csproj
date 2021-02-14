@@ -300,7 +300,7 @@
     <None Include="XmlDiffMerge.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\wait24.png" />
+    <EmbeddedResource Include="Resources\wait24.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

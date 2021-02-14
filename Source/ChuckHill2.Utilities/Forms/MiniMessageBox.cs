@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -18,10 +19,62 @@ namespace ChuckHill2.Forms
     /// </remarks>
     public class MiniMessageBox : Form
     {
+        /// <summary>
+        /// Response buttons to display on the messagebox. Includes the standard <see cref="MessageBoxButtons"/> with the ability to pick and choose any combination of individual buttons to to display.
+        /// </summary>
+        [Flags]
+        public enum Buttons
+        {
+            None = 0,
+            OK = 0x01,
+            Cancel = 0x02,
+            Abort = 0x04,
+            Retry = 0x08,
+            Ignore = 0x10,
+            Yes = 0x20,
+            No = 0x40,
+            OKCancel = (OK | Cancel),
+            AbortRetryIgnore = (Abort | Retry | Ignore),
+            YesNoCancel = (Yes |No | Cancel),
+            YesNo = (Yes | No),
+            RetryCancel = (Retry | Cancel)
+        }
+
+        /// <summary>
+        /// Specifies which graphic symbol to display along with the message. This mirrors <see cref="MessageBoxIcon" /> but with extra symbols.
+        /// </summary>
+        public enum Symbol
+        {
+            /// <summary>
+            /// The message box  does not contain any graphic symbols.
+            /// </summary>
+            None = 0,
+            /// <summary>
+            /// The message box contains an icon consisting of white X in a circle with a red background. Usually associated with an error status.
+            /// </summary>
+            Error = 16,
+            /// <summary>
+            /// The message box contains an icon consisting of a question mark in a circle. Usually associated with a query message and YesNo buttons
+            /// </summary>
+            Question = 32,
+            /// <summary>
+            /// The message box contains an icon consisting of an exclamation point in a triangle with a yellow background. Usually associated with a warning status.
+            /// </summary>
+            Warning = 48,
+            /// <summary>
+            /// The message box contains an icon consisting of a lowercase letter i in a circle. Usually associated with an informational status.
+            /// </summary>
+            Information = 64,
+            /// <summary>
+            /// The message box contains an icon consisting of an hourglass figure in a circle. Usually associated with an waiting for an action to complete and maybe an abort button.
+            /// </summary>
+            Wait = 128
+        }
+
         [ThreadStatic] private static MiniMessageBox MMDialog = null;
         [ThreadStatic] private static DialogResult MMResult = DialogResult.None;
         private Resources resx = new Resources();
-        private Icon CaptionIcon = GetAppIcon();
+        private System.Drawing.Icon CaptionIcon = GetAppIcon();
         private Font CaptionFont;
         private Image MessageIcon;
         private string MessageIconString; //for clipboard
@@ -47,7 +100,22 @@ namespace ChuckHill2.Forms
         /// <remarks>This functions just like it's big brothers: MessageBox and MessageBoxEx. This does not need to be a child of a form owner. This may also run within Program.Main or Console.Main</remarks>
         public static DialogResult ShowDialog(IWin32Window owner, string text, string caption = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
-            using(var dlg = new MiniMessageBox(true, text, caption, buttons, icon))
+            return ShowDialog(owner, text, caption, ToMMButton(buttons), ToMMSymbol(icon));
+        }
+
+        /// <summary>
+        /// Displays a tiny modal (i.e. waits) message box in front of the specified object and with the specified text, caption, buttons, and icon.
+        /// </summary>
+        /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
+        /// <param name="text">The text to display in the message box.</param>
+        /// <param name="caption">The text to display in the title bar of the message box.</param>
+        /// <param name="buttons">Combination of buttons to display in the message box. Using None will default to an OK button.</param>
+        /// <param name="icon">A value that specifies which symbol graphic to display along side the message.</param>
+        /// <returns>One of the System.Windows.Forms.DialogResult values.</returns>
+        /// <remarks>This functions just like it's big brothers: MessageBox and MessageBoxEx. This does not need to be a child of a form owner. This may also run within Program.Main or Console.Main</remarks>
+        public static DialogResult ShowDialog(IWin32Window owner, string text, string caption = null, Buttons buttons = Buttons.OK, Symbol icon = Symbol.None)
+        {
+            using (var dlg = new MiniMessageBox(true, text, caption, buttons, icon))
             {
                 return dlg.ShowDialog(GetOwner(owner));
             }
@@ -67,8 +135,60 @@ namespace ChuckHill2.Forms
         /// </remarks>
         public static void Show(IWin32Window owner, string text, string caption = null, MessageBoxButtons buttons = MessageBoxButtons.OK, MessageBoxIcon icon = MessageBoxIcon.None)
         {
+            Show(owner, text, caption, ToMMButton(buttons), ToMMSymbol(icon));
+        }
+
+        /// <summary>
+        /// Displays a tiny modalless (i.e. returns immediately) message box in front of the specified object and with the specified text, caption, buttons, and icon.
+        /// </summary>
+        /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
+        /// <param name="text">The text to display in the message box.</param>
+        /// <param name="caption">The text to display in the title bar of the message box.</param>
+        /// <param name="buttons">Combination of buttons to display in the message box or None for no buttons. In which case, the calling code is entirely responsible for closing the dialog via Hide().</param>
+        /// <param name="icon">A value that specifies which symbol graphic to display along side the message.</param>
+        /// <remarks>
+        /// This is thread static. Meaning it must be closed within the context of the same thread. See Hide().
+        /// This functions just like it's big brothers: MessageBox and MessageBoxEx. This does not need to be a child of a form owner. This may also run within Program.Main or Console.Main
+        /// </remarks>
+        public static void Show(IWin32Window owner, string text, string caption = null, Buttons buttons = Buttons.OK, Symbol icon = Symbol.None)
+        {
+            if (MMDialog != null)
+            {
+                var emsg = $"Can show only ONE modalless MiniMessageBox popup at a time.\r\n\r\n[{caption ?? "(null)"}]\r\n{text ?? "(null)"}";
+                MessageBoxEx.Show(owner, emsg, "Multiple Modalless Popups", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             MMDialog = new MiniMessageBox(false, text, caption, buttons, icon);
             MMDialog.Show(GetOwner(owner));
+        }
+
+        private static Buttons ToMMButton(MessageBoxButtons b)
+        {
+            switch (b)
+            {
+                case (MessageBoxButtons)(-1): return Buttons.None;
+                case MessageBoxButtons.OK: return Buttons.OK;
+                case MessageBoxButtons.OKCancel: return Buttons.OKCancel;
+                case MessageBoxButtons.AbortRetryIgnore: return Buttons.AbortRetryIgnore;
+                case MessageBoxButtons.YesNoCancel: return Buttons.YesNoCancel;
+                case MessageBoxButtons.YesNo: return Buttons.YesNo;
+                case MessageBoxButtons.RetryCancel: return Buttons.RetryCancel;
+                default: return Buttons.OK;
+            }
+        }
+
+        private static Symbol ToMMSymbol(MessageBoxIcon icon)
+        {
+            switch (icon)
+            {
+                case MessageBoxIcon.None: return Symbol.None;
+                case MessageBoxIcon.Error: return Symbol.Error;
+                case MessageBoxIcon.Question: return Symbol.Question;
+                case MessageBoxIcon.Warning: return Symbol.Warning;
+                case MessageBoxIcon.Information: return Symbol.Information;
+                default: return Symbol.None;
+            }
         }
 
         /// <summary>
@@ -133,7 +253,7 @@ namespace ChuckHill2.Forms
         }
 
         //private constructor
-        private MiniMessageBox(bool isModal, string msg, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
+        private MiniMessageBox(bool isModal, string msg, string caption, Buttons buttons, Symbol icon)
         {
             this.SuspendLayout();
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -147,9 +267,9 @@ namespace ChuckHill2.Forms
 
             // With modalless dialogs, the calling code has control when to close the dialog via Hide(); but modal dialogs
             // need an action for the user to close the dialog as the calling code must wait. Thus a valid enum value is required.
-            if (isModal && (int)buttons < 0 || (int)buttons > 5)
+            if (isModal && buttons==Buttons.None)
             {
-                buttons = MessageBoxButtons.OK;
+                buttons = Buttons.OK;
             }
 
             IsModal = isModal;
@@ -226,8 +346,8 @@ namespace ChuckHill2.Forms
             foreach (var buttonName in ButtonNames)
             {
                 var btn = new Button();
-                btn.Name = buttonName;
-                btn.Text = buttonName;
+                btn.Name = buttonName; //This is the internal key.
+                btn.Text = buttonName; //This is the translated display value.
                 btn.Size = szButton;
                 btn.Location = new Point(xOffset, rcMessage.Bottom + Spacing);
                 xOffset += szButton.Width + Spacing;
@@ -337,39 +457,42 @@ namespace ChuckHill2.Forms
         }
         #endregion //  Click n'Drag this Form
 
-        private static string[] GetButtonNames(MessageBoxButtons b)
+        private static string[] GetButtonNames(Buttons b)
         {
-            switch (b)
-            {
-                case MessageBoxButtons.OK: return new string[] { "OK" };
-                case MessageBoxButtons.OKCancel: return new string[] { "OK", "Cancel" };
-                case MessageBoxButtons.AbortRetryIgnore: return new string[] { "Abort", "Retry", "Ignore" };
-                case MessageBoxButtons.YesNoCancel: return new string[] { "Yes", "No", "Cancel" };
-                case MessageBoxButtons.YesNo: return new string[] { "Yes", "No", };
-                case MessageBoxButtons.RetryCancel: return new string[] { "Retry", "Cancel" };
-                default: return new string[0];
-            }
+            if (b == Buttons.None) return new string[0];
+
+            var names = new List<string>(8);
+            if ((b & Buttons.OK) != 0) names.Add("OK");
+            if ((b & Buttons.Abort) != 0) names.Add("Abort");
+            if ((b & Buttons.Retry) != 0) names.Add("Retry");
+            if ((b & Buttons.Ignore) != 0) names.Add("Ignore");
+            if ((b & Buttons.Yes) != 0) names.Add("Yes");
+            if ((b & Buttons.No) != 0) names.Add("No");
+            if ((b & Buttons.Cancel) != 0) names.Add("Cancel"); //Must be last for order in OKCancel, YesNoCancel, RetryCancel
+
+            return names.ToArray();
         }
 
-        private Image GetMessageIcon(MessageBoxIcon icon, out string iconString)
+        private Image GetMessageIcon(Symbol icon, out string iconString)
         {
-            // 'iconString' is for pasting into the clipboard.
+            // 'iconString' is prefix for pasting into the clipboard. Any string translations should occur here for prefix.
             switch (icon)
             {
-                case MessageBoxIcon.Error: iconString = "[Error]"; return resx.ErrorIcon;
-                case MessageBoxIcon.Question: iconString = "[Question]"; return resx.QuestionIcon;
-                case MessageBoxIcon.Warning: iconString = "[Warning]"; return resx.WarningIcon;
-                case MessageBoxIcon.Information: iconString = "[Information]"; return resx.InfoIcon;
+                case Symbol.Error: iconString = "[Error]"; return resx.ErrorIcon;
+                case Symbol.Question: iconString = "[Question]"; return resx.QuestionIcon;
+                case Symbol.Warning: iconString = "[Warning]"; return resx.WarningIcon;
+                case Symbol.Information: iconString = "[Information]"; return resx.InfoIcon;
+                case Symbol.Wait: iconString = "[Wait]"; return resx.WaitIcon;
                 default: iconString = ""; return null;
             }
         }
 
-        private static Icon GetAppIcon()
+        private static System.Drawing.Icon GetAppIcon()
         {
             //These icons must be disposed after use.
-            Icon ico = null;
+            System.Drawing.Icon ico = null;
             FormCollection fc = System.Windows.Forms.Application.OpenForms;
-            if (fc != null && fc.Count > 0) ico = fc[0].Icon == null ? null : new Icon(fc[0].Icon, SystemInformation.SmallIconSize.Width, SystemInformation.SmallIconSize.Height);
+            if (fc != null && fc.Count > 0) ico = fc[0].Icon == null ? null : new System.Drawing.Icon(fc[0].Icon, SystemInformation.SmallIconSize.Width, SystemInformation.SmallIconSize.Height);
             if (ico == null) ico = GDI.ExtractAssociatedIcon(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, 16);
             return ico;
         }
@@ -443,11 +566,13 @@ namespace ChuckHill2.Forms
             private Image __warningIcon = null;
             private Image __questionIcon = null;
             private Image __infoIcon = null;
+            private Image __waitIcon = null;
 
             public Image ErrorIcon => __errorIcon == null ? (__errorIcon = Base64StringToBitmap(ErrorBase64)) : __errorIcon;
             public Image WarningIcon => __warningIcon == null ? (__warningIcon = Base64StringToBitmap(WarningBase64)) : __warningIcon;
             public Image QuestionIcon => __questionIcon == null ? (__questionIcon = Base64StringToBitmap(QuestionBase64)) : __questionIcon;
             public Image InfoIcon => __infoIcon == null ? (__infoIcon = Base64StringToBitmap(InfoBase64)) : __infoIcon;
+            public Image WaitIcon => __waitIcon == null ? (__waitIcon = Base64StringToBitmap(WaitBase64)) : __waitIcon;
 
             private static Bitmap Base64StringToBitmap(string base64String)
             {
@@ -467,6 +592,7 @@ namespace ChuckHill2.Forms
                 if (__warningIcon != null) { __warningIcon.Dispose(); __warningIcon = null; }
                 if (__questionIcon != null) { __questionIcon.Dispose(); __questionIcon = null; }
                 if (__infoIcon != null) { __infoIcon.Dispose(); __infoIcon = null; }
+                if (__waitIcon != null) { __waitIcon.Dispose(); __waitIcon = null; }
             }
 
             // Compressed 24x24 png's with Photoshop 'Save for Web'
@@ -585,6 +711,42 @@ namespace ChuckHill2.Forms
         TfqumuaHSEi/AWGEAdN8q+DIr4SzsAqeIc3YdrgbFQ3Pyfe/G6nHd6eS297tv/s/ZK14SWieJElVkJ9/
         p0zbiMoqI3TVRpSc1T79tjLfcOJobOIEy/eY9N//VwZYT7BgODEnzmIyLKcNe2uABf37a0JRvwOhw2qr
         dTfpywAAAABJRU5ErkJggg==";
+
+            const string WaitBase64 = @"
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAHT0lEQVRIS7VVaVBUZxa9yUwq
+        iMrQbAJxAVQkirIIzS7ooIIaXIioKMrWzTYxkoiMmpgoLolEBddxJQgi0kIA0QiILCLaJBCCg8uoKKJR
+        QNmapbHbd+bSUjOVzO/5qm6996red8499577fSSVuv83Ij1IGjSdIpdPpcCF1rRwrhVFr7S2OLBZ/Flu
+        ssvJshPOxeXHHUry9th8fyhucvzf/M0n+4lH0tJFCyjykw0UIZUwjvR38RZ4KCKjZlBYoD35eIyn2GAb
+        16qM+TXK2iDgaQTQGgn8Fgw88QcezwEa3KEsccSNZPM7ccGuc30CYilEspYiI35PQtIoT01ExnjRaokn
+        zZvzIaVudzuM+xKg5wvg+VYGTACatvPzS+DBpwy+Avh1HnAvkMmlwM05OPe1c5bfxyG0ShJH0Z+so4iY
+        t0HSYDFFhIgpeKUjzV9gQ6Ups6vQtU4DLDzaByjzgVcpwP1dEO58BdxezxHKZOHAs28gPEllVfzf3SW4
+        kWR3b6HfIq3AwGUUHryUwtYsJYpYaUvSlXbkO9OKLiQ7FaA7ijdvgfB4P9BbgBclsfg5JRry89tReXYz
+        yk5/jor0WPxy+VsMNJ3k0mXgzbNsCA+SgVt+KNpiVD3HeiStcdelUE9dJlhlSx/5WFPiets4tCwDGmM5
+        828488toKtwAWYIUz5oeoONFLVQ9NVC156HvUSJkX0yD7NRRAPXcmzSoms9BXcPKy6bgwBrRHl8bAwrz
+        MiQKmG1JK+aMFzVfdVfiaRCEe3EQmpJ4YzUKEoNRcP4Cv/NqlaO39hjaK75CR2kcfitLQmsHoO6ug3D/
+        a6gb/wHlDTbDxSloO26EVZ7GE/2cTYjmzzKh5HirjRpn3AqE8K94rivLhRxXTq1DYW42FEoViorLUVMl
+        R/3P9Wh6wUIb76O5uQPql5cgyL3wWr4K/YVe6D47Hsg1xfFww6QFtgZEIf7jxt5Isa1FozeE+gAm+IwV
+        fMeNPY+ex9lISzmFHkU7blefRUNNHtB9HWg7gTMSXeTn3WQXxQPllhgotENf7iQozloAsg9Qu82gOdLb
+        aDptDZu0qLVArMatGRDq/NgpURAa2UFPDgNCOSqvHMH584WsiNNWZfNThuenJyDn0BF0tpYAlWZQlztD
+        +eNU9P1gBUWGBZSpJmjZr4ddyw3D6Nj6SeuVxQ5ccjcItX+F8M+V3AdW8Wgn2+8IMCBDaf42ZF8o0xDe
+        PWINWXIynjXLeRbsIdwQ4/VVJ/RfnIbe7EnoTh8HxSljdB7QRWq4aBulb7JMGLhsx5m44I3cnVX4QmhY
+        zSTspofs+8e7AUUy5Jc/R87BL1F4PBGdLyu4Xx4Qqh2gqnDDQJE9+vKnoCdrIrpSx6D7mBE6knWQE62T
+        SEfXmsf3XZjK9nKA+porhJ944y8+EG4th3BbqukJOjfifvJIZO7hevNS1bOdKwygvu6JgRLxUPaD5TFH
+        50lTdB3RR/ue4TgdqrOdEoLGftySMQkoscHrK44akjc3WUnNLFbzEU+rP+p2D0de0maoNfBctTc8g1UB
+        eJ2nA2WhA3pzJ0OROV6TfcdRIygO6eLFLi3sXqITQWG+Yybc/M68AaWTORMbDBRPx+tSJ6iuufC54407
+        ewkZO/h4+MNSMomi2Bf9GdrokVmhO20cOk8Y49VBfQiHtFG74f2W6Jm6LuTjYkoHo0YnoGgCenM+RD+X
+        S8k9UVc4ozdThPR4P3QPgSo623C3oWHoC+hXvEBXhhm6vzfg0pig/bABWvf+BTj0Z5wM1D7mOzgHi5lg
+        hYfJmOfHRgN5FlDILDWSUWmLolhCfvYlDVgvR8uvp5G1ZSquVjdqvgdXZ+VGdLDKQfC2fbro26eF1m3v
+        YLWbyN7Xjo8KyWwTmu9oQvtCjHci3xS9Z9hmg8NSZIHs6PdRfO0hw3TgYX4I+vIsIVwyw0+JxsjctRhP
+        evioeCTDyx2Etr0j0PbtMGA/4eiyYad8bQwp1F2PKNRnFAXPHUVzxaPoxzhDOXK4SSkmUJ0bh7od2jid
+        xcPUKEOfzAk951zRkjYLKF0NeaIrCqoe8d1wAO2J76J1j54GvDz6Tw/m2Rm8s8pVn0I8mEDipkdSZgpy
+        FJGfvaF2+Ua9B5AZQnnWGqpcR1zfJ+bTsxx9PV3o6upCZ3sb+nt7oFargLok9KXxDKQ5AekfQL7uvZeL
+        7UWmgWIDimBwyaCCQfDBiHYX0XJXI5rnYPRuaqio4E36BLauD8/HEnTJvNGYFcRlikXTxQ14mh+DlqwA
+        IGc2UOzH4NY4vmJEpdVY0fAABo+Z8RZzMP7zEuEmIslMQ1rtZUzTzPUp2ENnaenfxzxTnnHnoeKrsYav
+        ypqNHJs44oCqcKgyZ+P6JrNXoa7aYe9p6dIUM32KmalHkUOY/0MQ5mVEEu9RtEhsqPl5gvEIWmKvPWOn
+        v/5u2VqLH65vnVpRtW3atexPJ+btWGKwd+E0rbmmesNotJGILMfqk4sV43j+gYAt8n8M0L8B9U2FotW1
+        1/MAAAAASUVORK5CYII=";
         }
     }
 }
