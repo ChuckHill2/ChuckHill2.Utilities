@@ -6,11 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using ChuckHill2;  //needed for GDI.ExtractAssociatedIcon() and GDI.ApplyShadows()
+using ChuckHill2;  //needed for GDI.ExtractAssociatedIcon() and GDI.ApplyShadows() only.
 
 namespace ChuckHill2.Forms
 {
     /// <summary>
+    /// @image{inline} html MiniMessageBox.png
     /// Displays a small message box in front of the specified object and with the specified text, caption, buttons, and icon.
     /// </summary>
     /// <remarks>
@@ -25,18 +26,57 @@ namespace ChuckHill2.Forms
         [Flags]
         public enum Buttons
         {
+            /// <summary>
+            /// No buttons will be displayed.  However if a modal popup is displayed this will default to an OK buton.
+            /// </summary>
             None = 0,
+            /// <summary>
+            /// Display an OK button. Upon click DialogResult.OK will be returned.
+            /// </summary>
             OK = 0x01,
+            /// <summary>
+            /// Display a Cancel button. Upon click DialogResult.Cancel will be returned.
+            /// </summary>
             Cancel = 0x02,
+            /// <summary>
+            /// Display an Abort button. Upon click DialogResult.Abort will be returned.
+            /// </summary>
             Abort = 0x04,
+            /// <summary>
+            /// Display a Retry button. Upon click DialogResult.Retry will be returned.
+            /// </summary>
             Retry = 0x08,
+            /// <summary>
+            /// Display an Ignore button. Upon click DialogResult.Ignore will be returned.
+            /// </summary>
             Ignore = 0x10,
+            /// <summary>
+            /// Display a Yes button. Upon click DialogResult.Yes will be returned.
+            /// </summary>
             Yes = 0x20,
+            /// <summary>
+            /// Display a No button. Upon click DialogResult.No will be returned.
+            /// </summary>
             No = 0x40,
+            /// <summary>
+            /// Display a combination of OK and Cancel buttons.
+            /// </summary>
             OKCancel = (OK | Cancel),
+            /// <summary>
+            /// Display a combination of Abort, Retry, and Ignore buttons.
+            /// </summary>
             AbortRetryIgnore = (Abort | Retry | Ignore),
-            YesNoCancel = (Yes |No | Cancel),
+            /// <summary>
+            /// Display a combination of Yes, No, and Cancel buttons.
+            /// </summary>
+            YesNoCancel = (Yes | No | Cancel),
+            /// <summary>
+            /// Display a combination of Yes and No buttons.
+            /// </summary>
             YesNo = (Yes | No),
+            /// <summary>
+            /// Display a combination of Retry and Cancel buttons.
+            /// </summary>
             RetryCancel = (Retry | Cancel)
         }
 
@@ -50,22 +90,27 @@ namespace ChuckHill2.Forms
             /// </summary>
             None = 0,
             /// <summary>
+            /// @image{inline} html error24.png
             /// The message box contains an icon consisting of white X in a circle with a red background. Usually associated with an error status.
             /// </summary>
             Error = 16,
             /// <summary>
+            /// @image{inline} html question24.png
             /// The message box contains an icon consisting of a question mark in a circle. Usually associated with a query message and YesNo buttons
             /// </summary>
             Question = 32,
             /// <summary>
+            /// @image{inline} html warning24.png
             /// The message box contains an icon consisting of an exclamation point in a triangle with a yellow background. Usually associated with a warning status.
             /// </summary>
             Warning = 48,
             /// <summary>
+            /// @image{inline} html info24.png
             /// The message box contains an icon consisting of a lowercase letter i in a circle. Usually associated with an informational status.
             /// </summary>
             Information = 64,
             /// <summary>
+            /// @image{inline} html wait24.png
             /// The message box contains an icon consisting of an hourglass figure in a circle. Usually associated with an waiting for an action to complete and maybe an abort button.
             /// </summary>
             Wait = 128
@@ -92,8 +137,8 @@ namespace ChuckHill2.Forms
         /// Displays a tiny modal (i.e. waits) message box in front of the specified object and with the specified text, caption, buttons, and icon.
         /// </summary>
         /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
-        /// <param name="text">The text to display in the message box.</param>
-        /// <param name="caption">The text to display in the title bar of the message box.</param>
+        /// <param name="text">The text to display in the message box. Text is automatically wrapped to fit a 3x2 rectangle and size of popup is adjusted accordingly.</param>
+        /// <param name="caption">The text to display in the title bar of the message box. Text is a single line, never wrapped.</param>
         /// <param name="buttons">One of the System.Windows.Forms.MessageBoxButtons values that specifies which buttons to display in the message box.</param>
         /// <param name="icon">One of the System.Windows.Forms.MessageBoxIcon values that specifies which icon to display in the message box.</param>
         /// <returns>One of the System.Windows.Forms.DialogResult values.</returns>
@@ -107,8 +152,8 @@ namespace ChuckHill2.Forms
         /// Displays a tiny modal (i.e. waits) message box in front of the specified object and with the specified text, caption, buttons, and icon.
         /// </summary>
         /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
-        /// <param name="text">The text to display in the message box.</param>
-        /// <param name="caption">The text to display in the title bar of the message box.</param>
+        /// <param name="text">The text to display in the message box. Text is automatically wrapped to fit a 3x2 rectangle and size of popup is adjusted accordingly.</param>
+        /// <param name="caption">The text to display in the title bar of the message box. Text is a single line, never wrapped.</param>
         /// <param name="buttons">Combination of buttons to display in the message box. Using None will default to an OK button.</param>
         /// <param name="icon">A value that specifies which symbol graphic to display along side the message.</param>
         /// <returns>One of the System.Windows.Forms.DialogResult values.</returns>
@@ -125,8 +170,8 @@ namespace ChuckHill2.Forms
         /// Displays a tiny modalless (i.e. returns immediately) message box in front of the specified object and with the specified text, caption, buttons, and icon.
         /// </summary>
         /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
-        /// <param name="text">The text to display in the message box.</param>
-        /// <param name="caption">The text to display in the title bar of the message box.</param>
+        /// <param name="text">The text to display in the message box. Text is automatically wrapped to fit a 3x2 rectangle and size of popup is adjusted accordingly.</param>
+        /// <param name="caption">The text to display in the title bar of the message box. Text is a single line, never wrapped.</param>
         /// <param name="buttons">One of the System.Windows.Forms.MessageBoxButtons values that specifies which buttons to display in the message box OR ((MessageBoxButtons) -1) for no buttons. In which case, the calling code is responsible for closing the dialog via Hide().</param>
         /// <param name="icon">One of the System.Windows.Forms.MessageBoxIcon values that specifies which icon to display in the message box.</param>
         /// <remarks>
@@ -142,8 +187,8 @@ namespace ChuckHill2.Forms
         /// Displays a tiny modalless (i.e. returns immediately) message box in front of the specified object and with the specified text, caption, buttons, and icon.
         /// </summary>
         /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
-        /// <param name="text">The text to display in the message box.</param>
-        /// <param name="caption">The text to display in the title bar of the message box.</param>
+        /// <param name="text">The text to display in the message box. Text is automatically wrapped to fit a 3x2 rectangle and size of popup is adjusted accordingly.</param>
+        /// <param name="caption">The text to display in the title bar of the message box. Text is a single line, never wrapped.</param>
         /// <param name="buttons">Combination of buttons to display in the message box or None for no buttons. In which case, the calling code is entirely responsible for closing the dialog via Hide().</param>
         /// <param name="icon">A value that specifies which symbol graphic to display along side the message.</param>
         /// <remarks>
@@ -292,7 +337,7 @@ namespace ChuckHill2.Forms
 
             this.SuspendLayout();
             const int Border = 2;
-            const int Spacing = 3;
+            int Spacing = this.Font.Height / 2; //spacing beteween the elements in the client area.
             Size szButton = Size.Empty;
             Size szButtonGroup = Size.Empty;
             if (ButtonNames.Length > 0)
@@ -560,6 +605,9 @@ namespace ChuckHill2.Forms
             return owner;
         }
 
+        /// <summary>
+        /// We keep our own graphic resources here to make this file entirely self-contained so it may be copied an reused elsewhere without any dependencies.
+        /// </summary>
         private class Resources : IDisposable
         {
             private Image __errorIcon = null;
