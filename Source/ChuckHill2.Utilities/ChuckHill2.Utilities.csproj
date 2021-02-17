@@ -59,6 +59,7 @@
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="CsvReader.cs" />
     <Compile Include="CsvWriter.cs" />
+    <Compile Include="PropertyStore.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobeColorTablePaletteSerializer.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoshopColorSwatchColorSpace.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoshopColorSwatchFileVersion.cs" />
@@ -238,6 +239,8 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="TypeConverter.cs" />
+    <Compile Include="VersionEx.cs" />
     <Compile Include="Win32\GDI.cs" />
     <Compile Include="Win32\RECT.cs" />
     <Compile Include="RectangleEx.cs" />

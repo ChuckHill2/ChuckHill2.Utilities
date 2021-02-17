@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 
-namespace ChuckHill2
+namespace ChuckHill2.Win32
 {
     /// <summary>
     /// Used everywhere when using Win32 RECT's via pInvoke.

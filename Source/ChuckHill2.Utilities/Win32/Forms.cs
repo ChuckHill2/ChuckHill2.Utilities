@@ -30,6 +30,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 
 /// <summary>
 /// Public native Win32 API for reuse when C# is insufficient.
@@ -320,6 +321,268 @@ namespace ChuckHill2.Win32
         {
             return new IntPtr(MAKELONG(sz.Width, sz.Height));
         }
+        #endregion
+
+        #region GetWindowProperty/SetWindowProperty
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr GetProp(IntPtr hWnd, string key);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool SetProp(IntPtr hWnd, string key, IntPtr value);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int EnumProps(IntPtr hWnd, PropEnumProc lpEnumFunc);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr RemoveProp(IntPtr hWnd, string lpString);
+        private delegate bool PropEnumProc(IntPtr hWnd, [MarshalAs(UnmanagedType.LPWStr)] string key, IntPtr value);
+        private const string PropNamePrefix = "Forms_"; //so we can identify OUR properties for cleanup. Visible internally only.
+        private const string LiteralPrefix = "val_"; //is property a ptr to unmanaged memory or is ptr the value?
+
+        public static bool GetWindowProperty(Control ctrl, string key, out int value)
+        {
+            if (!ctrl.IsHandleCreated) { value = 0; return false; }
+
+            var ptr = GetProp(ctrl.Handle, string.Concat(PropNamePrefix, LiteralPrefix, key));
+            if (ptr == IntPtr.Zero) { value = 0; return false; }
+            value = ptr.ToInt32();
+            return true;
+        }
+
+        public static bool GetWindowProperty(Control ctrl, string key, out long value)
+        {
+            if (!ctrl.IsHandleCreated) { value = 0; return false; }
+
+            if (IntPtr.Size == 8)
+            {
+                var p = GetProp(ctrl.Handle, string.Concat(PropNamePrefix, LiteralPrefix, key));
+                if (p == IntPtr.Zero) { value = 0; return false; }
+                value = p.ToInt64();
+                return true;
+            }
+
+            var ptr = GetProp(ctrl.Handle, PropNamePrefix + key);
+            if (ptr == IntPtr.Zero) { value = 0; return false; }
+            value = Marshal.ReadInt64(ptr);
+            return true;
+        }
+
+        public static bool GetWindowProperty(Control ctrl, string key, out string value)
+        {
+            if (!ctrl.IsHandleCreated) { value = null; return false; }
+
+            var ptr = GetProp(ctrl.Handle, PropNamePrefix + key);
+            if (ptr == IntPtr.Zero) { value = null; return false; }
+
+            value = Marshal.PtrToStringUni(ptr);
+            return true;
+        }
+
+        public static bool GetWindowProperty(Control ctrl, string key, out Size value)
+        {
+            long v;
+            if (!GetWindowProperty(ctrl, key, out v)) { value = Size.Empty; return false; }
+            value = new Size((int)(0xFFFFFFFF & v), (int)(v >> 32));
+            return true;
+        }
+
+        public static bool GetWindowProperty(Control ctrl, string key, out Point value)
+        {
+            long v;
+            if (!GetWindowProperty(ctrl, key, out v)) { value = Point.Empty; return false; }
+            value = new Point((int)(0xFFFFFFFF & v), (int)(v >> 32));
+            return true;
+        }
+
+        public static bool GetWindowProperty(Control ctrl, string key, out Rectangle value)
+        {
+            if (!ctrl.IsHandleCreated) { value = Rectangle.Empty; return false; }
+
+            var ptr = GetProp(ctrl.Handle, PropNamePrefix + key);
+            if (ptr == IntPtr.Zero) { value = Rectangle.Empty; return false; }
+
+            value = new Rectangle(
+                Marshal.ReadInt32(ptr, 0 * 4),
+                Marshal.ReadInt32(ptr, 1 * 4),
+                Marshal.ReadInt32(ptr, 2 * 4),
+                Marshal.ReadInt32(ptr, 3 * 4));
+
+            return true;
+        }
+
+        /// <summary>
+        /// Get previously assigned window handle property value. 
+        /// </summary>
+        /// <remarks>
+        /// Be sure to call DisposeAllProperties() before control is destroyed in order to avoid memory leaks.
+        ///
+        /// There are two mechanisms for associating data with a window.
+        /// 1. Associate data with .NET System.Windows.Control. See PropertyStore.GetObject(). Useful for sharing data with other .Net methods.
+        /// 2. Associate data with the Win32 windows handle. See NativeMethods.GetWindowProperty<T>(). Useful for sharing data thru the win32 interface, such as .net WndProc() and other win32 API. Data is stored by value.
+        /// </remarks>
+        /// <typeparam name="T">value type (e.g. struct)</typeparam>
+        /// <param name="ctrl">Control property is assigned to.</param>
+        /// <param name="key">Property key</param>
+        /// <param name="value">Struct value associated with key.</param>
+        /// <returns>True if exists</returns>
+        public static bool GetWindowProperty<T>(Control ctrl, string key, out T value) where T : struct
+        {
+            if (!ctrl.IsHandleCreated) { value = default(T); return false; }
+
+            var ptr = GetProp(ctrl.Handle, PropNamePrefix + key);
+            if (ptr == IntPtr.Zero) { value = default(T); return false; }
+
+            value = (T)Marshal.PtrToStructure(ptr, typeof(T));
+            return true;
+        }
+
+        public static bool SetWindowProperty(Control ctrl, string key, int value)
+        {
+            if (!ctrl.IsHandleCreated && !ctrl.IsDisposed) ctrl.CreateControl();
+            if (!ctrl.IsHandleCreated) throw new MemberAccessException("Control handle not instantiated.");
+            return SetProp(ctrl.Handle, string.Concat(PropNamePrefix, LiteralPrefix, key), (IntPtr)value);
+        }
+
+        public static bool SetWindowProperty(Control ctrl, string key, long value)
+        {
+            if (IntPtr.Size == 8)
+            {
+                if (!ctrl.IsHandleCreated && !ctrl.IsDisposed) ctrl.CreateControl();
+                if (!ctrl.IsHandleCreated) throw new MemberAccessException("Control handle not instantiated.");
+                return SetProp(ctrl.Handle, string.Concat(PropNamePrefix, LiteralPrefix, key), (IntPtr)value);
+            }
+
+            key = PropNamePrefix + key;
+            IntPtr ptr = GetUnmanagedPtr(ctrl, key, 8);
+            Marshal.WriteInt64(ptr, value);
+            return SetProp(ctrl.Handle, key, ptr);
+        }
+
+        public static bool SetWindowProperty(Control ctrl, string key, string value)
+        {
+            int allocSize = (value.Length + 1) * 2;
+            key = PropNamePrefix + key;
+            IntPtr ptr = GetUnmanagedPtr(ctrl, key, allocSize);
+
+            //NativeMethods.Copy(value, ptr);  //much, much more efficient but requires 'unsafe' keyword
+
+            //Get array of chars + '\0' terminator
+            var arr = value.ToCharArray();
+            var newArr = new char[arr.Length + 1];
+            Array.Copy(arr, newArr, arr.Length);
+            Marshal.Copy(newArr, 0, ptr, newArr.Length);
+            
+            return SetProp(ctrl.Handle, key, ptr);
+        }
+
+        public static bool SetWindowProperty(Control ctrl, string key, Size value)
+        {
+            long v = unchecked((long)((ulong)value.Width + ((ulong)value.Height << 32)));
+            return SetWindowProperty(ctrl, key, v);
+        }
+
+        public static bool SetWindowProperty(Control ctrl, string key, Point value)
+        {
+            long v = unchecked((long)((ulong)value.X + ((ulong)value.Y << 32)));
+            return SetWindowProperty(ctrl, key, v);
+        }
+
+        public static bool SetWindowProperty(Control ctrl, string key, Rectangle value)
+        {
+            int allocSize = 16; //Marshal.Sizeof(Rectangle);
+            key = PropNamePrefix + key;
+            IntPtr ptr = GetUnmanagedPtr(ctrl, key, allocSize);
+            Marshal.WriteInt32(ptr, 0 * 4, value.X);
+            Marshal.WriteInt32(ptr, 1 * 4, value.Y);
+            Marshal.WriteInt32(ptr, 2 * 4, value.Width);
+            Marshal.WriteInt32(ptr, 3 * 4, value.Height);
+            return SetProp(ctrl.Handle, key, ptr);
+        }
+
+        /// <summary>
+        /// Associate a new key/value pair with control's underlying window handle.
+        /// </summary>
+        /// <remarks>
+        /// Be sure to call DisposeAllProperties() before control is destroyed in order to avoid memory leaks.
+        ///
+        /// There are two mechanisms for associating data with a window.
+        /// 1. Associate data with .NET System.Windows.Control. See PropertyStore.SetObject(). Useful for sharing data with other .Net methods.
+        /// 2. Associate data with the Win32 windows handle. See NativeMethods.SetWindowProperty<T>(). Useful for sharing data thru the win32 interface, such as .net WndProc() and other win32 API. Data is stored by value.
+        /// </remarks>
+        /// <typeparam name="T">value type (e.g. struct)</typeparam>
+        /// <param name="ctrl">Control that property is to be assigned to.</param>
+        /// <param name="key">Unique property key</param>
+        /// <param name="value">Struct value to assign</param>
+        /// <returns>True if key/value pair is successfully associated with control.</returns>
+        /// <exception cref="System.ArgumentException"><paramref name="value" /> cannot be marshaled as an unmanaged structure; no meaningful size or offset can be computed.</exception>
+        public static bool SetWindowProperty<T>(Control ctrl, string key, T value) where T : struct
+        {
+            int allocSize = Marshal.SizeOf(value);
+            key = PropNamePrefix + key;
+            IntPtr ptr = GetUnmanagedPtr(ctrl, key, allocSize);
+            Marshal.StructureToPtr(value, ptr, false);
+            return SetProp(ctrl.Handle, key, ptr);
+        }
+
+        /// <summary>
+        /// Remove only our properties and free associated unmanaged memory. If the 
+        /// SetWindowProperty extension method is used, this method MUST be called no later 
+        /// than the WndProc WM_NCDESTROY message.
+        /// </summary>
+        /// <param name="ctrl">Control containing properties to purge.</param>
+        /// <returns>False if control's window handle already disposed. Otherwise true.</returns>
+        public static bool DisposeAllProperties(Control ctrl)
+        {
+            if (!ctrl.IsHandleCreated) return false;
+            EnumProps(ctrl.Handle, PropertyEnumerator);
+            return true;
+        }
+        private static bool PropertyEnumerator(IntPtr hWnd, string key, IntPtr value)
+        {
+            if (key.StartsWith(PropNamePrefix, StringComparison.Ordinal))
+            {
+                RemoveProp(hWnd, key);
+                if (string.CompareOrdinal(key, PropNamePrefix.Length, LiteralPrefix, 0, 4) < 0)
+                    Marshal.FreeHGlobal(value - 4);
+            }
+            return true;
+        }
+
+        //Get new or existing unmanaged memory ptr for specified control and key and reszize as necessary.
+        private static IntPtr GetUnmanagedPtr(Control ctrl, string key, int allocSize)
+        {
+            if (!ctrl.IsHandleCreated && !ctrl.IsDisposed) ctrl.CreateControl();
+            if (!ctrl.IsHandleCreated) throw new MemberAccessException("Control handle not instantiated.");
+
+            allocSize += 4;  //add int prefix containing size of allocated memory
+            IntPtr ptr = GetProp(ctrl.Handle, key);
+            if (ptr == IntPtr.Zero)
+                ptr = Marshal.AllocHGlobal(allocSize);
+            else
+            {
+                ptr -= 4; //set ptr to true allocated ptr location
+                int currentAllocSize = Marshal.ReadInt32(ptr);
+                if (currentAllocSize < allocSize)
+                    ptr = Marshal.ReAllocHGlobal(ptr, (IntPtr)allocSize);
+            }
+            Marshal.WriteInt32(ptr, allocSize); //write allocation size to first 4 bytes (e.g. int32)
+            return ptr + 4; //hide allocation size. nothing else needs to know about it (except DisposeAllProperties).
+        }
+
+        [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl)] public static extern IntPtr memcpy(IntPtr dst, IntPtr src, int count);
+        ///// <summary>
+        ///// Efficient copy of string to unmanaged memory.
+        ///// </summary>
+        ///// <remarks>
+        ///// The closest equivalant would be:
+        ///// @code{.cs}
+        /////     Marshal.Copy(str.ToCharArray(), 0, ptr, str.Length);
+        ///// @endcode
+        ///// </remarks>
+        ///// <param name="srcStr">String to copy</param>
+        ///// <param name="dstPtr">Unmanaged pointer to copy string into.</param>
+        //unsafe private static void Copy(String srcStr, IntPtr dstPtr)
+        //{
+        //    if (srcStr == null || dstPtr == IntPtr.Zero) return;
+        //    fixed (char* firstChar = srcStr)
+        //    {
+        //        memcpy(dstPtr, (IntPtr)firstChar, (srcStr.Length + 1) * 2);
+        //    }
+        //}
+
         #endregion
 
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);

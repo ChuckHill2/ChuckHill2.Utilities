@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,6 +10,7 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using ChuckHill2;
 using ChuckHill2.Forms;
+using ChuckHill2.Win32;
 
 namespace UtilitiesDemo
 {
@@ -35,6 +37,8 @@ namespace UtilitiesDemo
                 }
                 return false; // Everything else is not handled by this api.
             });
+
+            CustomStorageTests(); //Test control custom storage API.
 
             propertyGrid1.SelectedObject = new TestUITypeEditors(this);
 
@@ -249,6 +253,41 @@ namespace UtilitiesDemo
         #endregion
 
         #endregion //Popup Tab Click Events
+
+        [Conditional("DEBUG")]
+        private void CustomStorageTests()
+        {
+            NativeMethods.SetWindowProperty(this, "TestInt", 42);
+            NativeMethods.SetWindowProperty(this, "TestLong", 123456789L);
+            NativeMethods.SetWindowProperty(this, "TestString", "Hello World");
+            NativeMethods.SetWindowProperty(this, "TestSize", new Size(1, 2));
+            NativeMethods.SetWindowProperty(this, "TestPoint", new Point(12, 34));
+            NativeMethods.SetWindowProperty(this, "TestRect", new Rectangle(11, 22, 33, 44));
+            NativeMethods.SetWindowProperty(this, "TestColor", Color.Cyan);
+
+            Debug.Assert(NativeMethods.GetWindowProperty(this, "TestInt", out int r1) && r1 == 42, "NativeMethods.GetWindowProperty[int]");
+            Debug.Assert(NativeMethods.GetWindowProperty(this, "TestLong", out long r2) && r2 == 123456789, "NativeMethods.GetWindowProperty[long]");
+            Debug.Assert(NativeMethods.GetWindowProperty(this, "TestString", out string r3) && r3 == "Hello World", "NativeMethods.GetWindowProperty[string]");
+            Debug.Assert(NativeMethods.GetWindowProperty(this, "TestSize", out Size r4) && r4 == new Size(1, 2), "NativeMethods.GetWindowProperty[Size]");
+            Debug.Assert(NativeMethods.GetWindowProperty(this, "TestPoint", out Point r5) && r5 == new Point(12, 34), "NativeMethods.GetWindowProperty[Point]");
+            Debug.Assert(NativeMethods.GetWindowProperty(this, "TestRect", out Rectangle r6) && r6 == new Rectangle(11, 22, 33, 44), "NativeMethods.GetWindowProperty[Rectangle]");
+            Debug.Assert(NativeMethods.GetWindowProperty(this, "TestColor", out Color r7) && r7 == Color.Cyan, "NativeMethods.GetWindowProperty[struct]");
+
+            NativeMethods.DisposeAllProperties(this);
+            Debug.Assert(!NativeMethods.GetWindowProperty(this, "TestRect", out Rectangle r8));
+
+            int key1 = PropertyStore.CreateKey();
+            int key2 = PropertyStore.CreateKey();
+            int key3 = PropertyStore.CreateKey();
+
+            PropertyStore.SetInteger(this, key1, 42);
+            PropertyStore.SetObject(this, key2, _tests[0]);
+            PropertyStore.SetObject(this, key3, new KeyValuePair<string, int>("Hello", 42));
+
+            Debug.Assert(PropertyStore.GetInteger(this, key1) == 42, "PropertyStore.GetInteger[int]");
+            Debug.Assert(PropertyStore.GetObject(this, key2).Equals(_tests[0]), "PropertyStore.GetInteger[class]");
+            Debug.Assert(PropertyStore.GetObject(this, key3).Equals(new KeyValuePair<string, int>("Hello", 42)), "PropertyStore.GetInteger[struct]");
+        }
     }
 
     /// <summary>
