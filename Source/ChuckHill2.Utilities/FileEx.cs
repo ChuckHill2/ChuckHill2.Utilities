@@ -15,6 +15,9 @@ using Microsoft.Win32;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// File Downloader
+    /// </summary>
     public static class FileEx
     {
         private static HashSet<string> ResolvedHosts = null;                   //used exclusively by FileEx.Download()

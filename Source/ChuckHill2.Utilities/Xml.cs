@@ -10,6 +10,9 @@ using ChuckHill2.Extensions;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// XML Management Utilities
+    /// </summary>
     public static class Xml
     {
         /// <summary>
@@ -188,6 +191,9 @@ namespace ChuckHill2
     }
 
     #region public class XmlCommentAttribute : Attribute
+    /// <summary>
+    /// Property decorator for addition of Xml comments during serialization.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
     public class XmlCommentAttribute : Attribute
     {

@@ -167,7 +167,7 @@ ORDER BY TableName, Ordinal";
             }
             finally
             {
-                if (reader != null) { reader.DisposeConnection(); reader = null; }
+                if (reader != null) { SqlClient.DisposeConnection(reader); reader = null; }
             }
         }
 

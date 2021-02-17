@@ -5,6 +5,9 @@ using ChuckHill2.Extensions;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// Robust data type conversion. Never throws an exception. System.Convert on steroids.
+    /// </summary>
     public static class Cast
     {
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1); // Unix Epoch

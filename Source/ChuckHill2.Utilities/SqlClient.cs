@@ -14,6 +14,9 @@ using ChuckHill2.Extensions.Reflection;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// Sql.Net Utilities
+    /// </summary>
     public static class SqlClient
     {
         private const bool STRICT = false; //True to ensure that type properties exactly match sql query results or an exception is thrown. False to ignore mismatches and coerce results into the specified types or set to the type's default value.
@@ -398,6 +401,32 @@ namespace ChuckHill2
                 sb.Append(value);
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Reader may hang on close if the reader has not completed. This allows the caller to cancel execution of the underlying command.
+        /// </summary>
+        /// <param name="reader"></param>
+        public static void Cancel(SqlDataReader reader)
+        {
+            if (reader.IsClosed) return;
+            SqlCommand cmd = reader.GetReflectedValue("Command") as SqlCommand; // reader.Command is internal!
+            cmd.Cancel();
+        }
+
+        /// <summary>
+        /// Close and dispose the entire reader, command, and connection, given the SqlDataReader object;
+        /// </summary>
+        /// <param name="reader"></param>
+        public static void DisposeConnection(SqlDataReader reader)
+        {
+            SqlCommand cmd = reader.GetReflectedValue("Command") as SqlCommand; // reader.Command is internal!
+            if (!reader.IsClosed)
+            {
+                cmd.Cancel();
+                reader.Dispose();
+            }
+            if (cmd != null) cmd.Dispose();
         }
 
         #region [Private helper utilities]
@@ -1054,35 +1083,6 @@ namespace ChuckHill2
             return q.Length > 160 ? "[query]" : q;
         }
         #endregion
-    }
-
-    public static class SqlClientExtensions
-    {
-        /// <summary>
-        /// Reader may hang on close if the reader has not completed. This allows the caller to cancel execution of the underlying command.
-        /// </summary>
-        /// <param name="reader"></param>
-        public static void Cancel(this SqlDataReader reader)
-        {
-            if (reader.IsClosed) return;
-            SqlCommand cmd = reader.GetReflectedValue("Command") as SqlCommand; // reader.Command is internal!
-            cmd.Cancel();
-        }
-
-        /// <summary>
-        /// Close and dispose the entire reader, command, and connection, given the SqlDataReader object;
-        /// </summary>
-        /// <param name="reader"></param>
-        public static void DisposeConnection(this SqlDataReader reader)
-        {
-            SqlCommand cmd = reader.GetReflectedValue("Command") as SqlCommand; // reader.Command is internal!
-            if (!reader.IsClosed)
-            {
-                cmd.Cancel();
-                reader.Dispose();
-            }
-            if (cmd!=null) cmd.Dispose();
-        }
     }
 }
 

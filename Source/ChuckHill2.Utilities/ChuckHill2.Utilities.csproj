@@ -59,6 +59,7 @@
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="CsvReader.cs" />
     <Compile Include="CsvWriter.cs" />
+    <Compile Include="MathEx.cs" />
     <Compile Include="PropertyStore.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobeColorTablePaletteSerializer.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobePhotoshopColorSwatchColorSpace.cs" />

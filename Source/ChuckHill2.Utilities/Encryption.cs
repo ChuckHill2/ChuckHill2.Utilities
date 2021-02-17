@@ -9,6 +9,9 @@ using ChuckHill2.Extensions;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// Security Utilities
+    /// </summary>
     public static class Encryption
     {
         private static readonly AesCryptoServiceProvider AesProvider = null;

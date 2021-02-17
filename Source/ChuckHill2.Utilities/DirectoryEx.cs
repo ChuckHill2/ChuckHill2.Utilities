@@ -5,6 +5,9 @@ using ChuckHill2.Win32;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// Directory Management Utilities
+    /// </summary>
     public static class DirectoryEx
     {
         /// <summary>

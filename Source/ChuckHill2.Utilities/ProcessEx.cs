@@ -8,6 +8,9 @@ using ChuckHill2.Logging;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// Provides access to local and remote processes and enables you to start and stop local system processes. 
+    /// </summary>
     public class ProcessEx
     {
         /// <summary>
