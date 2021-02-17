@@ -245,11 +245,11 @@ namespace ChuckHill2
             return p;
         }
 
-        #region GetParentProcess - Win32
+        #region public static Process GetParentProcess(int iCurrentPid=0)
         static uint TH32CS_SNAPPROCESS = 2;
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct PROCESSENTRY32
+        private struct PROCESSENTRY32
         {
             public uint dwSize;
             public uint cntUsage;
@@ -272,7 +272,6 @@ namespace ChuckHill2
 
         [DllImport("kernel32.dll")]
         static extern bool Process32Next(IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
-        #endregion
 
         /// <summary>
         /// Get the parent process of the specified process. Useful to determine who started the current process.
@@ -296,7 +295,196 @@ namespace ChuckHill2
             while (iParentPid == 0 && Process32Next(oHnd, ref oProcInfo));
             if (iParentPid > 0) return Process.GetProcessById(iParentPid);
             else                return null;
-
         }
+        #endregion
+
+        /// <summary>
+        /// Get full path to this running executble;
+        /// </summary>
+        public static string ExecutablePath
+        {
+            get
+            {
+                if (__executablePath == null) __executablePath = Process.GetCurrentProcess().MainModule.FileName;
+                return __executablePath;
+            }
+        }
+        private static string __executablePath;
+
+        /// <summary>
+        /// Get folder containing this running executable
+        /// </summary>
+        public static string ExecutableDir { get { return System.IO.Path.GetDirectoryName(ExecutablePath); } }
+
+        #region public static bool IsExecutableAlreadyRunning()
+        [DllImport("Kernel32.dll")] private static extern int GetCurrentProcessId();
+
+        /// <summary>
+        /// Detect if an instance of this executable is already running.
+        /// </summary>
+        /// <returns>True if an instance of this process is already running.</returns>
+        public static bool IsExecutableAlreadyRunning()
+        {
+            int[] pids = null;
+            string[] pnames = null;
+            if (!ProcessList(ref pids, ref pnames)) return true;
+            int currentPid = GetCurrentProcessId();
+            string currentPName = pnames[Array.IndexOf(pids, currentPid)];
+            int kount = 0;
+            foreach (string pname in pnames)
+            {
+                if (pname == currentPName) kount++;
+                if (kount > 1) return true;
+            }
+            return false;
+
+            //On some machines, the following will throw the exception:
+            //   System.InvalidOperationException: Process performance counter is disabled, so the requested operation cannot be performed.
+            //return (System.Diagnostics.Process.GetProcessesByName(System.Diagnostics.Process.GetCurrentProcess().ProcessName).Length > 1);
+        }
+
+        /*---------------------------------------------------------------------------------------------------------------------------*
+		On some machines the following exception may occur when just about any method in the 'System.Diagnostics.Process' class.
+
+		  System.InvalidOperationException: Process performance counter is disabled, so the requested operation cannot be performed.
+
+		Why does the Process class have a dependency on the performance counter?
+		The Process class exposes performance information about processes. In order to get performance information about remote 
+		processes, It needs to query performance information on a remote machine. It uses the same code to get performance information 
+		about processes on a local machine. That's why the Process class has a dependency on the performance counter. However, this 
+		approach has several problems: 
+
+		(1) Performance information is not available to a non-admin account, which is not in the Performance Counter Users Group on 
+		Windows Server 2003. So the Process class could not get process performance information in this case. 
+		(2) Getting performance data from all the processes on the machine is pretty expensive. The operating system (OS) might 
+		load lots of DLLs and it might take seconds to complete. The floppy drive light will be on when the OS tries to find the 
+		index for some performance counter. 
+		(3) If the performance counter data was corrupted for any reason, the Process class could throw an exception while trying 
+		to convert some raw performance information into DateTime. 
+		(4) The Process class could not be used to get process information on machines without the process performance counter. 
+		Performance counters can be disabled in Windows.
+
+		The good news is the Process class in Visual Studio 2005 (our next release, code-named Whidbey) has changed. The Process 
+		class doesn't have a dependency on performance counter information any more (this is only true for local processes).
+
+		The following is a HACK to fix the above problem by accessing the kernel system list directly (much like TaskManager).
+		This method will work on all versions of all OS's except Win95 and WinME.  
+		See https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/query.htm
+		*---------------------------------------------------------------------------------------------------------------------------*/
+        private static int ReadInt32(int p, int byteoffset) { return Marshal.ReadInt32(new IntPtr(p + byteoffset)); }
+        private static string PtrToStringUni(int p) { return Marshal.PtrToStringUni(new IntPtr(p)); }
+        [DllImport("ntdll.dll",SetLastError = true)] private static extern UInt32 ZwQuerySystemInformation(int SystemInformationClass, IntPtr SystemInformation, int SystemInformationLength, ref int ReturnLength);
+        const UInt32 STATUS_INFO_LENGTH_MISMATCH = 0xC0000004;
+        const int SystemProcessesAndThreadsInformation = 5;
+
+        private static bool ProcessList(ref int[] pids, ref string[] pnames)
+        {
+            System.Collections.ArrayList namelist = new System.Collections.ArrayList();
+            System.Collections.ArrayList idlist = new System.Collections.ArrayList();
+            IntPtr pBuffer = IntPtr.Zero;
+            int pSysInfo;
+            int cbBuffer = 65536;
+            int nbytes = 0;
+
+            try
+            {
+                while (true)  //we don't know how large a buffer we must supply, so we try larger and larger ones until it works.
+                {
+                    pBuffer = Marshal.AllocHGlobal(cbBuffer);
+                    UInt32 status = ZwQuerySystemInformation(SystemProcessesAndThreadsInformation, pBuffer, cbBuffer, ref nbytes);
+                    if (status == STATUS_INFO_LENGTH_MISMATCH)
+                    {
+                        Marshal.FreeHGlobal(pBuffer);
+                        pBuffer = IntPtr.Zero;
+                        cbBuffer *= 2;
+                        continue;
+                    }
+                    if (status < 0) throw new Win32.Win32Exception("ZwQuerySystemInformation", "ZwQuerySystemInformation Failed.");
+                    break;
+                }
+                pSysInfo = pBuffer.ToInt32();  //ptr arithmetic is a LOT easier when using integers
+                while (true)  //step thru packed array of process entries
+                {
+                    int pid = ReadInt32(pSysInfo, 17 * 4);
+                    string pname = PtrToStringUni(ReadInt32(pSysInfo, 15 * 4));
+                    if (pname == null) pname = "Idle";  //special case: the idle process (pid==0) has no name
+                    namelist.Add(pname);
+                    idlist.Add(pid);
+                    int NextEntryDelta = ReadInt32(pSysInfo, 0 * 4);
+                    if (NextEntryDelta == 0) break; //no more entries
+                    pSysInfo += NextEntryDelta;
+                }
+            }
+            //catch (Exception ex) { Log.Local.Write(Log.Severity.Warning, "Error parsing ZwQuerySystemInformation returned process data", ex); return false; }
+            finally
+            {
+                if (pBuffer != IntPtr.Zero) Marshal.FreeHGlobal(pBuffer);
+                pids = idlist.ToArray(typeof(int)) as int[];
+                pnames = namelist.ToArray(typeof(string)) as string[];
+            }
+            return true;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Get CPU Description
+        /// </summary>
+        /// <returns>CPU Description</returns>
+        public static string GetCPUDescription()
+        {
+            Microsoft.Win32.RegistryKey key = null;
+            try
+            {
+                key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Hardware\\Description\\System\\CentralProcessor\\0", false);
+                return key.GetValue("ProcessorNameString", string.Empty).ToString().Trim();
+            }
+            catch { return string.Empty; }
+            finally { if (key != null) key.Close(); }
+        }
+
+        /// <summary>
+        /// Get CPU speed in MHz
+        /// </summary>
+        /// <returns>CPU Speed in MHZ</returns>
+        public static int GetCPUSpeed()
+        {
+            Microsoft.Win32.RegistryKey key = null;
+            try
+            {
+                key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Hardware\\Description\\System\\CentralProcessor\\0", false);
+                return (int)key.GetValue("~MHz", 0);
+            }
+            catch { return 0; }
+            finally { if (key != null) key.Close(); }
+        }
+
+        #region public static int GetTotalMemory()
+        struct MEMORYSTATUSEX
+        {
+            public Int32 dwLength;
+            public UInt32 dwMemoryLoad;
+            public UInt64 ullTotalPhys;
+            public UInt64 ullAvailPhys;
+            public UInt64 ullTotalPageFile;
+            public UInt64 ullAvailPageFile;
+            public UInt64 ullTotalVirtual;
+            public UInt64 ullAvailVirtual;
+            public UInt64 ullAvailExtendedVirtual;
+        }
+        [DllImport("kernel32.dll")] private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
+
+        /// <summary>
+        /// Get snapshot of total system memory used in MB
+        /// </summary>
+        /// <returns>Total system memory used in MB</returns>
+        public static int GetTotalMemory() //in Mb
+        {
+            MEMORYSTATUSEX ms = new MEMORYSTATUSEX();
+            ms.dwLength = Marshal.SizeOf(ms);
+            if (!GlobalMemoryStatusEx(ref ms)) return 0;
+            return Convert.ToInt32(ms.ullTotalPhys / 1048576);
+        }
+        #endregion == GetTotalMemory ==
     }
 }
