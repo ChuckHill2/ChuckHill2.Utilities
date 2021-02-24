@@ -59,6 +59,14 @@
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="CsvReader.cs" />
     <Compile Include="CsvWriter.cs" />
+    <Compile Include="GetCookie\Chromium.cs" />
+    <Compile Include="GetCookie\Crypt.cs" />
+    <Compile Include="GetCookie\DPAPI.cs" />
+    <Compile Include="GetCookie\GetCookie.cs" />
+    <Compile Include="GetCookie\Mozilla.cs" />
+    <Compile Include="GetCookie\SimpleJSON.cs" />
+    <Compile Include="GetCookie\Sodium.cs" />
+    <Compile Include="GetCookie\SQLite.cs" />
     <Compile Include="MathEx.cs" />
     <Compile Include="PropertyStore.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobeColorTablePaletteSerializer.cs" />
@@ -305,6 +313,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\wait24.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="GetCookie\Resources\libsodium-64.dll" />
+    <EmbeddedResource Include="GetCookie\Resources\libsodium.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

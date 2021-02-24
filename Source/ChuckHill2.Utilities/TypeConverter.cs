@@ -13,6 +13,9 @@ using System.Text.RegularExpressions;
 using LookupDictFrom = System.Collections.Generic.Dictionary<System.Type, System.Collections.Generic.Dictionary<System.Type, System.Func<object, object>>>;
 using LookupDictTo = System.Collections.Generic.Dictionary<System.Type, System.Func<object, object>>;
 
+/// <summary>
+/// Miscellaneous  Incomplete Work
+/// </summary>
 namespace ChuckHill2.TBD
 {
     /// <summary>
