@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using ChuckHill2.Extensions;
 using ChuckHill2.Forms;
 using ChuckHill2.Logging;
@@ -191,6 +192,16 @@ namespace ChuckHill2
         }
         private static readonly Regex reNoScript = new Regex(@"(<script.+?</script>)|(<style.+?</style>)|(<svg.+?</svg>)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        public enum DownloadState
+        {
+            Success,
+            EmptyFile,
+            ThreadAbort,
+            DiskFull,
+            NotFound,
+            NetworkConnectionFailure,
+        }
+
         /// <summary>
         /// Download a URL item into a local file.
         /// Due to network or server glitches or delays, this will try 3 times before giving up.
@@ -198,7 +209,7 @@ namespace ChuckHill2
         /// </summary>
         /// <param name="data">Job to download (url and suggested destination filename)</param>
         /// <returns>True if successfully downloaded</returns>
-        public static bool Download(Job data)
+        public static DownloadState Download(Job data)
         {
             #region Initialize Static Variables
             const string UserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0"; //DO NOT include "User-Agent: " prefix!
@@ -256,7 +267,7 @@ namespace ChuckHill2
 
                 //if (data.Retries < 1) return true; //do not validate. we want this file, always.
 
-                if (new FileInfo(data.Filename).Length < 8) { File.Delete(data.Filename); return false; }
+                if (new FileInfo(data.Filename).Length < 8) { File.Delete(data.Filename); return DownloadState.EmptyFile; }
 
                 //Interlocked.Increment(ref mediaDownloaded);  //mediaDownloaded++;
                 File.SetCreationTime(data.Filename, lastModified);
@@ -265,6 +276,7 @@ namespace ChuckHill2
 
                 ext = GetDefaultExtension(mimetype, ext);
                 if (ext == ".html") ext = ".htm";
+                if (ext == ".jfif") ext = ".jpg";
 
                 if (!ext.EqualsI(Path.GetExtension(data.Filename)))
                 {
@@ -275,12 +287,24 @@ namespace ChuckHill2
                     data.Filename = newfilename;
                 }
 
-                return true;
+                return DownloadState.Success;
             }
             catch (Exception ex)
             {
                 File.Delete(data.Filename);
-                if (ex is ThreadAbortException) return false;
+                if (ex is ThreadAbortException) return DownloadState.ThreadAbort;
+                
+                #region Handle Disk-full error
+                const int ERROR_HANDLE_DISK_FULL = 0x27;
+                const int ERROR_DISK_FULL = 0x70;
+                int hResult = ex.HResult & 0xFFFF;
+
+                if (hResult == ERROR_HANDLE_DISK_FULL || hResult == ERROR_DISK_FULL) //There is not enough space on the disk.
+                {
+                    LogWrite(TraceEventType.Critical, "<<<<<<< Disk Full >>>>>>>");
+                    return DownloadState.DiskFull;
+                }
+                #endregion Handle Disk-full error
 
                 #region Log Error and Maybe Retry Download
                 HttpStatusCode responseStatus = (HttpStatusCode)0;
@@ -302,19 +326,19 @@ namespace ChuckHill2
                     ex.Message.Contains("URI formats are not supported"))
                 {
                     LogWrite(TraceEventType.Error, $"{data.Url} ==> {Path.GetFileName(data.Filename)}: {ex.Message}");
-                    return false;
+                    return DownloadState.NotFound;
                 }
 
                 if (status == WebExceptionStatus.NameResolutionFailure || status == WebExceptionStatus.ConnectFailure)
                 {
                     if (MiniMessageBox.ShowDialog(null, "Network Connection Dropped.", "Name Resolution Failure", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == DialogResult.Cancel)
                     {
-                        return false;
+                        return DownloadState.NetworkConnectionFailure;
                     }
                 }
 
                 LogWrite(TraceEventType.Warning, $"Retry #{data.Retries}: {data.Url} ==> {Path.GetFileName(data.Filename)}: {ex.Message}");
-                return Download(data);
+                return Download(data);  //try again
                 #endregion Log Error and Maybe Retry Download
             }
         }
@@ -351,24 +375,24 @@ namespace ChuckHill2
             /// Download retry count (min value=1, max value=3). 
             /// Do not modify. For internal use only by FileEx.Downloader().
             /// </summary>
-            internal int Retries = -1;
+            [XmlIgnore] internal int Retries = -1;
 
             /// <summary>
             /// Previous job url. Now the referrer to this new job. 
             /// Do not modify. For internal use only by FileEx.Downloader().
             /// </summary>
-            internal string Referer { get; set; }
+            [XmlAttribute] public string Referer { get; set; }
 
             /// <summary>
             /// Previous job generated cookie. Now forwarded to this new job. 
             /// Do not modify. For internal use only by FileEx.Downloader().
             /// </summary>
-            internal string Cookie { get; set; }
+            [XmlAttribute] public string Cookie { get; set; }
 
             /// <summary>
             /// Absolute url path to download
             /// </summary>
-            public string Url { get; set; }
+            [XmlAttribute] public string Url { get; set; }
 
             /// <summary>
             ///   Full path name of file to write result to.
@@ -376,7 +400,9 @@ namespace ChuckHill2
             ///   If the file previously exists, the file name is incremented (e.g 'name(nn).ext')
             ///   This field is updated with the new name.
             /// </summary>
-            public string Filename { get; set; }
+            [XmlAttribute] public string Filename { get; set; }
+
+            public Job() { }
 
             /// <summary>
             /// Info to pass to FileEx.Downloader.
@@ -396,15 +422,12 @@ namespace ChuckHill2
                     Cookie = job.Cookie;
                     Referer = job.Url;
                 }
-                else
-                {
-                    //We don't use previously cached cookies by host in MovieGuide.
-                    //if (!url.IsNullOrEmpty()) Cookie = MovieGuide.Cookie.GetCached(new Uri(url).Host);
-                }
 
                 Url = url;
                 Filename = filename;
             }
+
+            public override string ToString() => Url;
         }
     }
 }
