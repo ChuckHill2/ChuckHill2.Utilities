@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using ChuckHill2.Win32;
 
 namespace ChuckHill2
@@ -74,6 +75,102 @@ namespace ChuckHill2
             } while (NativeMethods.FindNextFile(hFind, out fd));
             NativeMethods.FindClose(hFind);
             return NativeMethods.RemoveDirectory(dir);
+        }
+
+        /// <summary>
+        ///    Returns the count of files that match the specified search pattern in the specified
+        ///    directory, using a value to determine whether to search subdirectories.
+        /// </summary>
+        /// <param name="path">The directory to search.</param>
+        /// <param name="reSearchPattern">
+        ///    The regex search string to match against the names of files in path. The parameter cannot
+        ///    end in two periods ("..") or contain two periods ("..") followed by System.IO.Path.
+        ///    DirectorySeparatorChar or System.IO.Path.AltDirectorySeparatorChar, nor can it
+        ///    contain any of the characters in System.IO.Path.InvalidPathChars.
+        /// </param>
+        /// <param name="searchOption">
+        ///    One of the enumeration values that specifies whether the search operation should
+        ///    include all subdirectories or only the current directory.
+        /// </param>
+        /// <returns>
+        ///    An array of the full names (including paths) for the files in the specified
+        ///    directory that match the specified search pattern and option.
+        /// </returns>
+        public static int GetFileCount(string path, string reSearchPattern, SearchOption searchOption)
+        {
+            var fd = new WIN32_FIND_DATA();
+            Regex re = new Regex(reSearchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            return GetFileCount(ref fd, path, re, searchOption);
+        }
+
+        private static int GetFileCount(ref WIN32_FIND_DATA fd, string path, Regex searchPattern, SearchOption searchOption)
+        {
+            IntPtr hFind = NativeMethods.FindFirstFile(Path.Combine(path, "*"), out fd);
+            int kount = 0;
+            if (hFind != NativeMethods.INVALID_HANDLE_VALUE)
+            {
+                do
+                {
+                    if (fd.cFileName == "." || fd.cFileName == "..") continue;   //pseudo-directory
+                    if ((fd.dwFileAttributes & FileAttributes.Directory) != 0)
+                    {
+                        if (searchOption != SearchOption.AllDirectories) continue;
+                        kount += GetFileCount(ref fd, Path.Combine(path, fd.cFileName), searchPattern, searchOption);
+                        continue;
+                    }
+                    if (!searchPattern.IsMatch(fd.cFileName)) continue;
+                    kount++;
+                } while (NativeMethods.FindNextFile(hFind, out fd));
+                NativeMethods.FindClose(hFind);
+            }
+            return kount;
+        }
+
+        /// <summary>
+        /// Get the most recent date in a collection of files.
+        /// </summary>
+        /// <param name="path">The directory to search.</param>
+        /// <param name="reSearchPattern">
+        ///    The regex search string to match against the names of files in path. The parameter cannot
+        ///    end in two periods ("..") or contain two periods ("..") followed by System.IO.Path.
+        ///    DirectorySeparatorChar or System.IO.Path.AltDirectorySeparatorChar, nor can it
+        ///    contain any of the characters in System.IO.Path.InvalidPathChars.
+        /// </param>
+        /// <param name="searchOption">
+        ///    One of the enumeration values that specifies whether the search operation should
+        ///    include all subdirectories or only the current directory.
+        /// </param>
+        /// <returns></returns>
+        public static DateTime GetFileMostRecentCreateDate(string path, string reSearchPattern, SearchOption searchOption)
+        {
+            var fd = new WIN32_FIND_DATA();
+            Regex re = new Regex(reSearchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            long ftCreationTime = unchecked((long)GetFileMostRecentCreateDate(ref fd, path, re, searchOption));
+            return DateTime.FromFileTime(ftCreationTime);
+        }
+
+        private static ulong GetFileMostRecentCreateDate(ref WIN32_FIND_DATA fd, string path, Regex searchPattern, SearchOption searchOption)
+        {
+            IntPtr hFind = NativeMethods.FindFirstFile(Path.Combine(path, "*"), out fd);
+            ulong ftCreationTime = 0;
+            if (hFind != NativeMethods.INVALID_HANDLE_VALUE)
+            {
+                do
+                {
+                    if (fd.cFileName == "." || fd.cFileName == "..") continue;   //pseudo-directory
+                    if ((fd.dwFileAttributes & FileAttributes.Directory) != 0)
+                    {
+                        if (searchOption != SearchOption.AllDirectories) continue;
+                        var t = GetFileMostRecentCreateDate(ref fd, Path.Combine(path, fd.cFileName), searchPattern, searchOption);
+                        if (t > ftCreationTime) ftCreationTime = t;
+                        continue;
+                    }
+                    if (!searchPattern.IsMatch(fd.cFileName)) continue;
+                    if (fd.ftCreationTime > ftCreationTime) ftCreationTime = fd.ftCreationTime;
+                } while (NativeMethods.FindNextFile(hFind, out fd));
+                NativeMethods.FindClose(hFind);
+            }
+            return ftCreationTime;
         }
     }
 }

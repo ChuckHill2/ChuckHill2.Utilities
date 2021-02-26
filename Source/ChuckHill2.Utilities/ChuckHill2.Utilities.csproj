@@ -59,6 +59,7 @@
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="CsvReader.cs" />
     <Compile Include="CsvWriter.cs" />
+    <Compile Include="DateTimeEx.cs" />
     <Compile Include="GetCookie\Chromium.cs" />
     <Compile Include="GetCookie\Crypt.cs" />
     <Compile Include="GetCookie\DPAPI.cs" />

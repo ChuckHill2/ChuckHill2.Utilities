@@ -134,6 +134,19 @@ namespace ChuckHill2.Forms
         private Rectangle rcMessage;
 
         /// <summary>
+        /// Displays a tiny modal (i.e. waits) message box in front of the specified object and with the specified text and caption.
+        /// </summary>
+        /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>
+        /// <param name="text">The text to display in the message box. Text is automatically wrapped to fit a 3x2 rectangle and size of popup is adjusted accordingly.</param>
+        /// <param name="caption">The text to display in the title bar of the message box. Text is a single line, never wrapped.</param>
+        /// <returns>One of the System.Windows.Forms.DialogResult values.</returns>
+        /// <remarks>This functions just like it's big brothers: MessageBox and MessageBoxEx. This does not need to be a child of a form owner. This may also run within Program.Main or Console.Main</remarks>
+        public static DialogResult ShowDialog(IWin32Window owner, string text, string caption = null)
+        {
+            return ShowDialog(owner, text, caption, MiniMessageBox.Buttons.OK, MiniMessageBox.Symbol.None);
+        }
+
+        /// <summary>
         /// Displays a tiny modal (i.e. waits) message box in front of the specified object and with the specified text, caption, buttons, and icon.
         /// </summary>
         /// <param name="owner">An implementation of System.Windows.Forms.IWin32Window that will own the modal dialog box. A null owner will attempt to find it's owner, which may be the desktop.</param>

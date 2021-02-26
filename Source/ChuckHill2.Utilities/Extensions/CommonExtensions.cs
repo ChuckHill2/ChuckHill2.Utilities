@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -17,9 +18,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-
-
-
 using System.Windows.Forms;
 
 namespace ChuckHill2.Extensions
@@ -303,7 +301,7 @@ namespace ChuckHill2.Extensions
         }
     }
 
-    public static class DateTimeExtensions
+    public static partial class DateTimeExtensions
     {
         /// <summary>
         /// Round datetime to the nearest whole day.
@@ -345,21 +343,19 @@ namespace ChuckHill2.Extensions
         /// <returns>Rounded datetime. dt.Kind is preserved.</returns>
         public static DateTime ToSecond(this DateTime dt) => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second + (dt.Millisecond > 500 ? 1 : 0), 0, dt.Kind);
 
-        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
-
         /// <summary>
         /// Convert datetime to unix time_t integer in seconds.
         /// </summary>
         /// <param name="dt">Datetime to convert.</param>
         /// <returns>time_t integer representing seconds from 1/1/1970.</returns>
-        public static int ToUnixTime(this DateTime dt) => (int)(dt - UnixEpoch).TotalSeconds;
+        public static int ToUnixTime(this DateTime dt) => (int)(dt - ChuckHill2.DateTimeEx.UnixEpoch).TotalSeconds;
 
         /// <summary>
         /// Convert time_t seconds from 1/1/1970 to DateTime
         /// </summary>
         /// <param name="time_t">Seconds from 1/1/1970</param>
         /// <returns>Datetime equivalant.</returns>
-        public static DateTime FromUnixTime(this int time_t) => UnixEpoch.AddSeconds(time_t);
+        public static DateTime FromUnixTime(this int time_t) => ChuckHill2.DateTimeEx.UnixEpoch.AddSeconds(time_t);
     }
 
     public static class DictionaryExtensions
@@ -1685,5 +1681,102 @@ namespace ChuckHill2.Extensions
         /// See ImageAttribute regarding access of any image resource from anywhere.
         /// </remarks>
         public static Stream GetManifestResourceStream(this Type t, string name) => t.Assembly.GetManifestResourceStream(t.Assembly.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith(name, StringComparison.OrdinalIgnoreCase)) ?? "NULL");
+    }
+
+    public static class ToPathElementExtension
+    {
+        private static readonly Regex re;
+        private static readonly char[] TrimChars = new char[]
+        { ' ', '!', '"', '#', '$', '%', '&', '\'', '*', '+', ',', '-', '.', '/',
+            ':', ';', '<', '=', '>', '?', '@', '\\', '^', '_', '`', '|', '~' };
+
+        static ToPathElementExtension()
+        {
+            var chars = Path.GetInvalidFileNameChars().ToList();
+            chars.AddRange(Path.GetInvalidPathChars());
+            chars.Add(' ');
+            chars.Add('.');
+            chars.Add('(');
+            chars.Add(')');
+            chars.Add('{');
+            chars.Add('}');
+            chars.Sort();
+            char prev = '\0';
+            for (int i = chars.Count - 1; i >= 0; i--)  //remove duplicates
+            {
+                if (chars[i] == prev) { chars.RemoveAt(i); continue; }
+                prev = chars[i];
+            }
+            if (chars[0] == '\0') chars.RemoveAt(0);
+            string pattern = string.Concat("[", Regex.Escape(new string(chars.ToArray())), "]+.?");
+            re = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+            chars.AddRange(TrimChars);
+            chars.Sort();
+            prev = '\0';
+            for (int i = chars.Count - 1; i >= 0; i--)  //remove duplicates
+            {
+                if (chars[i] == prev) { chars.RemoveAt(i); continue; }
+                prev = chars[i];
+            }
+            TrimChars = chars.ToArray();
+        }
+
+        /// <summary>
+        /// Create valid file path element from any string or url.
+        /// May subsequently be used as a folder or file name part.
+        /// The result is not a valid C# Identifier. See String.ToIdentifier().
+        /// </summary>
+        /// <remarks>
+        /// This extension method is kept in it's own class due to the
+        /// amount of load-on-demand initialization required.
+        /// </remarks>
+        /// <param name="s">Source string or or URL</param>
+        /// <param name="maxLength">The maximum length of the resulting string.</param>
+        /// <returns>Path element string.</returns>
+        public static string ToPathElement(this string s, int maxLength = 100)
+        {
+            if (s.IsNullOrEmpty()) return "UNKNOWN";
+            if (s == "[..]") return s;
+
+            if (s.Any(m => (m == '&' || m == ';'))) s = WebUtility.HtmlDecode(s);  //.NET 4.0
+            if (s.Any(m => (m == '%'))) s = Uri.UnescapeDataString(s);
+            if (s.Any(m => (m == '&'))) s = s.Replace("&", "And"); //Batch files totally spaz on filesnames contining ampersand chars.
+
+            s = s.Normalize(NormalizationForm.FormKD);  //remove char accents e.g.umlauts,cedillas,etc.
+            //strip out non-ASCII chars.
+            Encoding encoder = ASCIIEncoding.GetEncoding("us-ascii", new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback());
+            byte[] asciiBytes = encoder.GetBytes(s);
+            s = encoder.GetString(asciiBytes);
+
+            //replace url embedded in string with just domain part.
+            s = Regex.Replace(s, @"^([a-z]+\.)?(?<DOMAIN>[a-z]+)\.(com|net)(?<DELIMITER>[ _-])", @"${DOMAIN}${DELIMITER}", RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"([Ww]{3,3})?[A-Z][a-z0-9]+(Com|Net)(?<DELIMITER>[A-Z\(\)\[\] _-])", "${DELIMITER}");
+            s = Regex.Replace(s, @"https?[ _-]*", string.Empty, RegexOptions.IgnoreCase);
+
+            //remove duplicate words
+            string[] r1 = Regex.Split(s, @"(?=\p{Lu}\p{Ll})|(?<=\p{Ll})(?=\p{Lu})|(?<=[\p{Z}\p{P}-[']])(?=[\p{L}\p{N}])");
+            List<string> items = new List<string>(r1.Length);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < r1.Length; i++)
+            {
+                string[] r2 = Regex.Split(r1[i], @"^(.*?)[\p{Z}\p{P}]*$");
+                if (items.Contains(r2[1], StringComparer.InvariantCultureIgnoreCase)) continue;
+                items.Add(r2[1]);
+                sb.Append(' ');
+                sb.Append(r1[i]);
+            }
+            s = sb.ToString();
+
+            //squeeze out illegal chars and convert to camel-case
+            s = re.Replace(s, delegate (Match m)
+            {
+                return m.Index + m.Value.Length > s.Length ? string.Empty : char.ToUpperInvariant(m.Value[m.Value.Length - 1]).ToString();
+            });
+            if (s.Length > maxLength) s = s.Substring(0, maxLength);
+            s = s.Trim(TrimChars);
+            if (s.IsNullOrEmpty()) return "UNKNOWN";
+            return s;
+        }
     }
 }

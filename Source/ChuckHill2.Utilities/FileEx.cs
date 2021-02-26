@@ -104,6 +104,25 @@ namespace ChuckHill2
         }
 
         /// <summary>
+        /// Get filename part (no extension) from url.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string GetUrlFileNameWithoutExtension(string url)
+        {
+            try
+            {
+                Uri uri = new Uri(url);
+                string path = uri.AbsolutePath;
+                if (path[path.Length - 1] == '/') path = path.Substring(0, path.Length - 1);
+                string name = Path.GetFileNameWithoutExtension(path);
+                if (name.IsNullOrEmpty()) return string.Empty;
+                return name;
+            }
+            catch { return string.Empty; }
+        }
+
+        /// <summary>
         /// Make absolute url from baseUrl + relativeUrl.
         /// If relativeUrl contains an absolute Url, returns that url unmodified.
         /// If any errors occur during combination of the two parts, string.Empty is returned.
@@ -116,6 +135,20 @@ namespace ChuckHill2
             try
             {
                 return new Uri(new Uri(baseUrl), relativeUrl).AbsoluteUri;
+            }
+            catch { return string.Empty; }
+        }
+
+        /// <summary>
+        /// Create an HTML referrer from a URL.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string MakeUrlReferer(string url)
+        {
+            try
+            {
+                return new Uri(url).GetLeftPart(UriPartial.Authority);
             }
             catch { return string.Empty; }
         }

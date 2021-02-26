@@ -25,16 +25,20 @@ namespace ChuckHill2
         public static void Serialize(object obj, string path)
         {
             Type type = obj.GetType();
+            var tmpPath = path + ".tmp"; // If an exception is thrown, don't corrupt the original file.
             try
             {
-                using (var fs = File.Open(path,FileMode.Create,FileAccess.ReadWrite,FileShare.Read))
+                using (var fs = File.Open(tmpPath, FileMode.Create,FileAccess.ReadWrite,FileShare.Read))
                 {
                     new XmlSerializer(type).Serialize(fs, obj);
                     InsertComments(type, fs);
                 }
+                File.Delete(path);
+                File.Move(tmpPath, path);
             }
             catch (Exception ex)
             {
+                try { File.Delete(tmpPath); } catch { } //may throw a bunch of exceptions we don't care about at this stage.
                 throw new IOException(string.Format("Unable to save {0}\r\n{1}", path, ex.Message), ex);
             }
         }
