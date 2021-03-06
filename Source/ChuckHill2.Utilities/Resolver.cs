@@ -15,9 +15,10 @@ using ChuckHill2.Win32;
 namespace ChuckHill2
 {
     /// <summary>
-    /// Principally locates product files and assemblies that CLR loader 
-    /// can't find. This effectively flattens the directory heriarchy 
-    /// creating a virtual directory where all files reside.
+    /// Principally locates product files and assemblies that CLR loader can't find. 
+    /// This effectively flattens the directory heriarchy creating a virtual directory 
+    /// where all files reside. In addition, this will also search the entry assembly 
+    /// resource manifest for embedded assemblies. 
     /// </summary>
     public static class Resolver
     {
@@ -475,6 +476,24 @@ namespace ChuckHill2
 
         private static string FindAssembly(AssemblyName reference)
         {
+            //Is the assembly embedded in executable?
+            var resName = Assembly.GetEntryAssembly().GetManifestResourceNames().FirstOrDefault(m => m.Substring(0, m.LastIndexOf('.')).EndsWith(reference.Name, StringComparison.OrdinalIgnoreCase));
+            if (resName !=null)
+            {
+                var dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                if (!DirectoryEx.IsWritable(dir)) dir = Path.GetTempPath();
+                var resFile = Path.Combine(dir, resName.Substring(resName.IndexOf(reference.Name)));
+                if (File.Exists(resFile)) return resFile;
+                var rstream = Assembly.GetEntryAssembly().GetManifestResourceStream(resName);
+                if (rstream.ReadByte() == 'M' && rstream.ReadByte() == 'Z') //Make sure it is an exeutable binary. PE headers start with "MZ"
+                {
+                    rstream.Position = 0;
+                    using (var fstream = File.Open(resFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                        rstream.CopyTo(fstream);
+                    return resFile;
+                }
+            }
+
             string[] files = new string[0];
             string filename = Path.GetFileName(reference.Name + ".dll");
             string originalFilename = filename;

@@ -52,6 +52,7 @@
     <Compile Include="AppConfig.cs" />
     <Compile Include="AssemblyBuildTimeStampAttribute.cs" />
     <Compile Include="Async.cs" />
+    <Compile Include="AsyncQueue.cs" />
     <Compile Include="Cast.cs" />
     <Compile Include="ColorEx.cs" />
     <Compile Include="ComObject.cs" />
