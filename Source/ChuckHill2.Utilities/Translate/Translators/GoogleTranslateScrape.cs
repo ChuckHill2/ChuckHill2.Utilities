@@ -29,6 +29,9 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Internal classes exclusively used by Translator.Translate()
+/// </summary>
 namespace ChuckHill2.Translators
 {
     /// <summary>

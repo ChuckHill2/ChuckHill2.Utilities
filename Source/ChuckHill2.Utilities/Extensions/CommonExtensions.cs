@@ -20,6 +20,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
+/// <summary>
+/// Common and useful extensions.
+/// </summary>
 namespace ChuckHill2.Extensions
 {
     public static class AppDomainExtensions

@@ -31,7 +31,7 @@ using ChuckHill2.Extensions;
 
 namespace ChuckHill2.Translators
 {
-    public interface ITranslator
+    internal interface ITranslator
     {
         /// <summary>
         /// True if non-recoverable error occured during translation. Disables
@@ -61,6 +61,7 @@ namespace ChuckHill2.Translators
     /// </summary>
     internal abstract class TranslatorBase : ITranslator
     {
+        //Common User-Agent used by all the translators.
         protected const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0";
 
         protected readonly HashSet<string> UnsupportedLanguages = new HashSet<string>(StringComparer.Ordinal);
@@ -118,7 +119,7 @@ namespace ChuckHill2.Translators
         protected abstract Task<string> Translate(string input, string toLanguage);
     }
 
-    public static class TranslatorBaseExtensions
+    internal static class TranslatorBaseExtensions
     {
         /// <summary>
         /// Handy workaround for setting/overriding header properties.

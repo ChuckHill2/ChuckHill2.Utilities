@@ -32,18 +32,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  * 
- *  https://github.com/Bunny83/SimpleJSON
+ *  https://github.com/Bunny83/SimpleJSON --02/22/2021
  * * * * */
-
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Collections;
-using System.Globalization;
-using System.Collections.Generic;
 
 /// <summary>
-/// A simple JSON Parser / builder
+/// A simple JSON Parser / builder.
 /// </summary>
 namespace SimpleJSON
 {
@@ -213,6 +212,7 @@ namespace SimpleJSON
         {
             return aNode;
         }
+        public virtual void Clear() { }
 
         public virtual JSONNode Clone()
         {
@@ -329,6 +329,21 @@ namespace SimpleJSON
             }
         }
 
+        public virtual ulong AsULong
+        {
+            get
+            {
+                ulong val = 0;
+                if (ulong.TryParse(Value, out val))
+                    return val;
+                return 0;
+            }
+            set
+            {
+                Value = value.ToString();
+            }
+        }
+
         public virtual JSONArray AsArray
         {
             get
@@ -352,7 +367,7 @@ namespace SimpleJSON
 
         public static implicit operator JSONNode(string s)
         {
-            return new JSONString(s);
+            return (s == null) ? (JSONNode) JSONNull.CreateOrGet() : new JSONString(s);
         }
         public static implicit operator string(JSONNode d)
         {
@@ -395,6 +410,17 @@ namespace SimpleJSON
         public static implicit operator long(JSONNode d)
         {
             return (d == null) ? 0L : d.AsLong;
+        }
+
+        public static implicit operator JSONNode(ulong n)
+        {
+            if (longAsString)
+                return new JSONString(n.ToString());
+            return new JSONNumber(n);
+        }
+        public static implicit operator ulong(JSONNode d)
+        {
+            return (d == null) ? 0 : d.AsULong;
         }
 
         public static implicit operator JSONNode(bool b)
@@ -501,11 +527,14 @@ namespace SimpleJSON
         {
             if (quoted)
                 return token;
-            string tmp = token.ToLower();
-            if (tmp == "false" || tmp == "true")
-                return tmp == "true";
-            if (tmp == "null")
-                return JSONNull.CreateOrGet();
+            if (token.Length <= 5)
+            {
+                string tmp = token.ToLower();
+                if (tmp == "false" || tmp == "true")
+                    return tmp == "true";
+                if (tmp == "null")
+                    return JSONNull.CreateOrGet();
+            }
             double val;
             if (double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
                 return val;
@@ -522,6 +551,7 @@ namespace SimpleJSON
             string TokenName = "";
             bool QuoteMode = false;
             bool TokenIsQuoted = false;
+            bool HasNewlineChar = false;
             while (i < aJSON.Length)
             {
                 switch (aJSON[i])
@@ -540,6 +570,7 @@ namespace SimpleJSON
                         TokenName = "";
                         Token.Length = 0;
                         ctx = stack.Peek();
+                        HasNewlineChar = false;
                         break;
 
                     case '[':
@@ -557,6 +588,7 @@ namespace SimpleJSON
                         TokenName = "";
                         Token.Length = 0;
                         ctx = stack.Peek();
+                        HasNewlineChar = false;
                         break;
 
                     case '}':
@@ -573,6 +605,8 @@ namespace SimpleJSON
                         stack.Pop();
                         if (Token.Length > 0 || TokenIsQuoted)
                             ctx.Add(TokenName, ParseElement(Token.ToString(), TokenIsQuoted));
+                        if (ctx != null)
+                            ctx.Inline = !HasNewlineChar;
                         TokenIsQuoted = false;
                         TokenName = "";
                         Token.Length = 0;
@@ -612,6 +646,7 @@ namespace SimpleJSON
 
                     case '\r':
                     case '\n':
+                        HasNewlineChar = true;
                         break;
 
                     case ' ':
@@ -755,6 +790,11 @@ namespace SimpleJSON
         {
             m_List.Remove(aNode);
             return aNode;
+        }
+
+        public override void Clear()
+        {
+            m_List.Clear();
         }
 
         public override JSONNode Clone()
@@ -914,6 +954,11 @@ namespace SimpleJSON
             }
         }
 
+        public override void Clear()
+        {
+            m_Dict.Clear();
+        }
+
         public override JSONNode Clone()
         {
             var node = new JSONObject();
@@ -1024,6 +1069,10 @@ namespace SimpleJSON
         {
             return m_Data.GetHashCode();
         }
+        public override void Clear()
+        {
+            m_Data = "";
+        }
     }
     // End of JSONString
 
@@ -1054,6 +1103,11 @@ namespace SimpleJSON
         public override long AsLong
         {
             get { return (long)m_Data; }
+            set { m_Data = value; }
+        }
+        public override ulong AsULong
+        {
+            get { return (ulong)m_Data; }
             set { m_Data = value; }
         }
 
@@ -1101,6 +1155,10 @@ namespace SimpleJSON
         public override int GetHashCode()
         {
             return m_Data.GetHashCode();
+        }
+        public override void Clear()
+        {
+            m_Data = 0;
         }
     }
     // End of JSONNumber
@@ -1159,6 +1217,10 @@ namespace SimpleJSON
         public override int GetHashCode()
         {
             return m_Data.GetHashCode();
+        }
+        public override void Clear()
+        {
+            m_Data = false;
         }
     }
     // End of JSONBool
@@ -1325,6 +1387,25 @@ namespace SimpleJSON
             }
         }
 
+        public override ulong AsULong
+        {
+            get
+            {
+                if (longAsString)
+                    Set(new JSONString("0"));
+                else
+                    Set(new JSONNumber(0.0));
+                return 0L;
+            }
+            set
+            {
+                if (longAsString)
+                    Set(new JSONString(value.ToString()));
+                else
+                    Set(new JSONNumber(value));
+            }
+        }
+
         public override bool AsBool
         {
             get { Set(new JSONBool(false)); return false; }
@@ -1349,6 +1430,11 @@ namespace SimpleJSON
 
     public static class JSON
     {
+        /// <summary>
+        /// Lazily creates a nested dictionary of nodes by index and by name (where applicable)
+        /// </summary>
+        /// <param name="aJSON">JSON string to parse.</param>
+        /// <returns>A nested dictionary of nodes</returns>
         public static JSONNode Parse(string aJSON)
         {
             return JSONNode.Parse(aJSON);

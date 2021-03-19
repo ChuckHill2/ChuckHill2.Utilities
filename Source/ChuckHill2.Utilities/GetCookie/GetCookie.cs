@@ -1,7 +1,7 @@
 using System;
 using GetCookie.Helper;
 
-namespace GetCookie
+namespace ChuckHill2
 {
     /// <summary>
     /// The single public method for retrieving a browser cookie for a specific domain/host. This directly reads the browser's cookie file. The browser does not need to be running.

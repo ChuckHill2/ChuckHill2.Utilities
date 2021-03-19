@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 
+/// <summary>
+/// 3rd-Party Cyotek Color Picker controls library. Used internally.
+/// </summary>
 namespace Cyotek.Windows.Forms
 {
   // Cyotek Color Picker controls library

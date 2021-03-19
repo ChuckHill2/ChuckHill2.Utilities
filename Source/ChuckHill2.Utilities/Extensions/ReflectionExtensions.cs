@@ -6,6 +6,9 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
+/// <summary>
+/// Extensions that simplify access of non-public objects and members
+/// </summary>
 namespace ChuckHill2.Extensions.Reflection
 {
     public static class ReflectionExtensions

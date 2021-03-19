@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GetCookie.Helper;
 
 /// <summary>
-/// Internal classes exclusively used by GetCookie.Cookie.Get()
+/// Internal classes exclusively used by ChuckHill2.Cookie.Get()
 /// </summary>
 namespace GetCookie.Helper
 {

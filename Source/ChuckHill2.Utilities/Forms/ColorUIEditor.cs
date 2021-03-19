@@ -13,6 +13,9 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
+/// <summary>
+/// Forms-specific utilities and controls.
+/// </summary>
 namespace ChuckHill2.Forms
 {
     ///  @image html ColorUIEditor.png
