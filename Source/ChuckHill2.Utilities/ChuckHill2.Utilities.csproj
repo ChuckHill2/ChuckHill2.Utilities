@@ -41,6 +41,7 @@
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
@@ -250,6 +251,13 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Translate\Translator.cs" />
+    <Compile Include="Translate\Translators\GoogleTranslateScrape.cs" />
+    <Compile Include="Translate\Translators\MicrosoftTranslate.cs" />
+    <Compile Include="Translate\Translators\MicrosoftTranslateScrape.cs" />
+    <Compile Include="Translate\Translators\MyMemoryTranslate.cs" />
+    <Compile Include="Translate\Translators\Translate.com.Scrape.cs" />
+    <Compile Include="Translate\Translators\TranslatorBase.cs" />
     <Compile Include="TypeConverter.cs" />
     <Compile Include="VersionEx.cs" />
     <Compile Include="Win32\GDI.cs" />

@@ -32,9 +32,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  * 
+ *  https://github.com/Bunny83/SimpleJSON
  * * * * */
-
-
 
 using System;
 using System.Linq;

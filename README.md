@@ -7,7 +7,7 @@ A library of components, WinForms controls, and ease-of-use extensions that make
 * WinForms Designers for color selection.
 * WinForms Designer for single and multi-select flag enums with support for tooltips and item icons.
 * Extensions to seamlessly convert between built-in value types (int, float, DateTime, etc.).
-* Seamless logging.
+* Seamless logging extension to System.Diagnostics.
 * XML 3-way merging.
 * Many, many extensions.
 * Plus many other code tools. 

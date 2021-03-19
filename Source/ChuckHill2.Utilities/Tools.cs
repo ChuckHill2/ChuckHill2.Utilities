@@ -168,7 +168,7 @@ namespace ChuckHill2
     }
 
     /// <summary>
-    /// Assembly Manifest Utilities
+    /// Assembly Manifest Utilities. Leverages extension TypeExtensions.GetManifestResourceStream().
     /// </summary>
     public static class Manifest
     {
