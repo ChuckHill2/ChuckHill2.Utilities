@@ -89,7 +89,7 @@ namespace ChuckHill2.Translators
             public ErrorX Error { get; set; }
         }
 
-        private const string SubscriptionKey = "a8fab9fe55b0491c91b72dd9d2bdb4cf";  //authentication key. Pricing Tier: Free (Up to 2 million characters/month).
+        private const string SubscriptionKey = "1234567890abcdef01234567890abcde";  //bogus azure authentication key. 
 
         protected override async Task<string> Translate(string input, string toLanguage)
         {
