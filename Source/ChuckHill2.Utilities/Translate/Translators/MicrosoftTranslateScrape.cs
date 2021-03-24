@@ -24,12 +24,10 @@
 // <author>Chuck Hill</author>
 // --------------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using SimpleJSON;
 
 namespace ChuckHill2.Translators
 {
@@ -38,28 +36,25 @@ namespace ChuckHill2.Translators
     /// </summary>
     internal class MicrosoftTranslateScrape : TranslatorBase
     {
-        private class TranslationResult
-        {
-            public class DetectedLanguage
-            {
-                public string language { get; set; }
-                public double score { get; set; }
-            }
-
-            public class Translation
-            {
-                public string text { get; set; }
-                public string to { get; set; }
-            }
-
-            public DetectedLanguage detectedLanguage { get; set; }
-            public IList<Translation> translations { get; set; }
-        }
-
-        private class TranslationError
-        {
-            public int statusCode { get; set; }
-        }
+        // private class TranslationResult
+        // {
+        //    public class DetectedLanguage
+        //    {
+        //        public string language { get; set; }
+        //        public double score { get; set; }
+        //    }
+        //    public class Translation
+        //    {
+        //        public string text { get; set; }
+        //        public string to { get; set; }
+        //    }
+        //    public DetectedLanguage detectedLanguage { get; set; }
+        //    public IList<Translation> translations { get; set; }
+        //}
+        //private class TranslationError
+        //{
+        //    public int statusCode { get; set; }
+        //}
 
         protected override async Task<string> Translate(string input, string toLanguage)
         {

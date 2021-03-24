@@ -10,5 +10,5 @@ using System.Runtime.CompilerServices;
 * Gradient common controls")]
 
 [assembly: AssemblyProduct("ChuckHill2")]
-[assembly: InternalsVisibleTo("ChuckHill2.UnitTests")]
+[assembly: InternalsVisibleTo("ChuckHill2.Utilities.UnitTests")]
 

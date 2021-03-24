@@ -6,8 +6,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 //.NET AES-GCM is not available < .NET 5.0. Must use Win32 BCrypt API directly.
 //https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptencrypt?redirectedfrom=MSDN

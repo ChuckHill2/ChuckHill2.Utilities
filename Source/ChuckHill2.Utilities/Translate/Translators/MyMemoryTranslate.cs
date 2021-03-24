@@ -27,7 +27,6 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using SimpleJSON;
 using ChuckHill2.Extensions;
 
 namespace ChuckHill2.Translators
@@ -37,20 +36,20 @@ namespace ChuckHill2.Translators
     /// </summary>
     internal class MyMemoryTranslate : TranslatorBase
     {
-        private class TranslationResult
-        {
-            public class ResponseDataX
-            {
-                public string TranslatedText { get; set; }
-            }
+        //private class TranslationResult
+        //{
+        //    public class ResponseDataX
+        //    {
+        //        public string TranslatedText { get; set; }
+        //    }
 
-            public ResponseDataX ResponseData { get; set; }
-            public bool? QuotaFinished { get; set; }
-            public string ResponseDetails { get; set; }
-            public int ResponseStatus { get; set; }
-            //[JsonProperty("exception_code")]
-            public int? ExceptionCode { get; set; }
-        }
+        //    public ResponseDataX ResponseData { get; set; }
+        //    public bool? QuotaFinished { get; set; }
+        //    public string ResponseDetails { get; set; }
+        //    public int ResponseStatus { get; set; }
+        //    //[JsonProperty("exception_code")]
+        //    public int? ExceptionCode { get; set; }
+        //}
 
         protected override async Task<string> Translate(string input, string toLanguage)
         {

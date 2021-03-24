@@ -23,7 +23,6 @@
 // </copyright>
 // <author>Chuck Hill</author>
 // --------------------------------------------------------------------------
-using SimpleJSON;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -38,34 +37,33 @@ namespace ChuckHill2.Translators
     /// </summary>
     internal class Translate_com_Scrape : TranslatorBase
     {
-        public class TranslationResult
-        {
-            public class Human_translation_details
-            {
-                public int free_words_remaining_after_order { get; set; }
-                public int free_words_used_in_order { get; set; }
-                public int plan_monthly_words_used_in_order { get; set; }
-                public int plan_previous_plan_words_used { get; set; }
-                public int free_words_used { get; set; }
-                public string total_cost { get; set; }
-                public string translation_language { get; set; }
-                public string total_words { get; set; }
-                public string translation_text_preview { get; set; }
-            }
-
-            public string result { get; set; }
-            public string message { get; set; }
-            public string original_text { get; set; }
-            public string translated_text { get; set; }
-            public long translation_id { get; set; }
-            public string uri_slug { get; set; }
-            public string seo_directory_url { get; set; }
-            public string translation_source { get; set; }
-            public string request_source { get; set; }
-            public bool is_favorite { get; set; }
-            public bool human_translaton_possible { get; set; }
-            public Human_translation_details human_translation_details { get; set; }
-        }
+        // public class TranslationResult
+        // {
+        //    public class Human_translation_details
+        //    {
+        //        public int free_words_remaining_after_order { get; set; }
+        //        public int free_words_used_in_order { get; set; }
+        //        public int plan_monthly_words_used_in_order { get; set; }
+        //        public int plan_previous_plan_words_used { get; set; }
+        //        public int free_words_used { get; set; }
+        //        public string total_cost { get; set; }
+        //        public string translation_language { get; set; }
+        //        public string total_words { get; set; }
+        //        public string translation_text_preview { get; set; }
+        //    }
+        //    public string result { get; set; }
+        //    public string message { get; set; }
+        //    public string original_text { get; set; }
+        //    public string translated_text { get; set; }
+        //    public long translation_id { get; set; }
+        //    public string uri_slug { get; set; }
+        //    public string seo_directory_url { get; set; }
+        //    public string translation_source { get; set; }
+        //    public string request_source { get; set; }
+        //    public bool is_favorite { get; set; }
+        //    public bool human_translaton_possible { get; set; }
+        //    public Human_translation_details human_translation_details { get; set; }
+        // }
 
         protected override async Task<string> Translate(string input, string toLanguage)
         {

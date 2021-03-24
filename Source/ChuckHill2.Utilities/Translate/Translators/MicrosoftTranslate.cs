@@ -27,8 +27,8 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using SimpleJSON;
 using ChuckHill2.Extensions;
+using SimpleJSON;
 
 namespace ChuckHill2.Translators
 {
@@ -42,52 +42,48 @@ namespace ChuckHill2.Translators
         //https://docs.microsoft.com/en-us/azure/cognitive-services/translator/reference/v3-0-translate
         //Example: https://github.com/MicrosoftTranslator/Text-Translation-API-V3-C-Sharp
 
-        private class TranslationResult
-        {
-            public class DetectedLanguageX
-            {
-                public string Language { get; set; }
-                public float Score { get; set; }
-            }
-            public class TextResult
-            {
-                public string Text { get; set; }
-                public string Script { get; set; }
-            }
-            public class Translation
-            {
-                public class AlignmentX
-                {
-                    public string Proj { get; set; }
-                }
-                public class SentenceLength
-                {
-                    public int[] SrcSentLen { get; set; }
-                    public int[] TransSentLen { get; set; }
-                }
-
-                public string Text { get; set; }
-                public TextResult Transliteration { get; set; }
-                public string To { get; set; }
-                public AlignmentX Alignment { get; set; }
-                public SentenceLength SentLen { get; set; }
-            }
-
-            public DetectedLanguageX DetectedLanguage { get; set; }
-            public TextResult SourceText { get; set; }
-            public Translation[] Translations { get; set; }
-        }
-
-        private class TranslateError
-        {
-            public class ErrorX
-            {
-                public int Code { get; set; }
-                public string Message { get; set; }
-            }
-
-            public ErrorX Error { get; set; }
-        }
+        // private class TranslationResult
+        // {
+        //    public class DetectedLanguageX
+        //    {
+        //        public string Language { get; set; }
+        //        public float Score { get; set; }
+        //    }
+        //    public class TextResult
+        //    {
+        //        public string Text { get; set; }
+        //        public string Script { get; set; }
+        //    }
+        //    public class Translation
+        //    {
+        //        public class AlignmentX
+        //        {
+        //            public string Proj { get; set; }
+        //        }
+        //        public class SentenceLength
+        //        {
+        //            public int[] SrcSentLen { get; set; }
+        //            public int[] TransSentLen { get; set; }
+        //        }
+        //        public string Text { get; set; }
+        //        public TextResult Transliteration { get; set; }
+        //        public string To { get; set; }
+        //        public AlignmentX Alignment { get; set; }
+        //        public SentenceLength SentLen { get; set; }
+        //    }
+        //    public DetectedLanguageX DetectedLanguage { get; set; }
+        //    public TextResult SourceText { get; set; }
+        //    public Translation[] Translations { get; set; }
+        // }
+        // private class TranslateError
+        // {
+        //    public class ErrorX
+        //    {
+        //        public int Code { get; set; }
+        //        public string Message { get; set; }
+        //    }
+        //    public ErrorX Error { get; set; }
+        // }
 
         private const string SubscriptionKey = "1234567890abcdef01234567890abcde";  //bogus azure authentication key. 
 

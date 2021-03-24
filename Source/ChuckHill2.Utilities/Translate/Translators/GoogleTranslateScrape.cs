@@ -26,7 +26,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -39,9 +38,6 @@ namespace ChuckHill2.Translators
     /// </summary>
     internal class GoogleTranslateScrape : TranslatorBase
     {
-        // Result Example: [[["Qui êtes vous.","Who are You.",null,null,1]],null,"en",null,null,null,null,[]]
-        private readonly Regex re = new Regex(@"^\s*\[\s*\[\s*\[\s*""(?<V>.+?)"",", RegexOptions.Compiled | RegexOptions.Singleline);
-
         protected override async Task<string> Translate(string input, string toLanguage)
         {
             switch (toLanguage)
@@ -71,9 +67,15 @@ namespace ChuckHill2.Translators
 
                 if (response.IsSuccessStatusCode)
                 {
-                    string v = null;
-                    var m = re.Match(result);
-                    if (m.Success) v = m.Groups["V"].Value;
+                    // Result Example: [[["Qui êtes vous.","Who are You.",null,null,1]],null,"en",null,null,null,null,[]]
+                    var value = SimpleJSON.JSON.Parse(result);
+                    string v = value[0][0][0].Value;
+                    if (input.Equals(v) && toLanguage != "en")
+                    {
+                        v = null;
+                        base.UnsupportedLanguages.Add(toLanguage);
+                    }
+
                     return v;
                 }
                 else

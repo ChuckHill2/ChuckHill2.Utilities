@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using GetCookie.Helper;
 
 /// <summary>
 /// Internal classes exclusively used by ChuckHill2.Cookie.Get()

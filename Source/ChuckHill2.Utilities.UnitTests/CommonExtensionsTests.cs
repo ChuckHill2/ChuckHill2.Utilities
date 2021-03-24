@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -195,13 +194,47 @@ namespace ChuckHill2.UnitTests
             Assert.AreEqual(-1, list.LastIndexOf(m => m == "Z"), "list.LastIndexOf()");
 
             list.MoveToIndex("E", 2);
-            Assert.IsTrue((new string[] { "A","E","B","C","D","F","G" }).SequenceEqual(list), "MoveToIndex()");
+            Assert.IsTrue((new string[] { "A", "B", "E", "C","D","F","G" }).SequenceEqual(list), "MoveToIndex()");
+            list.MoveToIndex("X", 2);
+            Assert.IsTrue((new string[] { "A", "B", "X", "E", "C", "D", "F", "G" }).SequenceEqual(list), "MoveToIndex()");
 
-            string[] list2 = list.ToArray(); //ForEach is builtin to List<> but not in array[]. 
-            list2.ForEach(m => m.ToLower());
-            Assert.IsTrue((new string[] { "a", "e", "b", "c", "d", "f", "g" }).SequenceEqual(list2), "ForEach()");
-            list.ForEachReverse(m => m.ToUpper());
-            Assert.IsTrue((new string[] { "A", "E", "B", "C", "D", "F", "G" }).SequenceEqual(list2), "ForEachReverse()");
+            //ForEach is builtin to List<> but not in array[].
+            //Value types and structs cannot operate upon themselves so we make a simple test class.
+            var ptOriginal = new XY[]
+            {
+                new XY(1, 2),
+                new XY(3, 4),
+                new XY(5, 6)
+            };
+            var ptResult = ptOriginal.ToArray();
+            var ptExpected = new XY[]
+            {
+                new XY(2, 2),
+                new XY(4, 4),
+                new XY(6, 6)
+            };
+
+            ptResult.ForEach(m => m.X++);
+            var xx = ptExpected.SequenceEqual(ptResult);
+            Assert.IsTrue(ptExpected.SequenceEqual(ptResult), "ForEach()");
+            ptResult.ForEachReverse(m => m.X--);
+            Assert.IsTrue(ptOriginal.SequenceEqual(ptResult), "ForEach()");
+        }
+
+        //For testing [].ForEach()
+        private class XY
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+            public XY(int x, int y) { X = x; Y = y; }
+            public override string ToString() => $"{X}, {Y}";
+            public override int GetHashCode() => base.GetHashCode();
+            public override bool Equals(object o)
+            {
+                XY m = o as XY;
+                if (m == null) return false;
+                return X == m.X && Y == m.Y;
+            }
         }
 
         [Test]
