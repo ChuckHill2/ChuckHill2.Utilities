@@ -4,11 +4,15 @@ A library of components, WinForms controls, and ease-of-use extensions that make
 
 ### Features
 * Extended WinForms container controls supporting 2-color gradient backgrounds.
-* WinForms Designers for color selection.
-* WinForms Designer for single and multi-select flag enums with support for tooltips and item icons.
-* Extensions to seamlessly convert between built-in value types (int, float, DateTime, etc.).
+* WinForms Designers for color selection including transparency.
+* WinForms Designer for single and multi-select flag enums that includes support for tooltips and item icons.
+* Extensions to seamlessly convert between a variety of types.
 * Seamless logging extension to System.Diagnostics.
-* XML 3-way merging.
+* Automatic XML 3-way merging.
+* Browser cookie extractor.
+* Translate English into another language.
+* Internet file downloader.
+* ...
 * Many, many extensions.
 * Plus many other code tools. 
 
