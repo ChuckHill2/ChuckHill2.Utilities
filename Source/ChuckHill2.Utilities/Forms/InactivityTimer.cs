@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 #pragma warning disable 618 //warning CS0618: 'System.Threading.Thread.Suspend()' is obsolete: 'Thread.Suspend has been deprecated.  Please use other classes in System.Threading, such as Monitor, Mutex, Event, and Semaphore, to synchronize Threads or protect resources.  http://go.microsoft.com/fwlink/?linkid=14202'
 
-namespace ChuckHill2
+namespace ChuckHill2.Forms
 #pragma warning restore CS1030 // #warning directive
 {
     /// <summary>
@@ -70,7 +70,15 @@ namespace ChuckHill2
         /// This handler is called on a separate thread, so for Forms UI, Control.Invoke()
         /// must be used in order to operate upon the form.
         /// </summary>
-        public static event Action<UInt32, bool, bool> Heartbeat;
+        public static event HeartbeatHandler Heartbeat;
+
+        /// <summary>
+        ///  Handler for the Heartbeat event.
+        /// </summary>
+        /// <param name="idleDuration">Amount of time (ms) since last mouse movement in any application window. Useful for impending timeout warning.</param>
+        /// <param name="hasBeatActivity">True if mouse moved since last heartbeat.</param>
+        /// <param name="timedOut">True if idle duration exceeds timeout.</param>
+        public delegate void HeartbeatHandler(UInt32 idleDuration, bool hasBeatActivity, bool timedOut);
 
         /// <summary>
         /// Start the inactivity timer. Does nothing if already started.
@@ -139,7 +147,7 @@ namespace ChuckHill2
             if (Heartbeat != null)
             {
                 var invocationList = Heartbeat.GetInvocationList();
-                if (invocationList != null) foreach (var handler in invocationList) Heartbeat -= (Action<UInt32, bool, bool>)handler;
+                if (invocationList != null) foreach (var handler in invocationList) Heartbeat -= (HeartbeatHandler)handler;
             }
         }
 
