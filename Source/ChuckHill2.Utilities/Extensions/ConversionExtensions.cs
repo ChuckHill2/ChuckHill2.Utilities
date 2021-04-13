@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------
 // <summary>
-// Simple import/export of array of classes to Excel or CSV.
+//   
 // </summary>
-// <copyright file="Cast.cs" company="Chuck Hill">
+// <copyright file="ConversionExtensions.cs" company="Chuck Hill">
 // Copyright (c) 2020 Chuck Hill.
 //
 // This library is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
 // either express or implied. The author accepts no liability for
 // any damage or loss of business that this product may cause.
 // </copyright>
+// <repository>https://github.com/ChuckHill2/ChuckHill2.Utilities</repository>
 // <author>Chuck Hill</author>
 //--------------------------------------------------------------------------
 using System;

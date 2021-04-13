@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // <summary>
-// A custom tooltip component that extends System.Windows.Forms.ToolTip().
+//   A custom tooltip component that extends System.Windows.Forms.ToolTip().
 // </summary>
 // <copyright file="ToolTipEx.cs" company="Chuck Hill">
 // Copyright (c) 2020 Chuck Hill.
@@ -24,8 +24,9 @@
 // either express or implied. The author accepts no liability for
 // any damage or loss of business that this product may cause.
 // </copyright>
+// <repository>https://github.com/ChuckHill2/ChuckHill2.Utilities</repository>
 // <author>Chuck Hill</author>
-// --------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

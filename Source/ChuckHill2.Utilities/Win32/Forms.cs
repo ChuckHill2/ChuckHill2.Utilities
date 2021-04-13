@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------
 // <summary>
-// A custom tooltip component that replaces System.Windows.Forms.ToolTip().
+//   p/Invoke Methods
 // </summary>
-// <copyright file="Win32.cs" company="Chuck Hill">
+// <copyright file="Forms.cs" company="Chuck Hill">
 // Copyright (c) 2020 Chuck Hill.
 //
 // This library is free software; you can redistribute it and/or
@@ -24,8 +24,9 @@
 // either express or implied. The author accepts no liability for
 // any damage or loss of business that this product may cause.
 // </copyright>
+// <repository>https://github.com/ChuckHill2/ChuckHill2.Utilities</repository>
 // <author>Chuck Hill</author>
-// --------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
