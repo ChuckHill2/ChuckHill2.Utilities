@@ -166,29 +166,17 @@ namespace ChuckHill2.Forms
         /// Customize colors of various parts of the message box.
         /// Any changes are permanant for the life of the application.
         /// </summary>
-        public static readonly MsgBoxColors Colors = new MsgBoxColors(true);
-        public struct MsgBoxColors
+        public static readonly MsgBoxColors Colors = new MsgBoxColors();
+        public class MsgBoxColors
         {
-            public Color CaptionGradientLeft { get; set; }
-            public Color CaptionGradientRight { get; set; }
-            public Color CaptionText { get; set; }
-            public Color InactiveCaptionGradientLeft { get; set; }
-            public Color InactiveCaptionGradientRight { get; set; }
-            public Color InactiveCaptionText { get; set; }
-            public Color MessageText { get; set; }
-            public Color Background { get; set; }
-
-            public MsgBoxColors(bool dummy)
-            {
-                CaptionGradientLeft = Color.FromArgb(15, 42, 111); //Win7 Color  //SystemColors.ActiveCaption;
-                CaptionGradientRight = Color.FromArgb(165, 201, 239); //Win7 Color //SystemColors.GradientActiveCaption
-                CaptionText = SystemColors.HighlightText; //SystemColors.ActiveCaptionText;
-                InactiveCaptionGradientLeft = SystemColors.InactiveCaption;
-                InactiveCaptionGradientRight = SystemColors.GradientInactiveCaption;
-                InactiveCaptionText = SystemColors.GrayText; // SystemColors.InactiveCaptionText;
-                MessageText = SystemColors.WindowText;
-                Background = SystemColors.Window;
-            }
+            public Color CaptionGradientLeft { get; set; } = Color.FromArgb(15, 42, 111); //Win7 Color  //SystemColors.ActiveCaption;
+            public Color CaptionGradientRight { get; set; } = Color.FromArgb(165, 201, 239); //Win7 Color //SystemColors.GradientActiveCaption
+            public Color CaptionText { get; set; } = SystemColors.HighlightText; //SystemColors.ActiveCaptionText;
+            public Color InactiveCaptionGradientLeft { get; set; } = SystemColors.InactiveCaption;
+            public Color InactiveCaptionGradientRight { get; set; } = SystemColors.GradientInactiveCaption;
+            public Color InactiveCaptionText { get; set; } = SystemColors.GrayText; // SystemColors.InactiveCaptionText;
+            public Color MessageText { get; set; } = SystemColors.WindowText;
+            public Color Background { get; set; } = SystemColors.Window;
         }
 
         /// <summary>
@@ -390,7 +378,7 @@ namespace ChuckHill2.Forms
             }
 
             IsModal = isModal;
-            CaptionFont = new Font(this.Font, FontStyle.Bold);
+            CaptionFont = new Font(this.Font, FontStyle.Regular);
             MessageIcon = GetMessageIcon(icon, out MessageIconString);
             Message = string.IsNullOrWhiteSpace(msg) ? null : msg.Trim();
             Caption = string.IsNullOrWhiteSpace(caption) ? null : caption.Trim();
