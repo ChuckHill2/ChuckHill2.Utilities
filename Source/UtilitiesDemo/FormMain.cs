@@ -61,7 +61,7 @@ namespace UtilitiesDemo
             {
                 if (id == 999)
                 {
-                    MessageBoxEx.Show(this,"This is a test of the SystemMenu API.","SystemMenu Test",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    MessageBoxEx.Show(this, "This is a test of the SystemMenu API.", "SystemMenu Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return true; // This id is handled
                 }
                 return false; // Everything else is not handled by this api.
@@ -158,7 +158,7 @@ namespace UtilitiesDemo
 
         private void m_btnToolTipManager_Click(object sender, EventArgs e)
         {
-            using(var dlg = new ToolTipManagerTestForm())
+            using (var dlg = new ToolTipManagerTestForm())
             {
                 dlg.ShowDialog(this);
             }
@@ -178,7 +178,7 @@ namespace UtilitiesDemo
             using (var dlg = new ColorDialog())
             {
                 dlg.Color = LastColor;
-                if (dlg.ShowDialog(this)==DialogResult.OK)
+                if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
                     LastColor = dlg.Color;
                     m_lblPopupStatus.Text = "Color = " + LastColor.GetName();
@@ -216,7 +216,7 @@ namespace UtilitiesDemo
         private void m_btnFolderSelecterEx_Click(object sender, EventArgs e)
         {
             var newFolder = FolderSelectDialog.Show(this, null, LastFolder);
-            if (newFolder!=null)
+            if (newFolder != null)
             {
                 LastFolder = newFolder;
                 m_lblPopupStatus.Text = "Folder = " + LastFolder;
@@ -238,9 +238,12 @@ namespace UtilitiesDemo
             public string Message;
             public MiniMessageBox.Symbol Icon;
             public MiniMessageBox.Buttons Buttons;
-            public LayoutTest(bool ism, Form f, string c, string m, MiniMessageBox.Symbol i, MiniMessageBox.Buttons b) { IsModal = ism; Owner = f;  Caption = c; Message = m; Icon = i; Buttons = b; }
+            public MiniMessageBox.MsgBoxColors MmColors;
+            public LayoutTest(bool ism, Form f, string c, string m,
+                MiniMessageBox.Symbol i, MiniMessageBox.Buttons b, MiniMessageBox.MsgBoxColors mmclrs = null)
+            { IsModal = ism; Owner = f; Caption = c; Message = m; Icon = i; Buttons = b; MmColors = mmclrs; }
         }
-        
+
         private LayoutTest[] _tests = new[]
         {
             new LayoutTest(true, ThisForm, "This is a caption longer then the message body.","(message)", MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
@@ -256,6 +259,21 @@ namespace UtilitiesDemo
             new LayoutTest(true, ThisForm, "This is the caption without a message with a status icon.",null, MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
             new LayoutTest(true, ThisForm, "This is the caption without a message and no status icon.",null, MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.OK),
             new LayoutTest(true, ThisForm, null ,null, MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.OK),
+            new LayoutTest(true, ThisForm, "This is the caption","This shows the properties that may be changed!",MiniMessageBox.Symbol.Information, MiniMessageBox.Buttons.YesNoCancel, mmColors),
+        };
+
+        private static MiniMessageBox.MsgBoxColors mmColors = new MiniMessageBox.MsgBoxColors()
+        {
+            CaptionGradientLeft = Color.FromArgb(0, 183, 195),
+            CaptionGradientRight = Color.FromArgb(0, 194, 204),
+            CaptionText = Color.Black,
+            InactiveCaptionGradientLeft = Color.Silver,
+            InactiveCaptionGradientRight = Color.Gainsboro,
+            InactiveCaptionText = Color.Gray,
+            MessageText = Color.Black,
+            Background = Color.Cornsilk,
+            CaptionFont = new Font("Lucida Calligraphy", 11),
+            MessageFont = new Font("Ink Free", 11, FontStyle.Italic)
         };
 
         private int _index = 0;
@@ -274,7 +292,17 @@ namespace UtilitiesDemo
             }
             else
             {
+                MiniMessageBox.MsgBoxColors myColors = null;
+                if (lt.MmColors != null)
+                {
+                    myColors = MiniMessageBox.Colors.Backup();
+                    MiniMessageBox.Colors.Restore(lt.MmColors);
+                }
                 result = MiniMessageBox.ShowDialog(lt.Owner, lt.Message, lt.Caption, lt.Buttons, lt.Icon);
+                if (myColors != null)
+                {
+                    MiniMessageBox.Colors.Restore(myColors);
+                }
             }
 
             m_lblPopupStatus.Text = "MiniMessageBox Result = " + result;
