@@ -121,7 +121,9 @@ namespace ChuckHill2.UnitTests
 
             Translator.Enable = true;
             result = Translator.Translate(Source, Language);
-            Assert.AreEqual("Dies ist ein Test.", result, "Top-level Translate(enabled=true)");
+
+            bool match = result.Equals("Das ist ein Test.") || result.Equals("Dies ist ein Test.");
+            Assert.IsTrue(match, "Top-level Translate(enabled=true)");
 
             result = Translator.Translate(Source, "XX");
             Assert.AreEqual(Translator.Default(Source), result, "Top-level Translate(unknown lang)");

@@ -39,35 +39,56 @@ namespace ChuckHill2.UnitTests
         [SetUp] public void Setup() { }
 
         [Test]
-        public void TestCookie()
+        public void TestFirefoxCookie()
         {
-            // We assume everyone has used Google.com at some time.
-            const string CookieDomain = ".google.com";
-
-            string cookie = null;
             string bdir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Mozilla\\Firefox\\Profiles");
             if (Directory.Exists(bdir)) //Firefox browser may not be installed in this user's environment.
             {
-                cookie = GetCookie.Helper.Mozilla.GetCookie(CookieDomain);
+                var CookieDomain = ".google.com";
+                var cookie = GetCookie.Helper.Mozilla.GetCookie(CookieDomain);
                 Assert.IsTrue(!string.IsNullOrWhiteSpace(cookie), $"Firefox Browser {CookieDomain} cookie");
             }
+        }
 
-            string browser = "Edge";
-            cookie = GetCookie.Helper.Chromium.GetCookie(CookieDomain, ref browser);
+        [Test]
+        public void TestEdgeCookie()
+        {
+            var CookieDomain = ".google.com";
+            var browser = "Edge";
+            var cookie = GetCookie.Helper.Chromium.GetCookie(CookieDomain, ref browser);
             Assert.IsTrue(!string.IsNullOrWhiteSpace(cookie), $"Edge Browser {CookieDomain} cookie");
+        }
 
-            browser = "Chrome";
-            cookie = GetCookie.Helper.Chromium.GetCookie(CookieDomain, ref browser);
+        [Test]
+        public void TestChromeCookie()
+        {
+            var CookieDomain = ".google.com";
+            var browser = "Chrome";
+            var cookie = GetCookie.Helper.Chromium.GetCookie(CookieDomain, ref browser);
             Assert.IsTrue(!string.IsNullOrWhiteSpace(cookie), $"Chrome Browser {CookieDomain} cookie");
+        }
 
-            cookie = ChuckHill2.Cookie.Get(CookieDomain);
+        [Test]
+        public void TestAnyCookie()
+        {
+            var CookieDomain = ".google.com";
+            var cookie = ChuckHill2.Cookie.Get(CookieDomain);
             Assert.IsTrue(!string.IsNullOrWhiteSpace(cookie), $"Any Browser {CookieDomain} cookie");
+        }
 
-            browser = "Edge";
-            cookie = ChuckHill2.Cookie.Get(CookieDomain, ref browser);
+        [Test]
+        public void TestSuggestedEdgeCookie()
+        {
+            var CookieDomain = ".google.com";
+            var browser = "Edge";
+            var cookie = ChuckHill2.Cookie.Get(CookieDomain, ref browser);
             Assert.IsTrue(!string.IsNullOrWhiteSpace(cookie), $"Edge Browser {CookieDomain} cookie");
+        }
 
-            cookie = ChuckHill2.Cookie.Get(".thisIsAnUnknownDomain.com");
+        [Test]
+        public void TestUnknownCookie()
+        {
+            var cookie = ChuckHill2.Cookie.Get(".thisIsAnUnknownDomain.com");
             Assert.IsEmpty(cookie, $"Any Browser unknown cookie");
         }
     }
