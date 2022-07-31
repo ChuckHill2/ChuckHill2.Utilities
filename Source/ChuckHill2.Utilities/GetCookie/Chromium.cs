@@ -82,7 +82,7 @@ namespace GetCookie.Helper
             public static string GetUserData(string browser)
             {
                 if (browser.Contains("Opera Software")) return browser + "\\";
-                return browser + "\\User Data\\Default\\";
+                return browser + "\\User Data\\";
             }
         }
 
@@ -106,9 +106,7 @@ namespace GetCookie.Helper
             string SqliteFile = "Cookies";
             var list = new List<CC>();
 
-            // Database
-            string tempCookieLocation = "";
-
+            //Put preferred browser at top of search list
             IEnumerable<string> browserList = Paths.chromiumBasedBrowsers;
             if (!string.IsNullOrWhiteSpace(preferredBrowser))
             {
@@ -120,62 +118,66 @@ namespace GetCookie.Helper
             // Search all browsers
             foreach (string browser in browserList)
             {
-                string Browser = Paths.GetUserData(browser) + SqliteFile;
-                if (File.Exists(Browser)) //Must operate on a copy as it may be locked by the browser.
+                if (!Directory.Exists(browser)) continue;
+                //Search all profiles within browser starting with the most recently modified.
+                var cookieFiles = Directory.EnumerateFiles(Paths.GetUserData(browser), SqliteFile, SearchOption.AllDirectories).OrderByDescending(m => new FileInfo(m).LastWriteTime);
+                foreach (var cookieFile in cookieFiles)
                 {
-                    tempCookieLocation = Environment.GetEnvironmentVariable("temp") + "\\browserCookies";
-                    if (File.Exists(tempCookieLocation)) File.Delete(tempCookieLocation);
-                    File.Copy(Browser, tempCookieLocation);
+                    // Read chrome database
+                    SQLite sSQLite = new SQLite(cookieFile);
+                    sSQLite.ReadTable("cookies");
+
+                    int host_key = sSQLite.GetFieldIndex("host_key");
+                    int name_ = sSQLite.GetFieldIndex("name");
+                    int encrypted_value = sSQLite.GetFieldIndex("encrypted_value");
+                    int last_access_utc = sSQLite.GetFieldIndex("last_access_utc");
+
+                    var found = false;
+                    for (int i = 0; i < sSQLite.GetRowCount(); i++)
+                    {
+                        string hostKey = sSQLite.GetValue(i, host_key);
+                        if (!hostKey.Equals(domain, StringComparison.OrdinalIgnoreCase)) continue;
+
+                        // Get data from database
+                        string name = sSQLite.GetValue(i, name_);
+                        string encryptedValue = sSQLite.GetValue(i, encrypted_value);
+                        string lastAccessUtc = sSQLite.GetValue(i, last_access_utc);
+
+                        // If no data => break
+                        if (string.IsNullOrEmpty(name)) break;
+
+                        var value = Crypt.GetUTF8(Crypt.decryptChrome(encryptedValue, cookieFile));
+                        list.Add(new CC(name, value, lastAccessUtc));
+                        found = true;
+                        continue;
+                    }
+
+                    if (found)
+                    {
+                        var b = Path.GetFileName(browser);
+                        preferredBrowser = b.Equals("browser", StringComparison.OrdinalIgnoreCase) ? Path.GetFileName(Path.GetDirectoryName(browser)) : b;
+                        break; //only return the cookies from the first browser found.
+                    }
                 }
-                else continue;
 
-                // Read chrome database
-                SQLite sSQLite = new SQLite(tempCookieLocation);
-                sSQLite.ReadTable("cookies");
+                if (list.Count == 0) continue; //no cookies
 
-                var found = false;
-                for (int i = 0; i < sSQLite.GetRowCount(); i++)
+                //Build cookie string
+                var sb = new StringBuilder();
+                string delimiter = string.Empty;
+                foreach (var cc in list.OrderBy(m => m.lastAccessed))
                 {
-                    string hostKey = sSQLite.GetValue(i, 1);
-                    if (!hostKey.Equals(domain, StringComparison.OrdinalIgnoreCase)) continue;
-
-                    // Get data from database
-                    string name = sSQLite.GetValue(i, 2);
-                    string encryptedValue = sSQLite.GetValue(i, 12);
-                    string lastAccessUtc = sSQLite.GetValue(i, 8);
-
-                    // If no data => break
-                    if (string.IsNullOrEmpty(name)) break;
-
-                    var value = Crypt.GetUTF8(Crypt.decryptChrome(encryptedValue, Browser));
-                    list.Add(new CC(name, value, lastAccessUtc));
-                    found = true;
-                    continue;
+                    sb.Append(delimiter);
+                    sb.Append(cc.name);
+                    sb.Append('=');
+                    sb.Append(cc.value);
+                    delimiter = "; ";
                 }
 
-                if (found)
-                {
-                    var b = Path.GetFileName(browser);
-                    preferredBrowser = b.Equals("browser", StringComparison.OrdinalIgnoreCase) ? Path.GetFileName(Path.GetDirectoryName(browser)) : b;
-                    break; //only return the cookies from the first browser found.
-                }
+                return sb.ToString();
             }
 
-            if (list.Count == 0) return string.Empty; //no cookies
-
-            //Build cookie string
-            var sb = new StringBuilder();
-            string delimiter = string.Empty;
-            foreach (var cc in list.OrderBy(m => m.lastAccessed))
-            {
-                sb.Append(delimiter);
-                sb.Append(cc.name);
-                sb.Append('=');
-                sb.Append(cc.value);
-                delimiter = "; ";
-            }
-
-            return sb.ToString();
+            return string.Empty;
         }
     }
 }

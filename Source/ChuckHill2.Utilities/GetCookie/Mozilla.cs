@@ -57,44 +57,51 @@ namespace GetCookie.Helper
         public static string GetCookie(string domain)
         {
             // Get firefox default profile directory
-            string profile = GetFFProfileFolder();
-            // Read cookies from file
-            if (profile == null) return string.Empty;
-            string db_location = Path.Combine(profile, "cookies.sqlite");
-            // Read data from table
-            SQLite sSQLite = SQLite.ReadTable(db_location, "moz_cookies");
-            if (sSQLite == null) return string.Empty;
-            // Get values from table: SELECT name, value FROM moz_cookies WHERE host = 'www.{0}' OR host = '.{0}' OR host = '.www.{0}' ORDER BY creationTime
-            var list = new List<CC>();
-            for (int i = 0; i < sSQLite.GetRowCount(); i++)
-            {
-                var host = sSQLite.GetValue(i, 4);
-                if (!host.Equals(domain, StringComparison.OrdinalIgnoreCase)) continue;
-                var name = sSQLite.GetValue(i, 2);
-                var value = sSQLite.GetValue(i, 3);
-                var lastAccessed = sSQLite.GetValue(i, 6);
-                list.Add(new CC(name, value, lastAccessed));
-            }
-            if (list.Count == 0) return string.Empty;
-            var sb = new StringBuilder();
-            string delimiter = string.Empty;
-            foreach (var cc in list.OrderBy(m => m.lastAccessed))
-            {
-                sb.Append(delimiter);
-                sb.Append(cc.name);
-                sb.Append('=');
-                sb.Append(cc.value);
-                delimiter = "; ";
-            }
-            return sb.ToString();
-        }
-
-        private static string GetFFProfileFolder()
-        {
             string Appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string bdir = Path.Combine(Appdata, "Mozilla\\Firefox\\Profiles");
-            if (!Directory.Exists(bdir)) return null;
-            return Directory.EnumerateDirectories(bdir).FirstOrDefault(m => File.Exists(m + "\\logins.json") || File.Exists(m + "\\key4.db") || File.Exists(m + "\\places.sqlite"));
+            if (!Directory.Exists(bdir)) return string.Empty;
+
+            var profiles = Directory.EnumerateDirectories(bdir).Where(m => File.Exists(m + "\\logins.json")
+                                                                        || File.Exists(m + "\\key4.db")
+                                                                        || File.Exists(m + "\\places.sqlite"));
+            foreach (var profile in profiles)
+            {
+                string db_location = Path.Combine(profile, "cookies.sqlite");
+                if (!File.Exists(db_location)) continue;
+                // Read data from table
+                SQLite sSQLite = SQLite.ReadTable(db_location, "moz_cookies");
+                if (sSQLite == null) continue;
+
+                int hostCol = sSQLite.GetFieldIndex("host");
+                int nameCol = sSQLite.GetFieldIndex("name");
+                int valueCol = sSQLite.GetFieldIndex("value");
+                int lastAccessedCol = sSQLite.GetFieldIndex("lastAccessed");
+
+                // Get values from table: SELECT name, value FROM moz_cookies WHERE host = 'www.{0}' OR host = '.{0}' OR host = '.www.{0}' ORDER BY creationTime
+                var list = new List<CC>();
+                for (int i = 0; i < sSQLite.GetRowCount(); i++)
+                {
+                    var host = sSQLite.GetValue(i, hostCol);
+                    if (!host.Equals(domain, StringComparison.OrdinalIgnoreCase)) continue;
+                    var name = sSQLite.GetValue(i, nameCol);
+                    var value = sSQLite.GetValue(i, valueCol);
+                    var lastAccessed = sSQLite.GetValue(i, lastAccessedCol);
+                    list.Add(new CC(name, value, lastAccessed));
+                }
+                if (list.Count == 0) continue;
+                var sb = new StringBuilder();
+                string delimiter = string.Empty;
+                foreach (var cc in list.OrderBy(m => m.lastAccessed))
+                {
+                    sb.Append(delimiter);
+                    sb.Append(cc.name);
+                    sb.Append('=');
+                    sb.Append(cc.value);
+                    delimiter = "; ";
+                }
+                return sb.ToString();
+            }
+            return string.Empty;
         }
     }
 }
