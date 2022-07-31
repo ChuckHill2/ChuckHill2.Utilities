@@ -8,8 +8,9 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>XmlDiffMergeDemo</RootNamespace>
     <AssemblyName>XmlDiffMergeDemo</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,7 +50,9 @@
       <Name>ChuckHill2.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\xmodified.config" />
     <EmbeddedResource Include="Resources\xnew.config" />
