@@ -45,12 +45,10 @@ namespace UtilitiesDemo
 {
     public partial class FormMain : Form
     {
-        private static Form ThisForm; //for MiniMessageBox Test, below.
-
         public FormMain()
         {
             InitializeComponent();
-            ThisForm = this;
+            InitMMTestList();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -233,34 +231,38 @@ namespace UtilitiesDemo
         private class LayoutTest
         {
             public bool IsModal;
-            public Form Owner;
+            public IWin32Window Owner;
             public string Caption;
             public string Message;
             public MiniMessageBox.Symbol Icon;
             public MiniMessageBox.Buttons Buttons;
             public MiniMessageBox.MsgBoxColors MmColors;
-            public LayoutTest(bool ism, Form f, string c, string m,
+            public LayoutTest(bool ism, IWin32Window f, string c, string m,
                 MiniMessageBox.Symbol i, MiniMessageBox.Buttons b, MiniMessageBox.MsgBoxColors mmclrs = null)
             { IsModal = ism; Owner = f; Caption = c; Message = m; Icon = i; Buttons = b; MmColors = mmclrs; }
         }
 
-        private LayoutTest[] _tests = new[]
+        private LayoutTest[] _tests;
+        private void InitMMTestList()
         {
-            new LayoutTest(true, ThisForm, "This is a caption longer then the message body.","(message)", MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
-            new LayoutTest(true, null, "No Owner Test","No owner form has been passed to this messagebox. It will attempt to find the owning form to stay in front of it. If it can't, it will be owned by the desktop.", MiniMessageBox.Symbol.Warning, MiniMessageBox.Buttons.OKCancel),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with a warning status icon.", MiniMessageBox.Symbol.Warning, MiniMessageBox.Buttons.RetryCancel),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with a question status icon.", MiniMessageBox.Symbol.Question, MiniMessageBox.Buttons.YesNo),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with a information status icon.", MiniMessageBox.Symbol.Information, MiniMessageBox.Buttons.YesNoCancel),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with a wait status icon.", MiniMessageBox.Symbol.Wait, MiniMessageBox.Buttons.Abort),
-            new LayoutTest(true, ThisForm, "This is the caption","This is the message body with no status icon.", MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.AbortRetryIgnore),
-            new LayoutTest(false, ThisForm, "Modalless Messagebox","The user is not allowed to close this (Waiting for some action to be completed and abort not allowed?). The application must close this messagebox. However for demo purposes, you may close this by clicking the test button again.", MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.None),
-            new LayoutTest(false, ThisForm, null,null, 0, 0),
-            new LayoutTest(true, ThisForm, null,"This is just the message body and no caption.", MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
-            new LayoutTest(true, ThisForm, "This is the caption without a message with a status icon.",null, MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
-            new LayoutTest(true, ThisForm, "This is the caption without a message and no status icon.",null, MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.OK),
-            new LayoutTest(true, ThisForm, null ,null, MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.OK),
-            new LayoutTest(true, ThisForm, "This is the caption","This shows the properties that may be changed!",MiniMessageBox.Symbol.Information, MiniMessageBox.Buttons.YesNoCancel, mmColors),
-        };
+            _tests = new[]
+            {
+                new LayoutTest(true, this, "This is a caption longer then the message body.","(message)", MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
+                new LayoutTest(true, null, "No Owner Test","No owner form has been passed to this messagebox. It will attempt to find the owning form to stay in front of it. If it can't, it will be owned by the desktop.", MiniMessageBox.Symbol.Warning, MiniMessageBox.Buttons.OKCancel),
+                new LayoutTest(true, m_btnSysColorPickerDialog, "This is the caption","This is the message body with a warning status icon and positioned over SysColorPicker button.", MiniMessageBox.Symbol.Warning, MiniMessageBox.Buttons.RetryCancel),
+                new LayoutTest(true, this, "This is the caption","This is the message body with a question status icon.", MiniMessageBox.Symbol.Question, MiniMessageBox.Buttons.YesNo),
+                new LayoutTest(true, this, "This is the caption","This is the message body with a information status icon.", MiniMessageBox.Symbol.Information, MiniMessageBox.Buttons.YesNoCancel),
+                new LayoutTest(true, this, "This is the caption","This is the message body with a wait status icon.", MiniMessageBox.Symbol.Wait, MiniMessageBox.Buttons.Abort),
+                new LayoutTest(true, this, "This is the caption","This is the message body with no status icon.", MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.AbortRetryIgnore),
+                new LayoutTest(false, this, "Modalless Messagebox","The user is not allowed to close this (Waiting for some action to be completed and abort not allowed?). The application must close this messagebox. However for demo purposes, you may close this by clicking the test button again.", MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.None),
+                new LayoutTest(false, this, null,null, 0, 0),
+                new LayoutTest(true, this, null,"This is just the message body and no caption.", MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
+                new LayoutTest(true, this, "This is the caption without a message with a status icon.",null, MiniMessageBox.Symbol.Error, MiniMessageBox.Buttons.OK),
+                new LayoutTest(true, this, "This is the caption without a message and no status icon.",null, MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.OK),
+                new LayoutTest(true, this, null ,null, MiniMessageBox.Symbol.None, MiniMessageBox.Buttons.OK),
+                new LayoutTest(true, this, "This is the caption","This shows the properties that may be changed!",MiniMessageBox.Symbol.Information, MiniMessageBox.Buttons.YesNoCancel, mmColors),
+            };
+        }
 
         private static MiniMessageBox.MsgBoxColors mmColors = new MiniMessageBox.MsgBoxColors()
         {
