@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using ChuckHill2.Extensions;
+using ChuckHill2;
 
 namespace Cyotek.Windows.Forms
 {
