@@ -383,36 +383,23 @@ namespace ChuckHill2
             return string.Empty;
         }
 
-        private Rectangle GetVisibleRectangle(Bitmap processedBitmap)
+        /// <summary>
+        /// Determine dimensions of non-transparent object in within ARGB image.
+        /// </summary>
+        /// <param name="bmp">ARGB format image in a transparent field.</param>
+        /// <returns>Rectangle encompassing object in image. if nothing found, returns rectangle of the entire image.</returns>
+        private Rectangle GetVisibleRectangle(Bitmap bmp)
         {
-            BitmapData bitmapData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height), ImageLockMode.ReadOnly, processedBitmap.PixelFormat);
+            BitmapData bitmapData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
 
-            int bytesPerPixel = Bitmap.GetPixelFormatSize(processedBitmap.PixelFormat) / 8;
-            int byteCount = bitmapData.Stride * processedBitmap.Height;
+            int bytesPerPixel = Bitmap.GetPixelFormatSize(bmp.PixelFormat) / 8;
+            int byteCount = bitmapData.Stride * bmp.Height;
             byte[] pixels = new byte[byteCount];
             IntPtr ptrFirstPixel = bitmapData.Scan0;
             Marshal.Copy(ptrFirstPixel, pixels, 0, pixels.Length);
             int heightInPixels = bitmapData.Height;
             int widthInBytes = bitmapData.Width * bytesPerPixel;
-            processedBitmap.UnlockBits(bitmapData);
-
-            //var sb = new StringBuilder();
-            //for(int i=3,w=0; i<pixels.Length; i += 4,w++)
-            //{
-            //    if ((w % bitmapData.Width) == 0) sb.AppendLine();
-            //    sb.Append(pixels[i] == 0 ? "0" : "1");
-            //    w++;
-            //}
-            //var result1 = sb.ToString();
-            //sb.Length = 0;
-            //for (int i = 0, w = 0; i < pixels.Length; i += 4, w++)
-            //{
-            //    if ((w % bitmapData.Width) == 0) sb.AppendLine();
-            //    var m = MathEx.Max(pixels[i+0], pixels[i+1], pixels[i + 2], pixels[i + 3]);
-            //    sb.Append(m == 0 ? "0" : "1");
-            //    w++;
-            //}
-            //var result2 = sb.ToString();
+            bmp.UnlockBits(bitmapData);
 
             int top = -1, bottom = -1, left = -1, right = -1;
 
@@ -434,8 +421,57 @@ namespace ChuckHill2
 
             if (top == -1) top = 0;
             if (left == -1) left = 0;
-            if (right == -1) right = processedBitmap.Width;
-            if (bottom == -1) bottom = processedBitmap.Height;
+            if (right == -1) right = bmp.Width;
+            if (bottom == -1) bottom = bmp.Height;
+
+            return Rectangle.FromLTRB(left, top, right, bottom);
+        }
+
+        /// <summary>
+        /// Determine dimensions of non-white object in within ARGB image. Ignores transparency.
+        /// </summary>
+        /// <param name="bounds">Bounds within image to search.</param>
+        /// <param name="bmp">ARGB format image.</param>
+        /// <returns>Rectangle encompassing object in image. if nothing found, returns rectangle of the entire image.</returns>
+        private Rectangle GetVisibleRectangle(Rectangle bounds, Bitmap bmp)
+        {
+            BitmapData bitmapData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+
+            int bytesPerPixel = Bitmap.GetPixelFormatSize(bmp.PixelFormat) / 8;
+            int byteCount = bitmapData.Stride * bmp.Height;
+            byte[] pixels = new byte[byteCount];
+            IntPtr ptrFirstPixel = bitmapData.Scan0;
+            Marshal.Copy(ptrFirstPixel, pixels, 0, pixels.Length);
+            int heightInPixels = Math.Min(bitmapData.Height, bounds.Bottom);
+            int widthInBytes = Math.Min(bitmapData.Width, bounds.Right) * bytesPerPixel;
+            bmp.UnlockBits(bitmapData);
+
+            int top = -1, bottom = -1, left = -1, right = -1;
+
+            for (int y = bounds.Top; y < heightInPixels; y++)
+            {
+                int currentLine = y * bitmapData.Stride;
+                for (int x = bounds.Left * bytesPerPixel; x < widthInBytes; x = x + bytesPerPixel)
+                {
+
+                    var a = pixels[currentLine + x + 3];
+                    var r = pixels[currentLine + x + 2];
+                    var g = pixels[currentLine + x + 1];
+                    var b = pixels[currentLine + x + 0];
+                    var background = r >= 254 && g >= 254 && b >= 254 && a >= 254;  //slightly off-white is still considered 'white'
+
+                    if (!background && top == -1) top = y;
+                    if (!background && left == -1) left = x / bytesPerPixel;
+
+                    if (!background && right < x / bytesPerPixel + 1) right = x / bytesPerPixel + 1;
+                    if (!background && bottom < y + 1) bottom = y + 1;
+                }
+            }
+
+            if (top == -1) top = 0;
+            if (left == -1) left = 0;
+            if (right == -1) right = bmp.Width;
+            if (bottom == -1) bottom = bmp.Height;
 
             return Rectangle.FromLTRB(left, top, right, bottom);
         }
