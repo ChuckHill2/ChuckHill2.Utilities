@@ -28,8 +28,11 @@
 // <author>Chuck Hill</author>
 //--------------------------------------------------------------------------
 using System;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+
+// Wraps System.Windows.Forms.OpenFileDialog to make it present a vista-style dialog.
 
 namespace ChuckHill2.Forms
 {
@@ -39,7 +42,7 @@ namespace ChuckHill2.Forms
     /// <remarks>
     /// See: http://www.lyquidity.com/devblog/?p=136
     /// </remarks>
-    public class FolderSelectDialog
+    public class FolderSelectDialog : IDisposable
     {
         private System.Windows.Forms.OpenFileDialog ofd = null;
 
@@ -52,17 +55,20 @@ namespace ChuckHill2.Forms
         /// <returns>User selected directory or null if user cancelled.</returns>
         public static string Show(IWin32Window hWndOwner = null, string title = null, string initialDirectory = null)
         {
-            FolderSelectDialog dlg = null;
-            try
+            using (var dlg = new FolderSelectDialog())
             {
-                dlg = new FolderSelectDialog();
-                dlg.InitialDirectory = initialDirectory;
+                if (string.IsNullOrEmpty(initialDirectory))
+                {
+                    dlg.InitialDirectory = initialDirectory;
+                }
+                else
+                {
+                    dlg.InitialDirectory = Path.GetDirectoryName(initialDirectory);
+                    dlg.ofd.FileName = Path.GetFileName(initialDirectory);
+                }
+
                 dlg.Title = title;
                 return (dlg.ShowDialog(hWndOwner) ? dlg.FileName : null);
-            }
-            finally
-            {
-                dlg?.ofd?.Dispose();
             }
         }
 
@@ -75,6 +81,12 @@ namespace ChuckHill2.Forms
             ofd.CheckFileExists = false;
             ofd.DereferenceLinks = true;
             ofd.Multiselect = false;
+        }
+
+        public void Dispose()
+        {
+            ofd?.Dispose();
+            ofd = null;
         }
 
         #region Properties
