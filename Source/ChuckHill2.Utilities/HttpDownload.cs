@@ -48,7 +48,7 @@ namespace ChuckHill2
     /// <summary>
     /// File Downloader
     /// </summary>
-    public static class FileEx
+    public static class HttpDownload
     {
         private static HashSet<string> ResolvedHosts = null;                   //used exclusively by FileEx.Download()
         private static readonly Object GetUniqueFilename_Lock = new Object();  //used exclusively by FileEx.GetUniqueFilename()
@@ -313,7 +313,7 @@ namespace ChuckHill2
                     web.Headers[HttpRequestHeader.UserAgent] = UserAgent;
                     if (!data.Referer.IsNullOrEmpty()) web.Headers[HttpRequestHeader.Referer] = data.Referer;
                     if (!data.Cookie.IsNullOrEmpty()) web.Headers[HttpRequestHeader.Cookie] = data.Cookie;
-                    data.Filename = FileEx.GetUniqueFilename(data.Filename); //creates empty file as placeholder
+                    data.Filename = HttpDownload.GetUniqueFilename(data.Filename); //creates empty file as placeholder
                     //Diagnostics.WriteLine("{0} ==> {1}\r\n", data.Url, Path.GetFileName(data.Filename));
 
                     web.DownloadFile(data.Url, data.Filename);
@@ -343,7 +343,7 @@ namespace ChuckHill2
                 if (!ext.EqualsI(Path.GetExtension(data.Filename)))
                 {
                     var newfilename = Path.ChangeExtension(data.Filename, ext);
-                    newfilename = FileEx.GetUniqueFilename(newfilename); //creates empty file as placeholder
+                    newfilename = HttpDownload.GetUniqueFilename(newfilename); //creates empty file as placeholder
                     File.Delete(newfilename); //delete the placeholder. Move will throw exception if it already exists
                     File.Move(data.Filename, newfilename);
                     data.Filename = newfilename;

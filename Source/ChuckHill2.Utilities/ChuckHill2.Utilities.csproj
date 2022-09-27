@@ -62,6 +62,7 @@
     <Compile Include="CsvReader.cs" />
     <Compile Include="CsvWriter.cs" />
     <Compile Include="DateTimeEx.cs" />
+    <Compile Include="FileEx.cs" />
     <Compile Include="GetCookie\Chromium.cs" />
     <Compile Include="GetCookie\Crypt.cs" />
     <Compile Include="GetCookie\DPAPI.cs" />
@@ -150,7 +151,7 @@
     <Compile Include="Extensions\CommonExtensions.cs" />
     <Compile Include="Extensions\DrawRtfText.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
-    <Compile Include="FileEx.cs" />
+    <Compile Include="HttpDownload.cs" />
     <Compile Include="FontMetrics.cs" />
     <Compile Include="Forms\GlobalMouseHandler.cs" />
     <Compile Include="Forms\ColorPickerPanelHorz.cs">
