@@ -42,6 +42,9 @@ using Microsoft.Win32;
 
 namespace ChuckHill2
 {
+    /// <summary>
+    /// File Utilities
+    /// </summary>
     public static class FileEx
     {
         /// <summary>
@@ -201,7 +204,7 @@ namespace ChuckHill2
         #endregion
 
         /// <summary>
-        /// FileEx API do not throw any exceptions. Assignining a handler will allow one to capture any warnings. By default, messages are written to the debug window.
+        /// FileEx API do not throw any exceptions. Assignining an event handler will allow one to capture any warnings. By default, messages are written to the debug window.
         /// </summary>
         public static event Action<string> Log;
 
@@ -335,7 +338,7 @@ namespace ChuckHill2
         ///    is NOT set with the the application link time. It contains some other non-
         ///    timestamp (hash?) value. To force the .netcore linker to embed the true 
         ///    timestamp as previously, add or set the csproj property 
-        ///    "&lt;Deterministic&gt;false&lt;/Deterministic&gt;".
+        ///    "<Deterministic>false</Deterministic>".
         /// </remarks>
         /// <param name="filePath">
         ///    Any executable image file (not necessarily .net assembly) to retrieve build date
@@ -375,7 +378,7 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Returns an enumerable collection of file names that match a search pattern in a specified path.
+        /// Returns an enumerable collection of file names in a specified path.
         /// Same as System.IO.Directory.EnumerateFiles(), except 42% faster on a SSD.
         /// To filter list, use this.Where(m=>m.something(m)) linq clause.
         /// </summary>
@@ -424,7 +427,7 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        /// Returns an enumerable collection of file names that match a search pattern in a specified path.
+        /// Returns an enumerable collection of folder names in a specified path.
         /// Same as System.IO.Directory.EnumerateFiles(), except 42% faster on a SSD.
         /// To filter list, use this.Where(m=>m.something(m)) linq clause.
         /// </summary>
@@ -688,7 +691,7 @@ namespace ChuckHill2
         /// <summary>
         /// Check if a file exists.
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filename">Filename to check</param>
         /// <returns>True if file exists.</returns>
         /// <remarks>Does not throw exceptions.</remarks>
         public static bool Exists(string filename) => (int)GetFileAttributes(filename) != -1;
@@ -696,10 +699,11 @@ namespace ChuckHill2
         /// <summary>
         /// Get all 3 datetime fields for a given file in FileTime (64-bit) format.
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="creationTime"></param>
-        /// <param name="lastAccessTime"></param>
-        /// <param name="lastWriteTime"></param>
+        /// <remarks>Use DateTime.ToFileTime() and DateTime.FromFileTime() for conversion.</remarks>
+        /// <param name="filename">Name of existing file to retrieve filetimes from.</param>
+        /// <param name="creationTime">Returned filetime.</param>
+        /// <param name="lastAccessTime">Returned filetime.</param>
+        /// <param name="lastWriteTime">Returned filetime.</param>
         /// <returns>True if successful</returns>
         public static bool GetFileTime(string filename, out long creationTime, out long lastAccessTime, out long lastWriteTime)
         {
@@ -715,10 +719,11 @@ namespace ChuckHill2
         /// <summary>
         /// Set datetime fields for a given file in FileTime (64-bit) format. Time field value 0 == not modified.
         /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="creationTime"></param>
-        /// <param name="lastAccessTime"></param>
-        /// <param name="lastWriteTime"></param>
+        /// <remarks>Use DateTime.ToFileTime() and DateTime.FromFileTime() for conversion.</remarks>
+        /// <param name="filename">Name of existing file to set.</param>
+        /// <param name="creationTime">New filetime or zero to not modify.</param>
+        /// <param name="lastAccessTime">New filetime or zero to not modify.</param>
+        /// <param name="lastWriteTime">New filetime or zero to not modify.</param>
         /// <returns>True if successful</returns>
         public static bool SetFileTime(string filename, long creationTime, long lastAccessTime, long lastWriteTime)
         {
@@ -745,10 +750,10 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        ///  Securely find an unused filename in a multi-threaded environment.
+        ///  Securely find an unused filename in a multi-threaded, environment (thread-safe).
         /// </summary>
-        /// <param name="srcFilename">Suggested filename</param>
-        /// <returns>Returns a (maybe new) zero-length filename as a placeholder.</returns>
+        /// <param name="srcFilename">Suggested filename. If the file already exists, the filename is modified (e.g. MyFile.png => MyFile(1).png). Relative filenames are expanded into absolute filenames.</param>
+        /// <returns>Returns a unique name of a zero-length file as a placeholder.</returns>
         public static string GetUniqueFilename(string srcFilename)
         {
             srcFilename = GetFullPath(srcFilename);
