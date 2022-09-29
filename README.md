@@ -45,3 +45,8 @@ A kitchen-sink library of components, WinForms controls, and ease-of-use extensi
 See see the help file *ChuckHill2.Utilities.chm* for details and usage of all the components.
 
 This codebase also includes unit tests, and demos/examples of many of the components.
+
+### Build
+This was built using Visual Studio 2019 with .NET Framework 4.8.
+
+To build the entire package with help and the Nuget package, build the release configuration of the *SolutionPostBuild* project.
