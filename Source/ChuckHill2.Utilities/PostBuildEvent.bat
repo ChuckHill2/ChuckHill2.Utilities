@@ -58,8 +58,9 @@ EXIT /B 1
 )
 
 IF NOT EXIST "%HHC_LOCATION%" (
-ECHO Warning: Unable to build CHM help file. HTML Help Workshop must be installed.
-ECHO See: https://www.microsoft.com/en-us/download/details.aspx?id=21138
+ECHO Warning: Unable to build CHM help file. Legacy Microsoft HTML Help Workshop 
+ECHO must be installed. This tool is deprecated and no longer found at Microsoft. 
+ECHO The installer may be found stored under the SolutionPostBuild project.
 ECHO.
 ECHO HTML Help Workshop is the *ONLY* available tool that can create CHM help
 ECHO files. It cannot be included as a tool here because it uses COM components.
@@ -109,10 +110,17 @@ ECHO Info: Nuget pack disabled due to required CHM help file not created.
 EXIT /B 0
 )
 
+CALL :GETFILE NUGET nuget.exe
+IF NOT EXIST "%NUGET%" (
+ECHO Error: nuget.exe packager is not found. It must be in PATH. Cannot continue.
+ECHO The latest version may be downloaded from https://www.nuget.org/downloads
+EXIT /B 1
+)
+
 ECHO.
-ECHO nuget.exe pack %ProjectName%.csproj -properties configuration=%Configuration%;OutDir="%OutDir%" -Verbosity detailed -OutputDirectory "%OutDir%"
+ECHO "%NUGET%" pack %ProjectName%.csproj -properties configuration=%Configuration%;OutDir="%OutDir%" -Verbosity detailed -OutputDirectory "%OutDir%"
 ECHO.
-nuget.exe pack %ProjectName%.csproj -properties configuration=%Configuration%;OutDir="%OutDir%" -Verbosity detailed -OutputDirectory "%OutDir%"
+"%NUGET%" pack %ProjectName%.csproj -properties configuration=%Configuration%;OutDir="%OutDir%" -Verbosity detailed -OutputDirectory "%OutDir%"
 ECHO.
 
 EXIT /B 0
