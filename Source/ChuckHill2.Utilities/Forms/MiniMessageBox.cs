@@ -281,6 +281,7 @@ namespace ChuckHill2.Forms
         /// <remarks>This functions just like it's big brothers: MessageBox and MessageBoxEx. This does not need to be a child of a form owner. This may also run within Program.Main or Console.Main</remarks>
         public static DialogResult ShowDialog(IWin32Window owner, string text, string caption = null, Buttons buttons = Buttons.OK, Symbol icon = Symbol.None)
         {
+            Clicked = null;
             var owningControl = GetOwner(owner);
             if (owner != null && owner is Control && !((Control)owner).Visible) owner = owningControl;
             using (var dlg = new MiniMessageBox(owner ?? owningControl, true, text, caption, buttons, icon))
@@ -327,6 +328,8 @@ namespace ChuckHill2.Forms
                 return;
             }
 
+            Clicked = null;
+
             var owningControl = GetOwner(owner);
             if (owner != null && owner is Control && !((Control)owner).Visible) owner = owningControl;
 
@@ -371,6 +374,7 @@ namespace ChuckHill2.Forms
         {
             if (MMDialog !=null)
             {
+                Clicked = null;
                 MMDialog.Close();
                 MMDialog.Dispose();
                 MMDialog = null;
@@ -382,6 +386,14 @@ namespace ChuckHill2.Forms
                 return MMResult;
             }
         }
+
+        /// <summary>
+        /// Subscribe to the event when a button is clicked in a modaless MiniMessagebox. 
+        /// Subscription can only occur AFTER the modaless dialog is shown.
+        /// Has no effect on a modal MiniMessagebox.
+        /// Once the event is triggered, the event is cleared.
+        /// </summary>
+        public static event Action<DialogResult> Clicked;
 
         private static void StaticButtonClick(object sender, EventArgs e)
         {
@@ -398,6 +410,9 @@ namespace ChuckHill2.Forms
                 case "No": MMResult = DialogResult.No; break;
                 default: MMResult = DialogResult.None; break;
             }
+
+            Clicked?.Invoke(MMResult);
+            Clicked = null;
 
             MMDialog.Close();
             MMDialog.Dispose();
