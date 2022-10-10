@@ -71,6 +71,7 @@
     <Compile Include="GetCookie\SimpleJSON.cs" />
     <Compile Include="GetCookie\Sodium.cs" />
     <Compile Include="GetCookie\SQLite.cs" />
+    <Compile Include="InterLock.cs" />
     <Compile Include="MathEx.cs" />
     <Compile Include="PropertyStore.cs" />
     <Compile Include="Cyotek.Windows.Forms.ColorPicker\AdobeColorTablePaletteSerializer.cs" />
