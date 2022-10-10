@@ -2,7 +2,7 @@
 // <summary>
 //   
 // </summary>
-// <copyright file="DirectoryEx.cs" company="Chuck Hill">
+// <copyright file="FileEx.cs" company="Chuck Hill">
 // Copyright (c) 2020 Chuck Hill.
 //
 // This library is free software; you can redistribute it and/or
@@ -33,17 +33,15 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Win32;
 
 namespace ChuckHill2
 {
     /// <summary>
-    /// File Utilities
+    /// Low-level File Utilities.
     /// </summary>
     public static class FileEx
     {
@@ -54,7 +52,17 @@ namespace ChuckHill2
         ///    The traditional maximum path has been 260 (256 + "\\?\") but as of Win10 this limit may be disabled and allow 
         ///    the true NTFS limit of 32767. To disable this limit within an application the registry flag HKEY_LOCAL_MACHINE
         ///    \SYSTEM\CurrentControlSet\Control\FileSystem\LongPathsEnabled [DWORD] must be set to 1, OS rebooted, 
-        ///    AND enabled in the assembly manifest of all assemblies that use this variable.
+        ///    AND enabled in the executable app manifest of all executables (not dlls) that use this variable.
+        ///    <code>
+        ///       <?xml version="1.0" encoding="utf-8"?>
+        ///       <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+        ///         <application xmlns="urn:schemas-microsoft-com:asm.v3">
+        ///           <windowsSettings xmlns:ws2="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
+        ///             <ws2:longPathAware>true</ws2:longPathAware>
+        ///           </windowsSettings>
+        ///         </application>
+        ///       </assembly>
+        ///    </code>
         /// </remarks>
         public static readonly int MAX_PATH = (int)(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem", "LongPathsEnabled", 0) ?? 0) == 1 ? short.MaxValue : 256;
 
@@ -63,7 +71,8 @@ namespace ChuckHill2
         private const int IMAGE_FILE_EXECUTABLE_IMAGE = 0x0002;
         private const int IMAGE_DOS_SIGNATURE = 0x5A4D;  // 'MZ'
         private const int IMAGE_NT_SIGNATURE = 0x00004550;  // 'PE00'
-        private const int MIN_EXE_SIZE = 1024;
+
+        private const int MIN_EXE_SIZE = 1024*5;  //this has been empirically derived.
 
         private static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
 
@@ -204,21 +213,19 @@ namespace ChuckHill2
         #endregion
 
         /// <summary>
-        /// FileEx API do not throw any exceptions. Assignining an event handler will allow one to capture any warnings. By default, messages are written to the debug window.
+        /// FileEx API do not throw any exceptions. Assignining an event handler will allow one to capture any warnings. By default, messages are written to the debugger output window.
         /// </summary>
-        public static event Action<string> Log;
+        public static event Action<string> LogWriter;
 
-        static FileEx()
-        {
-            Log += s => Debug.WriteLine(s);
-        }
+        static FileEx() => LogWriter += s => Debug.WriteLine(s);
+
+        //[Conditional("DEBUG")] //Not needed as Log() is called ONLY if an error occurs so ths is not a performance hinderence.
+        private static void Log(string msg) => LogWriter(msg);
 
         /// <summary>
-        /// Determine if file is an executable image file.
+        /// Determine if file is an x86/x64 executable image file. Not necessarily .net assembly.
         /// </summary>
-        /// <param name="filename">
-        ///    Any executable image file (not necessarily .net assembly) to retrieve build date from.
-        /// </param>
+        /// <param name="filename">Name of any file to test.</param>
         /// <param name="isDll">Returns true if this is a DLL otherwise an EXE</param>
         /// <returns>True if this is an executable image file.</returns>
         public static bool IsExecutable(string filename, out bool isDll)
@@ -249,38 +256,80 @@ namespace ChuckHill2
         /// <summary>
         /// Parse filename into component parts. 
         /// Name may contain wildcards.
-        /// Will throw exception if directory part has any invalid chars.
         /// File does not need to exist.
         /// </summary>
-        /// <param name="file">Source filename to parse.</param>
-        /// <param name="dir">Returned directory part. Expands directory into absolute path. Does not include trailing slash.</param>
-        /// <param name="name">Returned file name part</param>
-        /// <param name="ext">Returned file extension. Includes leading '.'</param>
-        public static void GetPathParts(string file, out string dir, out string name, out string ext)
+        /// <param name="path">Source filename to parse.</param>
+        /// <param name="dir">Returned directory part or null if path invalid. Expands directory into absolute path. Does not include trailing slash.</param>
+        /// <param name="name">Returned file name part or null if path invalid.</param>
+        /// <param name="ext">Returned file extension or null if path invalid. Includes leading '.'</param>
+        /// <returns>True if path parts are valid components of a file path.</returns>
+        public static bool GetPathParts(string path, out string dir, out string name, out string ext)
         {
-            int i = file.LastIndexOf('\\');
-            dir = i == -1 ? "" : file.Substring(0, i);
-            var nameext = i == -1 ? file : file.Substring(i + 1);
+            dir = null;
+            name = null;
+            ext = null;
+
+            if (string.IsNullOrWhiteSpace(path)) return false;
+
+            // Is "C:\Users\ABC" a directory? Unlike "C:\Users\ABC\" we cannot tell without a trailiing slash, so we take a peek to see. Not a 100% but it is better than nothing.
+            if (FileEx.DirectoryExists(path))
+            {
+                dir = FileEx.GetFullPath(path);
+                if (dir == null) return false;
+                name = string.Empty;
+                ext = string.Empty;
+                return true;
+            }
+
+            int i = path.LastIndexOfAny(new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+            var nameext = i == -1 ? path : path.Substring(i + 1);
+            if (nameext.IndexOfAny(GetPathParts_InvalidFileNameChars.Value) != -1) return false;
+
+            dir = i == -1 ? "" : path.Substring(0, i);
 
             i = nameext.LastIndexOf('.');
             name = i == -1 ? nameext : nameext.Substring(0, i);
             ext = i == -1 ? "" : nameext.Substring(i);
 
             if (dir == "") dir = ".";
-            dir = GetFullPath(dir);
+            dir = FileEx.GetFullPath(dir);
+            if (dir == null)
+            {
+                name = null;
+                ext = null;
+                return false;
+            }
+
+            return true;
         }
+        private static readonly Lazy<char[]> GetPathParts_InvalidFileNameChars = new Lazy<char[]>(() => Path.GetInvalidFileNameChars().Where(c => c != '*' && c != '?').ToArray(), true);
 
         /// <summary>
         /// Detect if this binary file is a .NET assembly.
         /// </summary>
-        /// <param name="filename">Name of file to test</param>
+        /// <param name="filename">Name of any file to test.</param>
         /// <returns>True if this is a .NET assembly.</returns>
-        /// https://social.msdn.microsoft.com/Forums/en-US/827c985c-9d12-48ad-9b45-1eca90702983/determining-whether-a-file-is-an-assembly?forum=csharpgeneral
-        public static bool IsAssembly(string filename)
+        public static bool IsAssembly(string filename) => IsAssembly(filename, out bool isDll);
+
+        /// <summary>
+        /// Detect if this binary file is a .NET assembly.
+        /// </summary>
+        /// <param name="filename">Name of any file to test.</param>
+        /// <param name="isDll">Returns true if assembly is a dynamic link library (DLL)</param>
+        /// <returns>True if this is a .NET assembly.</returns>
+        public static bool IsAssembly(string filename, out bool isDll)
         {
+            // https://social.msdn.microsoft.com/Forums/en-US/827c985c-9d12-48ad-9b45-1eca90702983/determining-whether-a-file-is-an-assembly?forum=csharpgeneral
+            // https://stmxcsr.com/reversing/determine-net-assembly.html
+            // https://learn.microsoft.com/en-us/windows/win32/debug/pe-format
+            // https://www.codeproject.com/Articles/12096/NET-Manifest-Resources
+            // https://en.wikipedia.org/wiki/Portable_Executable
+            // https://github.com/pigeonhands/dnPE/tree/master/dnPE
+            // https://github.com/coderforlife/PEResourceDump
+            isDll = false;
             using (Stream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.SequentialScan))
             {
-                if (fs.Length < 512) return false; //Round up from 368 -- file is not big enough
+                if (fs.Length < MIN_EXE_SIZE) return false; //file is not big enough
                 BinaryReader reader = new BinaryReader(fs);
 
                 fs.Position = 0;  //starts with struct IMAGE_DOS_HEADER 
@@ -292,41 +341,33 @@ namespace ChuckHill2
                 if (offset + 4 + 18 > fs.Length) return false; //must be an old DOS ".com"  executable.
                 if (reader.ReadInt32() != IMAGE_NT_SIGNATURE) return false;
 
-                //We can also show all these value, but we will be       
-                //limiting to the CLI header test.
-
                 var machine = reader.ReadUInt16();
                 var sections = reader.ReadUInt16();
-                var timestamp = reader.ReadUInt32();
+                var timestamp = reader.ReadUInt32(); //linker creation timestamp, seconds from 1/1/1970. Contains unknown if linker build flag deterministic == true
                 var pSymbolTable = reader.ReadUInt32();
                 var noOfSymbol = reader.ReadUInt32();
-                var optionalHeaderSize = reader.ReadUInt16();
+                var optionalHeaderSize = reader.ReadUInt16(); //== full headersize which includes data dictionary size, thus not really useful.
                 var characteristics = reader.ReadUInt16();
+                if ((characteristics & IMAGE_FILE_EXECUTABLE_IMAGE) == 0) return false;
+                isDll = (characteristics & IMAGE_FILE_DLL) == IMAGE_FILE_DLL;
 
-                //Now we are at the end of the PE Header and from here, the
-                //PE Optional Headers starts...
-                //To go directly to the datadictionary, we'll increase the      
-                //stream’s current position to with 96 (0x60). 96 because,
-                //   28 for Standard fields
-                //   68 for NT-specific fields
-                //From here DataDictionary starts...and its of total 128 bytes. DataDictionay has 16 directories in total,
-                //doing simple maths 128/16 = 8.
-                //So each directory is of 8 bytes.
-                //In this 8 bytes, 4 bytes is of RVA and 4 bytes of Size.
-                //btw, the 15th directory consist of CLR header! if its 0, its not a CLR file :)
+                var optionalHeaderMagic = reader.ReadUInt16();
+                if (optionalHeaderMagic == 0x10B) fs.Position += (96 - 6); //PE32, sizeof(OptionalHeader32) - first and last fields - data dictionary
+                else if (optionalHeaderMagic == 0x020B) fs.Position += (112 - 6);  //PE32+ , sizeof(OptionalHeader64) - first and last fields - data dictionary
+                else return false;  //Anything else is not an assembly.
+                var dictionarySize = reader.ReadUInt32();
+                if (dictionarySize != 16) return false;
 
-                ushort dataDictionaryStart = Convert.ToUInt16(Convert.ToUInt16(fs.Position) + 0x60); //96
-                uint[] dataDictionaryRVA = new uint[16];
-                uint[] dataDictionarySize = new uint[16];
+                uint[] dataDictionaryRVA = new uint[dictionarySize];
+                uint[] dataDictionarySize = new uint[dictionarySize];
 
-                fs.Position = dataDictionaryStart;
-                for (int i = 0; i < 15; i++)
+                for (int i = 0; i < dictionarySize; i++)
                 {
                     dataDictionaryRVA[i] = reader.ReadUInt32();
                     dataDictionarySize[i] = reader.ReadUInt32();
                 }
 
-                return (dataDictionaryRVA[14] != 0);
+                return (dataDictionaryRVA[14] != 0);  //[14] == offset to CLR Runtime Header. 0== this is not a .NET runtime
             }
         }
 
@@ -334,17 +375,24 @@ namespace ChuckHill2
         /// Gets the build/link timestamp from the specified executable file header.
         /// </summary>
         /// <remarks>
-        ///    WARNING: When compiled in a .netcore application/library, the PE timestamp 
-        ///    is NOT set with the the application link time. It contains some other non-
-        ///    timestamp (hash?) value. To force the .netcore linker to embed the true 
-        ///    timestamp as previously, add or set the csproj property 
-        ///    "<Deterministic>false</Deterministic>".
+        ///   Microsoft has changed what the TimeStamp field means in the PE Header. Previously, this 
+        ///   field was the timestamp (integer from 1/1/1970). Now it is simply a hash value of the 
+        ///   content of this executable. This makes the results of rebuilds identical. Good for many 
+        ///   features (like if a rebuild is needed and binding), but bad for determining the true date 
+        ///   of the build.<br/>
+        ///   To restore the legacy timestamp, within the Visual Studio project file, add the property 
+        ///   <Deterministic>False</Deterministic> as it does not exist in the file, because default 
+        ///   value is set to True.<br/>
+        ///   More details are here: https://devblogs.microsoft.com/oldnewthing/20180103-00/?p=97705
         /// </remarks>
         /// <param name="filePath">
         ///    Any executable image file (not necessarily .net assembly) to retrieve build date
         ///    from. If file is not an executable image file, the file creation date is returned.
         /// </param>
-        /// <returns>The local DateTime that the specified executable image file was built.</returns>
+        /// <returns>
+        ///    The local DateTime that the specified executable image file was built
+        ///    or the filesystem file creation time
+        /// </returns>
         public static DateTime ExecutableTimestamp(string filePath)
         {
             uint TimeDateStamp = 0;
@@ -386,7 +434,7 @@ namespace ChuckHill2
         /// <param name="folder">The relative or absolute path to the directory to search. This string is not case-sensitive.</param>
         /// <param name="searchOption">One of the enumeration values that specifies whether the search operation should include only the current directory or should include all subdirectories. The default value is System.IO.SearchOption.TopDirectoryOnly.</param>
         /// <returns>An enumerable collection of all the full names (including paths) for the files in the root directory specified by 'folder'.</returns>
-        public static IEnumerable<string> EnumerateFiles(string folder, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public static IEnumerable<string> EnumerateFiles(string folder, SearchOption searchOption = SearchOption.TopDirectoryOnly, CancellationToken cancel = default)
         {
             WIN32_FIND_DATA fd = new WIN32_FIND_DATA();
             IntPtr hFind = FindFirstFile(Path.Combine(folder, "*"), out fd);
@@ -398,6 +446,7 @@ namespace ChuckHill2
 
             do
             {
+                if (cancel.IsCancellationRequested) break;
                 if (fd.cFileName == "." || fd.cFileName == "..") continue;   //pseudo-directory
                 string path = Path.Combine(folder, fd.cFileName);
                 if (path.Length > MAX_PATH) continue;
@@ -406,7 +455,7 @@ namespace ChuckHill2
                     if (searchOption == SearchOption.AllDirectories)
                     {
                         if ((fd.dwFileAttributes & FileAttributes.ReparsePoint) != 0) continue; //don't dive down into file links. they may be recursive!
-                        foreach (var x in EnumerateFiles(path, searchOption))
+                        foreach (var x in EnumerateFiles(path, searchOption, cancel))
                         {
                             yield return x;
                         }
@@ -435,7 +484,7 @@ namespace ChuckHill2
         /// <param name="folder">The relative or absolute path to the directory to search. This string is not case-sensitive.</param>
         /// <param name="searchOption">One of the enumeration values that specifies whether the search operation should include only the current directory or should include all subdirectories. The default value is System.IO.SearchOption.TopDirectoryOnly.</param>
         /// <returns>An enumerable collection of all the full directory paths in the root directory specified by 'folder'.</returns>
-        public static IEnumerable<string> EnumerateFolders(string folder, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public static IEnumerable<string> EnumerateFolders(string folder, SearchOption searchOption = SearchOption.TopDirectoryOnly, CancellationToken cancel = default)
         {
             WIN32_FIND_DATA fd = new WIN32_FIND_DATA();
             IntPtr hFind = FindFirstFile(Path.Combine(folder, "*"), out fd);
@@ -447,6 +496,7 @@ namespace ChuckHill2
 
             do
             {
+                if (cancel.IsCancellationRequested) break;
                 if (fd.cFileName == "." || fd.cFileName == "..") continue;   //pseudo-directory
                 string path = Path.Combine(folder, fd.cFileName);
                 if (path.Length > MAX_PATH) continue;
@@ -457,7 +507,7 @@ namespace ChuckHill2
                     if (searchOption == SearchOption.AllDirectories)
                     {
                         if ((fd.dwFileAttributes & FileAttributes.ReparsePoint) != 0) continue; //don't dive down into file links. they may be recursive!
-                        foreach (var x in EnumerateFolders(path, searchOption))
+                        foreach (var x in EnumerateFolders(path, searchOption, cancel))
                         {
                             yield return x;
                         }
@@ -622,12 +672,11 @@ namespace ChuckHill2
         public static bool DeleteDirectory(string folder)
         {
             var success = RemoveDirectory(folder);
-            if (!success) Log($"FileEx.DeleteDirectory(\"{folder}\"): {new Win32Exception().Message}");
-            if (!success)
-            {
-                var lastErr = Marshal.GetLastWin32Error();
-                Log($"FileEx.DeleteDirectory(\"{folder}\"): {(lastErr == 0 ? "Failed" : new Win32Exception(lastErr).Message)}");
-            }
+            //if (!success)
+            //{
+            //    var lastErr = Marshal.GetLastWin32Error();
+            //    Log($"FileEx.DeleteDirectory(\"{folder}\"): {(lastErr == 0 ? "Failed" : new Win32Exception(lastErr).Message)}");
+            //}
             return success;
         }
 
@@ -694,7 +743,23 @@ namespace ChuckHill2
         /// <param name="filename">Filename to check</param>
         /// <returns>True if file exists.</returns>
         /// <remarks>Does not throw exceptions.</remarks>
-        public static bool Exists(string filename) => (int)GetFileAttributes(filename) != -1;
+        public static bool Exists(string filename)
+        {
+            var attr = GetFileAttributes(filename);
+            return ((int)attr != -1 && (attr & FileAttributes.Directory) == 0);
+        }
+
+        /// <summary>
+        /// Check if a directory exists.
+        /// </summary>
+        /// <param name="filename">Folder name to check</param>
+        /// <returns>True if file exists.</returns>
+        /// <remarks>Does not throw exceptions.</remarks>
+        public static bool DirectoryExists(string foldername)
+        {
+            var attr = GetFileAttributes(foldername);
+            return ((int)attr != -1 && (attr & FileAttributes.Directory) != 0);
+        }
 
         /// <summary>
         /// Get all 3 datetime fields for a given file in FileTime (64-bit) format.
@@ -750,45 +815,111 @@ namespace ChuckHill2
         }
 
         /// <summary>
-        ///  Securely find an unused filename in a multi-threaded, environment (thread-safe).
+        ///  Securely find an unused filename in a multi-threaded, environment (thread-safe)
+        ///  within a single domain/process. This will not work across multiple appdomains.
         /// </summary>
-        /// <param name="srcFilename">Suggested filename. If the file already exists, the filename is modified (e.g. MyFile.png => MyFile(1).png). Relative filenames are expanded into absolute filenames.</param>
+        /// <param name="suggestedFilename">
+        ///     Suggested filename. If the file already exists, the filename is modified
+        ///     (e.g. MyFile.png => MyFile(01).png). Relative filenames are expanded 
+        ///     into absolute filenames.
+        /// </param>
+        /// <param name="lockKey">
+        ///     Optional custom object on which to acquire the lock.  This is useful
+        ///     only when simutaneously working within different folders.
+        /// </param>
         /// <returns>Returns a unique name of a zero-length file as a placeholder.</returns>
-        public static string GetUniqueFilename(string srcFilename)
+        public static string GetUniqueFilename(string suggestedFilename, object lockKey = null)
         {
-            srcFilename = GetFullPath(srcFilename);
-            if (srcFilename==null) return null;
-
-            lock (GetUniqueFilename_Lock)
+            suggestedFilename = GetFullPath(suggestedFilename);
+            if (suggestedFilename==null) return null;
+            lock (lockKey ?? GetUniqueFilenameLock)
             {
-                string pathFormat = null;
-                string newFilename = srcFilename;
-                int index = 1;
+                return GetUniqueFilenameCore(suggestedFilename);
+            }
+         }
+        private static readonly object GetUniqueFilenameLock = new object();
 
-                string dir = Path.GetDirectoryName(srcFilename);
-                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        /// <summary>
+        ///  Securely find an unused filename in a multi-threaded, environment (thread-safe) across all threads/domains/processes.
+        /// </summary>
+        /// <param name="suggestedFilename">
+        ///     Suggested filename. If the file already exists, the filename is modified (e.g. MyFile.png => MyFile(01).png). 
+        ///     Relative filenames are expanded into absolute filenames.</param>
+        /// <param name="lockKey">
+        ///     Required Identifier key used to aquire the lock. This same key string must be used in all 
+        ///     threads/domains/processes that require unique filenames. A handy identifier would be
+        ///     a generated guid string.</param>
+        /// <returns>Returns a unique name of a zero-length file as a placeholder.</returns>
+        public static string GetUniqueFilename(string suggestedFilename, string lockKey)
+        {
+            suggestedFilename = GetFullPath(suggestedFilename);
+            if (suggestedFilename == null) return null;
+
+            //The static lock object does not work across app domains (or other processes) as it is reinitialized to a new value in each domain! Arrgh!
+            //Under those conditions the best we can do is catch the exception and try again.
+
+            using (var locker = new InterLock(lockKey))
+            {
+                try
+                {
+                    locker.Lock();
+                    return GetUniqueFilenameCore(suggestedFilename);
+                }
+                finally
+                {
+                    locker.Unlock();
+                }
+            }
+        }
+
+        internal static string GetUniqueFilenameCore(string suggestedFilename)
+        {
+            //Assumes 'suggestedFilename' is a valid fully qualified path.
+            //Assumes the caller placed a lock wrapper around this method.
+            string dir = Path.GetDirectoryName(suggestedFilename);
+            if (!FileEx.DirectoryExists(dir)) Directory.CreateDirectory(dir);
+
+            string pathFormat = null;
+
+            //Retry multiple times if the caller's lock fails.
+            for (int j = 0; j < 10; j++)
+            {
+                string newFilename = suggestedFilename;
+                int index = 1;
 
                 while (FileEx.Exists(newFilename))
                 {
                     if (pathFormat == null)
                     {
-                        string path = Path.Combine(dir, Path.GetFileNameWithoutExtension(srcFilename));
-                        if (path[path.Length - 1] == ')')
+                        string path = Path.Combine(dir, Path.GetFileNameWithoutExtension(suggestedFilename));
+                        if (path[path.Length - 1] == ')') //remove old version number e.g. "(03)" in "name(03).ext"
                         {
                             int i = path.LastIndexOf('(');
                             if (i > 0) path = path.Substring(0, i);
                         }
-                        pathFormat = path + "({0:00})" + Path.GetExtension(srcFilename);
+                        pathFormat = string.Concat(path, "({0:00})", Path.GetExtension(suggestedFilename));
                     }
                     newFilename = string.Format(pathFormat, index++);
                 }
 
-                File.Create(newFilename).Dispose();  //create place-holder file.
-                return newFilename;
+                try
+                {
+                    File.Create(newFilename).Dispose();  //create place-holder file.
+                    return newFilename;
+                }
+                catch (System.IO.IOException ex)
+                {
+                    //The process cannot access the file '{file}' because it is being used by another process.
+                    if ((uint)ex.HResult == 0x80070020)
+                    {
+                        SpinWait.SpinUntil(() => false, 50);
+                        continue;
+                    }
+                }
             }
 
+            return null;
         }
-        private static readonly Object GetUniqueFilename_Lock = new Object();
 
         /// <summary>
         /// Return valid full path name or null if invalid.
