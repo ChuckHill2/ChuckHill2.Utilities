@@ -103,6 +103,9 @@ namespace ChuckHill2
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool FindClose(IntPtr hFindFile);
 
+        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr CreateFile(string name, uint DesiredAccess, uint ShareMode, int SecurityAttributes, uint CreationDisposition, uint FlagsAndAttributes, int hTemplateFile);
+
         /// <summary>
         /// This is a low-level alternative to:
         ///    • System.IO.File.GetCreationTime()
@@ -223,6 +226,28 @@ namespace ChuckHill2
         private static void Log(string msg) => LogWriter(msg);
 
         /// <summary>
+        /// Check if specified directory exists and is writable.
+        /// </summary>
+        /// <param name="dir">Directory/folder to test.</param>
+        /// <returns>True if directory writable.</returns>
+        public static bool IsDirectoryWritable(string dir)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dir)) return false;
+                if (dir[dir.Length - 1] == '\\') dir = dir.Substring(0, dir.Length - 1);
+                string tempfn = string.Format("{0}\\{1:N}.tmp", dir, Guid.NewGuid());
+                //Go low-level for efficency
+                //var hFile = CreateFile(tempfn, GENERIC.WRITE, FILE_SHARE.READWRITE, 0, FILE_DISPOSITION.CREATE_ALWAYS, FILE_ATTRIBUTES.DELETE_ON_CLOSE | FILE_ATTRIBUTES.NO_BUFFERING, 0);
+                var hFile = CreateFile(tempfn, 0x40000000, 0x00000003, 0, 2, 0x24000000, 0);
+                if (hFile == INVALID_HANDLE_VALUE) return false;
+                CloseHandle(hFile);
+            }
+            catch { return false; }
+            return true;
+        }
+
+        /// <summary>
         /// Determine if file is an x86/x64 executable image file. Not necessarily .net assembly.
         /// </summary>
         /// <param name="filename">Name of any file to test.</param>
@@ -326,7 +351,12 @@ namespace ChuckHill2
             // https://en.wikipedia.org/wiki/Portable_Executable
             // https://github.com/pigeonhands/dnPE/tree/master/dnPE
             // https://github.com/coderforlife/PEResourceDump
+
             isDll = false;
+
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+            if (!FileEx.Exists(filename)) return false;
+
             using (Stream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.SequentialScan))
             {
                 if (fs.Length < MIN_EXE_SIZE) return false; //file is not big enough
