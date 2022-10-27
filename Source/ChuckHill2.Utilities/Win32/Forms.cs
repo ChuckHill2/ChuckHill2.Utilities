@@ -28,10 +28,15 @@
 // <author>Chuck Hill</author>
 //--------------------------------------------------------------------------
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+
+// =======================================================================
+// This file has NO external dependencies as such this file may be reused anywhere.
+// =======================================================================
 
 /// <summary>
 /// Public native Win32 API for reuse when C# is insufficient.
@@ -592,6 +597,32 @@ namespace ChuckHill2.Win32
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
         [DllImport("User32.dll", SetLastError = true)] public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
+
+        /// <summary>
+        /// Example handy message printer. It dereferences wParam and lParam as well.
+        /// </summary>
+        [Conditional("DEBUG")]
+        public static void DebugPrintMsg(IntPtr hWnd, int message, IntPtr wParam, IntPtr lParam, IntPtr? lResult = null)
+        {
+            var msg = (WM)message;
+            if (msg == WM.WM_MOUSEMOVE
+                || msg == WM.WM_TIMER
+                || msg == WM.WM_SYSTIMER
+                || msg == WM.WM_NCHITTEST
+                || msg == WM.WM_SETCURSOR
+                //|| msg == WM.WM_NCMOUSEMOVE
+                || msg == WM.WM_MOUSEHOVER
+                || msg == WM.TVM_HITTEST
+                ) return;
+
+            Debug.Write($"WndProc: {(hWnd == IntPtr.Zero ? "(null)" : Control.FromChildHandle(hWnd)?.Name ?? hWnd.ToString())} {NativeMethods.TranslateWMMessage(hWnd, message)}");
+            if (msg == WM.WM_MOUSEMOVE) Debug.WriteLine($" {(Keys)wParam}, {new Point((int)lParam)}");
+            else if (msg == WM.WM_NCMOUSEMOVE) Debug.WriteLine($" {(HT)wParam}, {new Point((int)lParam)}");
+            else if (msg == WM.WM_ACTIVATE) Debug.WriteLine($" {((int)wParam == 0 ? false : true)}, {lParam}");
+            else if (msg == WM.WM_NCACTIVATE) Debug.WriteLine($" {((int)wParam == 0 ? false : true)}, {lParam}");
+            else if (msg == WM.WM_SYSCOMMAND) Debug.WriteLine($" {(SC)(wParam.ToInt32()&0xFFFF)}, {new Point((int)lParam)}");
+            else Debug.WriteLine("");
+        }
     }
 
     #region Window Message Enums
@@ -2061,4 +2092,48 @@ namespace ChuckHill2.Win32
         OWNED = 0x0020  //Draws all owned windows.
     }
     #endregion
+
+    #region WM_SYSCOMMAND enum flags
+    [Flags]
+    public enum SC
+    {
+        CLOSE = 0xF060,          //Closes the window.
+        CONTEXTHELP = 0xF180,    //Changes the cursor to a question mark with a pointer. If the user then clicks a control in the dialog box, the control receives a WM_HELP message.
+        DEFAULT = 0xF160,        //Selects the default item; the user double-clicked the window menu.
+        HOTKEY = 0xF150,         //Activates the window associated with the application-specified hot key. The lParam parameter identifies the window to activate.
+        HSCROLL = 0xF080,        //Scrolls horizontally.
+        F_ISSECURE = 0x00000001, //Indicates whether the screen saver is secure.
+        KEYMENU = 0xF100,        //Retrieves the window menu as a result of a keystroke. For more information, see the Remarks section.
+        MAXIMIZE = 0xF030,       //Maximizes the window.
+        MINIMIZE = 0xF020,       //Minimizes the window.
+        MONITORPOWER = 0xF170,   //Sets the state of the display. This command supports devices that have power-saving features, such as a battery-powered personal computer. The lParam parameter can have the following values: -1 (the display is powering on), 1 (the display is going to low power), 2 (the display is being shut off)
+        MOUSEMENU = 0xF090,      //Retrieves the window menu as a result of a mouse click.
+        MOVE = 0xF010,           //Moves the window.
+        NEXTWINDOW = 0xF040,     //Moves to the next window.
+        PREVWINDOW = 0xF050,     //Moves to the previous window.
+        RESTORE = 0xF120,        //Restores the window to its normal position and size.
+        SCREENSAVE = 0xF140,     //Executes the screen saver application specified in the [boot] section of the System.ini file.
+        SIZE = 0xF000,           //Sizes the window.
+        TASKLIST = 0xF130,       //Activates the Start menu.
+        VSCROLL = 0xF070,        //Scrolls vertically.
+        SYSMENU = 0xF093,        //Undocumented SC_MOUSEMENU + HTSYSMENU ?
+        DRAGMOVE = 0xF012        //Undocumented SC_MOVE + HTCAPTION ?
+    }
+    #endregion
+
+    #region Message Hooks
+    public enum WH
+    {
+        CALLWNDPROC = 4,     //monitors messages before the system sends them to the destination window procedure. For more information, see the CallWndProc hook procedure.
+        CALLWNDPROCRET = 12, //monitors messages after they have been processed by the destination window procedure. For more information, see the CallWndRetProc hook procedure.
+        CBT = 5,             //receives notifications useful to a CBT application. For more information, see the CBTProc hook procedure.
+        DEBUG = 9,           //debugging other hook procedures. For more information, see the DebugProc hook procedure.
+        FOREGROUNDIDLE = 11, //will be called when the application's foreground thread is about to become idle. This hook is useful for performing low priority tasks during idle time. For more information, see the ForegroundIdleProc hook procedure.
+        GETMESSAGE = 3,      //monitors messages posted to a message queue. For more information, see the GetMsgProc hook procedure.
+        KEYBOARD = 2,        //monitors keystroke messages. For more information, see the KeyboardProc hook procedure.
+        MOUSE = 7,           //monitors mouse messages. For more information, see the MouseProc hook procedure.
+        MSGFILTER = -1,      //monitors messages generated as a result of an input event in a dialog box, message box, menu, or scroll bar. For more information, see the MessageProc hook procedure.
+        SHELL = 10,          //receives notifications useful to shell applications. For more information, see the ShellProc hook procedure.
+    }
+    #endregion Message Hooks
 }
