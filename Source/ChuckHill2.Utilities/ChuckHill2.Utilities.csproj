@@ -38,6 +38,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
@@ -63,6 +64,9 @@
     <Compile Include="CsvWriter.cs" />
     <Compile Include="DateTimeEx.cs" />
     <Compile Include="FileEx.cs" />
+    <Compile Include="Forms\Divider.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GetCookie\Chromium.cs" />
     <Compile Include="GetCookie\Crypt.cs" />
     <Compile Include="GetCookie\DPAPI.cs" />
