@@ -378,6 +378,7 @@ namespace ChuckHill2.Forms
 
         public Divider()
         {
+            base.TabStop = false;
             base.AccessibleRole = AccessibleRole.Separator; 
         }
 
