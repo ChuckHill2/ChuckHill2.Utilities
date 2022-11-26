@@ -1075,8 +1075,12 @@ namespace ChuckHill2.Win32
         WM_DDE_REQUEST = 0x03E6,
         WM_DDE_POKE = 0x03E7,
         WM_DDE_EXECUTE = 0x03E8,
-        WM_CPL_LAUNCH = 0x07E8,
-        WM_CPL_LAUNCHED = 0x07E9,
+       
+        WM_CHECKDESTROY = 0x0401,
+        NIN_BALLOONSHOW = 0x0402,
+        NIN_BALLOONHIDE = 0x0403,
+        NIN_BALLOONTIMEOUT = 0x0404,
+        NIN_BALLOONUSERCLICK = 0x0405,
 
         #region "SysLink" hyperlink common control messages
         LM_HITTEST = 0x0700,
@@ -1084,7 +1088,12 @@ namespace ChuckHill2.Win32
         LM_SETITEM = 0x0702,
         LM_GETITEM = 0x0703,
         #endregion
-
+        
+        WM_CPL_LAUNCH = 0x07E8,
+        WM_CPL_LAUNCHED = 0x07E9,
+      
+        WM_TRAYMOUSEMESSAGE = 0x0800,  //extracted from public sealed class NotifyIcon : Component
+        
         WM_ADSPROP_NOTIFY_PAGEINIT = 0x084D,
         WM_ADSPROP_NOTIFY_PAGEHWND = 0x084E,
         WM_ADSPROP_NOTIFY_CHANGE = 0x084F,
@@ -1301,7 +1310,9 @@ namespace ChuckHill2.Win32
         OCM_NOTIFYFORMAT = OCM_BASE + WM_NOTIFYFORMAT,
         #endregion
 
-        WM_APP = 0x8000,
+        WM_USER = 0x0400,     //represents messages 0x0400 - 0x7FFF for use by private window classes.
+        WM_APP = 0x8000,      //represents messages 0x8000 - 0xBFFF for use by applications.
+                              //0xC000 through 0xFFFF represents string messages for use by applications.
         WM_REFLECT_BASE = 0xBC00,
         WM_RASDIALEVENT = 0xCCCD
     }
