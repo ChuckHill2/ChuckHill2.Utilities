@@ -283,8 +283,7 @@ namespace ChuckHill2.Forms
         public static DialogResult ShowDialog(IWin32Window owner, string text, string caption = null, Buttons buttons = Buttons.OK, Symbol icon = Symbol.None)
         {
             Clicked = null;
-            var owningControl = GetOwner(owner);
-            if (owner != null && owner is Control && !((Control)owner).Visible) owner = owningControl;
+            Form owningControl = GetOwner(owner);
             using (var dlg = new MiniMessageBox(owner ?? owningControl, true, text, caption, buttons, icon))
             {
                 return dlg.ShowDialog(owningControl);
@@ -330,10 +329,7 @@ namespace ChuckHill2.Forms
             }
 
             Clicked = null;
-
-            var owningControl = GetOwner(owner);
-            if (owner != null && owner is Control && !((Control)owner).Visible) owner = owningControl;
-
+            Form owningControl = GetOwner(owner);
             MMDialog = new MiniMessageBox(owner ?? owningControl, false, text, caption, buttons, icon);
             MMDialog.Show(owningControl);
         }
@@ -442,7 +438,8 @@ namespace ChuckHill2.Forms
         //*********** private constructor *******************************************************************************
         private MiniMessageBox(IWin32Window owningControl, bool isModal, string msg, string caption, Buttons buttons, Symbol icon)
         {
-            this.OwningControl = owningControl as Control;
+            //We use this for positioning purposes only, visible or not.
+            this.OwningControl = owningControl as Control; //if this is null, we assume the 'control' is the desktop.
 
             this.SuspendLayout();
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -451,9 +448,9 @@ namespace ChuckHill2.Forms
             this.BackColor = Colors.Background;
             this.Name = "MiniMessageBox";
             this.ShowInTaskbar = owningControl==null; //if 'owned' by desktop, show in taskbar.
-            //this.StartPosition = FormStartPosition.CenterParent;  //we center the popup location as *we* choose.
             this.StartPosition = FormStartPosition.Manual;
-            this.Text = "MiniMessageBox";
+            this.Text = caption ?? msg;
+            this.Icon = CaptionIcon;
             this.ResumeLayout(false);
 
             // With modalless dialogs, the calling code has control when to close the dialog via Hide(); but modal dialogs
@@ -550,18 +547,23 @@ namespace ChuckHill2.Forms
             }
 
             //Center popup over parent/owner client area
+            Rectangle workingArea = Screen.FromControl(this).WorkingArea;
+            var ownerRetangle = this.OwningControl == null ? workingArea : OwningControl.RectangleToScreen(OwningControl.ClientRectangle);
 
-            var ownerClientRetangle = this.OwningControl == null ? Screen.FromControl(this).WorkingArea : OwningControl.RectangleToScreen(OwningControl.ClientRectangle);
-
-            var locationX = (ownerClientRetangle.Width - this.DesktopBounds.Width) / 2 + ownerClientRetangle.X;
-            var locationY = (ownerClientRetangle.Height - this.DesktopBounds.Height) / 2 + ownerClientRetangle.Y;
+            var locationX = (ownerRetangle.Width - this.DesktopBounds.Width) / 2 + ownerRetangle.X;
+            var locationY = (ownerRetangle.Height - this.DesktopBounds.Height) / 2 + ownerRetangle.Y;
 
             //Shift messagebox up if the owner is bigger than the messagebox for user visualization,
             //otherwise shift it down if the owner is smaller so the user can still see the control.
-            if (ownerClientRetangle.Height > this.Height)
-                locationY -= ownerClientRetangle.Height / 6;
+            if (ownerRetangle.Height > this.Height)
+                locationY -= ownerRetangle.Height / 6;
             else
-                locationY += ownerClientRetangle.Height / 2;
+                locationY += ownerRetangle.Height / 2;
+
+            if (locationX + Width > workingArea.Right)   locationX -= ((locationX + Width) - workingArea.Right);
+            if (locationX < workingArea.Left)            locationX = workingArea.Left;
+            if (locationY < workingArea.Top)             locationY = workingArea.Top;
+            if (locationY + Height > workingArea.Bottom) locationY -= ((locationY + Height) - workingArea.Bottom);
 
             this.Location = new Point(locationX, locationY);
             this.ResumeLayout(false);
