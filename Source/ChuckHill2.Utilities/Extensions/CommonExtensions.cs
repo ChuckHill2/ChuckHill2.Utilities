@@ -204,6 +204,12 @@ namespace ChuckHill2.Extensions
             ctrl.Refresh();
         }
 
+        /// <summary>
+        /// Get bounds in the context of specified parent control.
+        /// </summary>
+        /// <param name="parent">Parent control context</param>
+        /// <param name="child">nested child control to get bounds of in context this ancestor control, maybe several levels up.</param>
+        /// <returns></returns>
         public static Rectangle ToParentRect(this Control parent, Control child)
         {
             var p = child.Parent;
@@ -217,6 +223,30 @@ namespace ChuckHill2.Extensions
             }
 
             return rc;
+        }
+
+        /// <summary>
+        /// Force (parent) control to contain a child control when the parent is not a container control (e.g. Forms, Panels, GroupGoxes, etc).
+        /// This allows the child to not block the parent painting. Ideal of child has a Color.Transparent background.
+        /// The forms designer does not allow this so this must be performed after InitializeComponent();
+        /// Be careful as the child will be clipped if its boundries are outside the parent client area.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="child"></param>
+        public static void ChildToFront(this Control parent, Control child)
+        {
+            var backColor = child.BackColor; //maintain expected properties from the designer.
+            var foreColor = child.ForeColor;
+            var font = child.Font;
+            var rc = parent.RectangleToClient(child.Parent.RectangleToScreen(child.Bounds));
+
+            child.Parent.Controls.Remove(child);
+            parent.Controls.Add(child);
+
+            child.Location = rc.Location; //restore expected (designed) properties.
+            child.BackColor = backColor;
+            child.ForeColor = foreColor;
+            child.Font = font;
         }
     }
 

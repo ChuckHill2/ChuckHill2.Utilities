@@ -30,6 +30,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using ChuckHill2.Extensions;
@@ -515,5 +516,81 @@ namespace ChuckHill2
             return Convert.ToInt32(ms.ullTotalPhys / 1048576);
         }
         #endregion == GetTotalMemory ==
+
+        #region public static void AllowOnlyOneInstance(string caption)
+        private const int SW_RESTORE = 9;
+        [DllImport("User32.dll")] private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
+        [DllImport("User32.dll")] private static extern bool SetForegroundWindow(IntPtr handle);
+
+        /// <summary>
+        /// Allow only one instance of this executable to run.
+        /// The other instance window is popped open to the foreground and this instance terminates.
+        /// This should be the first line of Program.cs:Program.Main().
+        /// </summary>
+        /// <param name="caption">Window caption to search by if window not visible (e.g. not in the taskbar). This may occur when using the NotifyIcon control.</param>
+        public static void AllowOnlyOneInstance(string caption)
+        {
+            var currentProcess = Process.GetCurrentProcess();
+            var processes = Process.GetProcessesByName(currentProcess.ProcessName);
+            if (processes.Length <= 1) return;  //should never be zero. 1 or 2 only.
+            var currentPid = currentProcess.Id;
+            var otherProcess = processes.FirstOrDefault(p => p.Id != currentPid);
+            if (otherProcess == null) return; //should never occur.
+
+            IntPtr handle = otherProcess.MainWindowHandle;
+            //handle==zero occurs if not a Winforms process or if form is not visible such as used
+            //within a NotifyIcon control. So we have to try harder searching by windows caption.
+            if (handle == IntPtr.Zero) handle = FindWindow(otherProcess.Id, caption);
+            if (handle == IntPtr.Zero) return; //should never occur.
+            ShowWindow(handle, SW_RESTORE);
+            SetForegroundWindow(handle);
+
+            Environment.Exit(1);
+        }
+
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
+        [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int processId);
+        [DllImport("user32.dll")] private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        private static string GetWindowText(IntPtr hWnd)
+        {
+            var sb = new StringBuilder(512);
+            int result = GetWindowText(hWnd, sb, 512);
+            return sb.ToString();
+        }
+
+        private static IntPtr FindWindow(int pid, string caption)
+        {
+            IntPtr found = IntPtr.Zero;
+            if (string.IsNullOrWhiteSpace(caption)) caption = null;
+
+            EnumWindows(delegate (IntPtr hWnd, IntPtr param)
+            {
+                GetWindowThreadProcessId(hWnd, out int processId);
+                //Limit search to win32 windows within this process. If more than one form in this process has the same caption/title, then we just pick the first one....
+                if (processId == pid)
+                {
+                    if (caption != null)
+                    {
+                        if (caption.Equals(GetWindowText(hWnd).Trim(), StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            found = hWnd;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        found = hWnd;
+                        return false;
+                    }
+                }
+
+                return true; // Return true here so that we iterate all windows
+            }, IntPtr.Zero);
+
+            return found;
+        }
+
+        #endregion public static void AllowOnlyOneInstance(string caption)
     }
 }

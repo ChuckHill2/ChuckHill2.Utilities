@@ -28,15 +28,67 @@
 // <author>Chuck Hill</author>
 //--------------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace ChuckHill2
 {
     public class DateTimeEx
     {
+        /// <summary>
+        /// Unix beginning of time.
+        /// </summary>
         public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Local);
+
+        #region public static long UtcTimerTicks
+        [DllImport("Kernel32.dll")]
+        private static extern void GetSystemTimeAsFileTime(out long SystemTimeAsFileTime);
+        /// <summary>
+        /// UTC time in ticks. Lowest overhead. Great for determining duration.
+        /// </summary>
+        public static long UtcTimerTicks
+        {
+            get
+            {
+                GetSystemTimeAsFileTime(out var ticks);
+                return ticks + 0x0701ce1722770000; //offset from 1/1/1601 to 1/1/0001
+            }
+        }
+        #endregion public static long UtcTimerTicks
+
+        #region public static long LocalTimerTicks
+        private struct SYSTEMTIME
+        {
+            public ushort wYear;
+            public ushort wMonth;
+            public ushort wDayOfWeek;
+            public ushort wDay;
+            public ushort wHour;
+            public ushort wMinute;
+            public ushort wSecond;
+            public ushort wMilliseconds;
+        }
+        [DllImport("Kernel32.dll")]
+        private static extern bool SystemTimeToTzSpecificLocalTime(IntPtr lpTimeZoneInformation, ref SYSTEMTIME utcTime, out SYSTEMTIME localTime);
+        [DllImport("Kernel32.dll")]
+        private static extern bool FileTimeToSystemTime(ref long ticks, out SYSTEMTIME localTime);
+        [DllImport("Kernel32.dll")]
+        private static extern bool SystemTimeToFileTime(ref SYSTEMTIME systime, out long lpFileTime);
+
+        /// <summary>
+        /// Local time in ticks. Takes a little more time to compute than UtcTimerTicks.
+        /// </summary>
+        public static long LocalTimerTicks
+        {
+            get
+            {
+                GetSystemTimeAsFileTime(out var utcTicks);
+                utcTicks += 0x0701ce1722770000; //offset from 1/1/1601 to 1/1/0001
+                FileTimeToSystemTime(ref utcTicks, out var utcSystemTime);
+                SystemTimeToTzSpecificLocalTime(IntPtr.Zero, ref utcSystemTime, out var localSystemTme);
+                SystemTimeToFileTime(ref localSystemTme, out long localTicks);
+                return localTicks;
+            }
+        }
+        #endregion public static long LocalTimerTicks
     }
 }

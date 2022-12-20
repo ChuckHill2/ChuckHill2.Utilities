@@ -67,6 +67,7 @@
     <Compile Include="Forms\Divider.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Forms\Threading.cs" />
     <Compile Include="GetCookie\Chromium.cs" />
     <Compile Include="GetCookie\Crypt.cs" />
     <Compile Include="GetCookie\DPAPI.cs" />

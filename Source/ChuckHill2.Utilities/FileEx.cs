@@ -66,6 +66,19 @@ namespace ChuckHill2
         /// </remarks>
         public static readonly int MAX_PATH = (int)(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem", "LongPathsEnabled", 0) ?? 0) == 1 ? short.MaxValue : 256;
 
+        /// <summary>
+        /// A convenient pre-defined variable containing this executable's full path name. 
+        /// </summary>
+        public static string ExecutableName
+        {
+            get
+            {
+                if (__executableName==null) __executableName = Process.GetCurrentProcess().MainModule.FileName;
+                return __executableName;
+            }
+        }
+        private static string __executableName;
+
         #region Win32
         private const int IMAGE_FILE_DLL = 0x2000;
         private const int IMAGE_FILE_EXECUTABLE_IMAGE = 0x0002;
@@ -968,6 +981,40 @@ namespace ChuckHill2
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Enable/Disable current executable for autostart upon login.
+        /// </summary>
+        /// <param name="enable"></param>
+        public static void SetAutoStart(bool enable)
+        {
+            // Key = HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+            // Name = NetworkOnlineMonitor
+            // Value = full path to this executable.
+
+            var value = ExecutableName;
+            var name = Path.GetFileNameWithoutExtension(ExecutableName);
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
+            {
+                if (key == null) return; // Key doesn't exist.
+                string oldvalue = key.GetValue(name, null) as string;
+                var exists = oldvalue != null;
+                if (!enable && exists) key.DeleteValue(name);
+                else if (enable && oldvalue != value) key.SetValue(name, value);
+            }
+        }
+
+        /// <summary>
+        /// Test if current app will be automatically started upon login
+        /// </summary>
+        /// <returns>True if this app is set to automatically start upon login</returns>
+        public static bool AutostartExists()
+        {
+            var name = Path.GetFileNameWithoutExtension(ExecutableName);
+            string oldvalue = Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run", name, null) as string;
+            //The exe may have been moved so we not only test for null(existance) but also test for path equality.
+            return ExecutableName == oldvalue;
         }
     }
 }
